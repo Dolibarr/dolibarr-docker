@@ -2,7 +2,7 @@ name: build
 on:
     push:
         branches:
-            - master
+            - main
     schedule:
         - cron: '0 0 * * 6'
 
@@ -31,6 +31,6 @@ jobs:
                 -e PUSHRM_PROVIDER=dockerhub \
                 -e PUSHRM_FILE=/src/README.md \
                 -e PUSHRM_SHORT='Docker image for Dolibarr with auto installer on first boot.' \
-                -e PUSHRM_TARGET=docker.io/tuxgasy/dolibarr \
+                -e PUSHRM_TARGET=docker.io/dolibarr/dolibarr \
                 -e PUSHRM_DEBUG=1 \
                 chko/docker-pushrm:1

@@ -22,6 +22,6 @@ jobs:
                 DOLI_INSTALL_AUTO: 0
               run: |
                 ./update.sh
-                docker build -t tuxgasy/dolibarr:develop images/develop
-                docker run -d -p 127.0.0.1:80:80 --name dolibarr tuxgasy/dolibarr:develop
+                docker build -t dolibarr/dolibarr:develop images/develop
+                docker run -d -p 127.0.0.1:80:80 --name dolibarr dolibarr/dolibarr:develop
                 docker ps | grep -q dolibarr
