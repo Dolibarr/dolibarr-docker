@@ -1,6 +1,7 @@
 # Dolibarr on Docker
 
-Docker image for Dolibarr with auto installer on first boot.
+Docker image for Dolibarr ERP CRM Open source web suite, with auto installer on first boot.
+
 
 ## Supported tags
 
@@ -13,7 +14,7 @@ Docker image for Dolibarr with auto installer on first boot.
 
 **End of support for PHP < 7.4**
 
-**Dolibarr versions 7, 8, 9, 10, 11, 12, 13, 14 no more updated**
+**Dolibarr versions 14 and lower are no more updated**
 
 ## Supported architectures
 
