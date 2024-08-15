@@ -1,6 +1,6 @@
 # Dolibarr on Docker
 
-Docker image for Dolibarr ERP CRM Open source web suite, with auto installer on first boot.
+Docker image for Dolibarr ERP CRM Open source web suite.
 
 
 ## Supported tags
