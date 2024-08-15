@@ -44,7 +44,7 @@ services:
             MYSQL_DATABASE: dolibarr
 
     web:
-        image: tuxgasy/dolibarr
+        image: dolibarr/dolibarr
         environment:
             DOLI_DB_HOST: mariadb
             DOLI_DB_USER: root
@@ -159,7 +159,7 @@ services:
             MYSQL_DATABASE: dolibarr
 
     web:
-        image: tuxgasy/dolibarr
+        image: dolibarr/dolibarr
         environment:
             DOLI_DB_HOST: mariadb
             DOLI_DB_USER: root

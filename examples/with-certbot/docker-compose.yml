@@ -15,7 +15,7 @@ services:
       - ./docker/db/data:/var/lib/mysql
 
   web:
-    image: tuxgasy/dolibarr
+    image: dolibarr/dolibarr
     container_name: doli_web
     env_file:
       - ./.env

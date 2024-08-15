@@ -37,7 +37,7 @@ services:
     cron:
         build:
             context: ./docker-compose-links/${DOLI_VERSION}${PHP_VERSION}
-        image: tuxgasy/dolibarr:${DOLI_VERSION}${PHP_VERSION}
+        image: dolibarr/dolibarr:${DOLI_VERSION}${PHP_VERSION}
         secrets:
             - mysql-user
             - mysql-password
@@ -61,7 +61,7 @@ services:
     web:
         build:
             context: ./docker-compose-links/${DOLI_VERSION}${PHP_VERSION}
-        image: tuxgasy/dolibarr:${DOLI_VERSION}${PHP_VERSION}
+        image: dolibarr/dolibarr:${DOLI_VERSION}${PHP_VERSION}
         secrets:
             - mysql-user
             - mysql-password

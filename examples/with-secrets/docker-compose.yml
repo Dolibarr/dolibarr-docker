@@ -21,7 +21,7 @@ secrets:
 
 services:
   dolibarr:
-    image: tuxgasy/dolibarr:latest
+    image: dolibarr/dolibarr:latest
     secrets:
       - dolibarr-admin-user
       - dolibarr-admin-password
