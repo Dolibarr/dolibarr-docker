@@ -72,7 +72,7 @@ You can check the web and the mariadb containers are up with
 
 Now, go to http://0.0.0.0 to access to the new Dolibarr installation, first admin login is admin/admin. 
 
-Note: If you local port 80 is alreayd used on the host, you can replace "80:80" with "xx:80" with xx a free port on the host. You will be
+Note: If the host port 80 is already used, you can replace "80:80" with "xx:80" where xx a free port on the host. You will be
 able to access the Dolibarr using the URL http://0.0.0.0:xx
 
 
