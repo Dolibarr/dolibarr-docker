@@ -1,3 +1,6 @@
 .idea/
 .volumes/
 docker-compose-links/
+/.buildpath
+/.project
+/.settings/
