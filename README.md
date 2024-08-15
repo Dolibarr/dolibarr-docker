@@ -16,15 +16,18 @@ Docker image for Dolibarr ERP CRM Open source web suite, with auto installer on 
 
 **Dolibarr versions 14 and lower are no more updated**
 
+
 ## Supported architectures
 
 Linux x86-64 (`amd64`), ARMv7 32-bit (`arm32v7` :warning: MariaDB/Mysql docker images don't support it) and ARMv8 64-bit (`arm64v8`)
+
 
 ## What is Dolibarr ?
 
 Dolibarr ERP & CRM is a modern software package to manage your organization's activity (contacts, suppliers, invoices, orders, stocks, agenda, ...).
 
 > [More information](https://github.com/dolibarr/dolibarr)
+
 
 ## How to run this image ?
 
@@ -52,6 +55,8 @@ services:
             DOLI_DB_PASSWORD: root
             DOLI_DB_NAME: dolibarr
             DOLI_URL_ROOT: 'http://0.0.0.0'
+            DOLI_ADMIN_LOGIN: 'admin'
+            DOLI_ADMIN_PASSWORD: 'admin'
             PHP_INI_DATE_TIMEZONE: 'Europe/Paris'
         ports:
             - "80:80"
@@ -59,20 +64,32 @@ services:
             - mariadb
 ```
 
-Then run all services `docker-compose up -d`. Now, go to http://0.0.0.0 to access to the new Dolibarr installation.
+Then build and run all services (-d is to run in background) 
+`sudo docker-compose up -d`
 
-### Other examples
+You can check the web and the mariadb containers are up with
+`sudo docker-compose ps`
+
+Now, go to http://0.0.0.0 to access to the new Dolibarr installation, first admin login is admin/admin. 
+
+Note: If you local port 80 is alreayd used on the host, you can replace "80:80" with "xx:80" with xx a free port on the host. You will be
+able to access the Dolibarr using the URL http://0.0.0.0:xx
+
+
+Other examples:
 
 You can find several examples in the `examples` directory, such as:
  - [Running Dolibarr with a mysql server](./examples/with-mysql/dolibarr-with-mysql.md)
  - [Running Dolibarr with a Traefik reverse proxy](./examples/with-rp-traefik/dolibarr-with-traefik.md)
  - [Running Dolibarr with secrets](./examples/with-secrets/dolibarr-with-secrets.md)
 
+
 ## Upgrading version and migrating DB
 The `install.lock` file is located inside the container volume `/var/www/documents`.
 
 Remove the `install.lock` file and start an updated version container. Ensure that env `DOLI_INSTALL_AUTO` is set to `1`. It will migrate Database to the new version.
 You can still use the standard way to upgrade through web interface.
+
 
 ## Early support for PostgreSQL
 Setting `DOLI_DB_TYPE` to `pgsql` enable Dolibarr to run with a PostgreSQL database.
@@ -86,6 +103,7 @@ When setup this way, to upgrade version the use of the web interface is mandator
  - Browse to `http://0.0.0.0/install`;
  - Upgrade DB;
  - Add `install.lock` inside the container volume `/var/www/html/documents` (ex `docker-compose exec services-data_dolibarr_1 /bin/bash -c "touch /var/www/html/documents/install.lock"`).
+
 
 ## Environment variables summary
 
@@ -138,6 +156,7 @@ Environment variables that are compatible with docker secrets:
 * `DOLI_CRON_KEY` => `DOLI_CRON_KEY_FILE`
 * `DOLI_CRON_USER` => `DOLI_CRON_USER_FILE`
 * `DOLI_INSTANCE_UNIQUE_ID` => `DOLI_INSTANCE_UNIQUE_ID_FILE`
+
 
 ## Add post-deployment and before starting scripts
 It is possible to execute `*.sh`, `*.sql` and/or `*.php` custom file at the end of deployment or before starting Apache by mounting volumes.

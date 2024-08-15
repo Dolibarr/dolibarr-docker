@@ -175,6 +175,10 @@ function initializeDatabase()
   done
 
   for fileSQL in /var/www/html/install/mysql/data/*.sql; do
+    if [[ $fileSQL =~ llx_accounting_account_ ]]; then
+    	echo "Do not import data from `basename ${fileSQL}` ..."
+        continue
+    fi
     echo "Importing data from `basename ${fileSQL}` ..."
     sed -i 's/--.*//g;' ${fileSQL}
     mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /dev/null 2>&1
