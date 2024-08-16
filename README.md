@@ -31,13 +31,16 @@ Dolibarr ERP & CRM is a modern software package to manage your organization's ac
 
 ## How to run this image ?
 
-This image is based on the [official PHP repository](https://registry.hub.docker.com/_/php/).
+This image is based on the [official PHP repository](https://registry.hub.docker.com/_/php/) and the [official Dolibarr repository](https://github.com/Dolibarr/dolibarr) but doesn't contains database. So you need to link it with a database container.
 
-**Important**: This image don't contains database. So you need to link it with a database container.
+Let's use [Docker Compose](https://docs.docker.com/compose/) to integrate it with [MariaDB](https://hub.docker.com/_/mariadb/) (you can also use [MySQL](https://hub.docker.com/_/mysql/) if you prefer):
 
-Let's use [Docker Compose](https://docs.docker.com/compose/) to integrate it with [MariaDB](https://hub.docker.com/_/mariadb/) (you can also use [MySQL](https://hub.docker.com/_/mysql/) if you prefer).
+If you want to have a persistent database and dolibarr data files after reboot or upgrade, you must first
+create a directory /home/mariadb_data, /home/dolibarr_data and /home/dolibarr_custom on you host to store persistent files.
 
-Create `docker-compose.yml` file as following:
+`mkdir /home/mariadb_data; mkdir /home/dolibarr_data;`
+
+Then, create a `docker-compose.yml` file as following:
 
 ```yaml
 services:
@@ -46,9 +49,11 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: dolibarr
+        volumes:
+            - mariadb_data:/var/lib/mysql
 
     web:
-        image: dolibarr/dolibarr
+        image: dolibarr/dolibarr:latest
         environment:
             DOLI_DB_HOST: mariadb
             DOLI_DB_USER: root
@@ -62,15 +67,39 @@ services:
             - "80:80"
         links:
             - mariadb
+        volumes:
+            - dolibarr_data:/var/www/documents
+            - dolibarr_custom:/var/www/html/custom
+            
+volumes:
+    mariadb_data:
+        driver: local # Define the driver and options under the volume name
+        driver_opts:
+            type: none
+            device: /home/mariadb_data
+            o: bind
+    dolibarr_data:
+        driver: local # Define the driver and options under the volume name
+        driver_opts:
+            type: none
+            device: /home/dolibarr_data
+            o: bind            
+    dolibarr_custom:
+        driver: local # Define the driver and options under the volume name
+        driver_opts:
+            type: none
+            device: /home/dolibarr_custom
+            o: bind            
 ```
 
 Then build and run all services (-d is to run in background) 
 `sudo docker-compose up -d`
 
-You can check the web and the mariadb containers are up with
+You can check the web and the mariadb containers are up and see logs with
 `sudo docker-compose ps`
+`sudo docker-compose logs`
 
-Now, go to http://0.0.0.0 to access to the new Dolibarr installation, first admin login is admin/admin. 
+Once the log shows that the start is complete, go to http://0.0.0.0 to access to the new Dolibarr installation, first admin login is admin/admin. 
 
 Note: If the host port 80 is already used, you can replace "80:80" with "xx:80" where xx a free port on the host. You will be
 able to access the Dolibarr using the URL http://0.0.0.0:xx
@@ -84,14 +113,28 @@ You can find several examples in the `examples` directory, such as:
  - [Running Dolibarr with secrets](./examples/with-secrets/dolibarr-with-secrets.md)
 
 
-## Upgrading version and migrating DB
-The `install.lock` file is located inside the container volume `/var/www/documents`.
+## Upgrading Dolibarr version and migrating DB
 
-Remove the `install.lock` file and start an updated version container. Ensure that env `DOLI_INSTALL_AUTO` is set to `1`. It will migrate Database to the new version.
+Warning: Only data stored into persistent directories will not be lost after an upgrade of containers.
+
+Remove the `install.lock` file. The `install.lock` file is located inside the container volume `/var/www/documents`.
+`sudo docker exec nameofwebcontainer bash -c "rm -f /var/www/documents/install.lock"`
+of 
+`sudo docker exec -it nameofwebcontainer bash`
+`rm -f /var/www/documents/install.lock; exit`
+
+
+Then start an updated version container.
+`sudo docker-compose pull`
+`sudo docker-compose up -d`
+`sudo docker-compose logs`
+
+Ensure that env `DOLI_INSTALL_AUTO` is set to `1` so it will migrate Database to the new version.
 You can still use the standard way to upgrade through web interface.
 
 
 ## Early support for PostgreSQL
+
 Setting `DOLI_DB_TYPE` to `pgsql` enable Dolibarr to run with a PostgreSQL database.
 When set to use `pgsql`, Dolibarr must be installed manually on it's first execution:
  - Browse to `http://0.0.0.0/install`;
@@ -106,6 +149,8 @@ When setup this way, to upgrade version the use of the web interface is mandator
 
 
 ## Environment variables summary
+
+You can use the following variables for a better customization of your docker-compose file.
 
 | Variable                        | Default value                  | Description |
 | ------------------------------- | ------------------------------ | ----------- |
