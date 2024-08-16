@@ -1,6 +1,10 @@
 # Dolibarr on Docker
 
-Docker image for Dolibarr ERP CRM Open source web suite.
+Docker image for Dolibarr ERP & CRM Open source web suite.
+
+Dolibarr is a modern software package to manage your organization's activity (contacts, quotes, invoices, orders, stocks, agenda, hr, expense reports, accountancy, ecm, manufacturing, ...).
+
+> [More information](https://github.com/dolibarr/dolibarr)
 
 
 ## Supported tags
@@ -22,12 +26,6 @@ Docker image for Dolibarr ERP CRM Open source web suite.
 Linux x86-64 (`amd64`), ARMv7 32-bit (`arm32v7` :warning: MariaDB/Mysql docker images don't support it) and ARMv8 64-bit (`arm64v8`)
 
 
-## What is Dolibarr ?
-
-Dolibarr ERP & CRM is a modern software package to manage your organization's activity (contacts, suppliers, invoices, orders, stocks, agenda, ...).
-
-> [More information](https://github.com/dolibarr/dolibarr)
-
 
 ## How to run this image ?
 
@@ -38,7 +36,7 @@ Let's use [Docker Compose](https://docs.docker.com/compose/) to integrate it wit
 If you want to have a persistent database and dolibarr data files after reboot or upgrade, you must first
 create a directory /home/mariadb_data, /home/dolibarr_data and /home/dolibarr_custom on you host to store persistent files.
 
-`mkdir /home/mariadb_data; mkdir /home/dolibarr_data;`
+`mkdir /home/mariadb_data /home/dolibarr_data /home/dolibarr_custom;`
 
 Then, create a `docker-compose.yml` file as following:
 
