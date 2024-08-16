@@ -90,11 +90,14 @@ volumes:
             o: bind            
 ```
 
-Then build and run all services (-d is to run in background) 
+Then build and run all services (-d is to run in background)
+
 `sudo docker-compose up -d`
 
 You can check the web and the mariadb containers are up and see logs with
+
 `sudo docker-compose ps`
+
 `sudo docker-compose logs`
 
 Once the log shows that the start is complete, go to http://0.0.0.0 to access to the new Dolibarr installation, first admin login is admin/admin. 
@@ -116,15 +119,22 @@ You can find several examples in the `examples` directory, such as:
 Warning: Only data stored into persistent directories will not be lost after an upgrade of containers.
 
 Remove the `install.lock` file. The `install.lock` file is located inside the container volume `/var/www/documents`.
+
 `sudo docker exec nameofwebcontainer bash -c "rm -f /var/www/documents/install.lock"`
-of 
+
+or
+
 `sudo docker exec -it nameofwebcontainer bash`
+
 `rm -f /var/www/documents/install.lock; exit`
 
 
 Then start an updated version container.
+
 `sudo docker-compose pull`
+
 `sudo docker-compose up -d`
+
 `sudo docker-compose logs`
 
 Ensure that env `DOLI_INSTALL_AUTO` is set to `1` so it will migrate Database to the new version.
