@@ -196,6 +196,18 @@ function initializeDatabase()
   mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "INSERT INTO llx_const(name,value,type,visible,note,entity) VALUES ('MAIN_LANG_DEFAULT', 'auto', 'chaine', 0, 'Default language', 1);" > /dev/null 2>&1
   mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "INSERT INTO llx_const(name,value,type,visible,note,entity) VALUES ('SYSTEMTOOLS_MYSQLDUMP', '/usr/bin/mysqldump', 'chaine', 0, '', 0);" > /dev/null 2>&1
 
+  if [[ ${DOLI_INIT_DEMO} -eq 1 ]]; then
+    for fileSQL in /var/www/dev/initdemo/*.sql; do
+    	# We exclude the old load file.
+        if [[ $fileSQL =~ mysqldump_dolibarr_3.5 ]]; then
+        	continue
+        fi
+  		echo "Load demo data ${fileSQL} ..."
+        sed -i 's/--.*//g;' ${fileSQL}
+    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /dev/null 2>&1
+    done
+  fi
+  
   echo "Enable user module ..."
   php /var/www/scripts/docker-init.php
 
@@ -245,6 +257,7 @@ function run()
   initDolibarr
   echo "Current Version is : ${DOLI_VERSION}"
 
+  # If install of mysql database (and not install of cron) is requested
   if [[ ${DOLI_INSTALL_AUTO} -eq 1 && ${DOLI_CRON} -ne 1 && ! -f /var/www/documents/install.lock && ${DOLI_DB_TYPE} != "pgsql" ]]; then
     waitForDataBase
 

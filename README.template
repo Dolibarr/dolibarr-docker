@@ -42,7 +42,7 @@ services:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: dolibarr
         volumes:
-            - mariadb_data:/var/lib/mysql
+            - /home/mariadb_data:/var/lib/mysql
 
     web:
         image: dolibarr/dolibarr:latest
@@ -60,28 +60,8 @@ services:
         links:
             - mariadb
         volumes:
-            - dolibarr_data:/var/www/documents
-            - dolibarr_custom:/var/www/html/custom
-
-volumes:
-    mariadb_data:
-        driver: local # Define the driver and options under the volume name
-        driver_opts:
-            type: none
-            device: /home/mariadb_data
-            o: bind
-    dolibarr_data:
-        driver: local # Define the driver and options under the volume name
-        driver_opts:
-            type: none
-            device: /home/dolibarr_data
-            o: bind
-     dolibarr_custom:           
-        driver: local # Define the driver and options under the volume name
-        driver_opts:
-            type: none
-            device: /home/dolibarr_custom
-            o: bind 
+            - /home/dolibarr_data:/var/www/documents
+            - /home/dolibarr_custom:/var/www/html/custom
 ```
 
 Then build and run all services (-d is to run in background) 
@@ -155,7 +135,8 @@ You can use the following variables for a better customization of your docker-co
 
 | Variable                        | Default value                  | Description |
 | ------------------------------- | ------------------------------ | ----------- |
-| **DOLI_INSTALL_AUTO**           | *1*                            | 1: The installation will be executed on first boot
+| **DOLI_INSTALL_AUTO**           | *1*                            | 1: The installation will be done during docker first boot
+| **DOLI_INIT_DEMO**              | *0*                            | 1: The installation will also load demo data during docker first boot
 | **DOLI_PROD**                   | *1*                            | 1: Dolibarr will be run in production mode
 | **DOLI_DB_TYPE**                | *mysqli*                       | Type of the DB server (**mysqli**, pgsql)
 | **DOLI_DB_HOST**                | *mysql*                        | Host name of the MariaDB/MySQL server
