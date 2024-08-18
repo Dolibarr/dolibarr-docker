@@ -197,6 +197,7 @@ function initializeDatabase()
   mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "INSERT INTO llx_const(name,value,type,visible,note,entity) VALUES ('SYSTEMTOOLS_MYSQLDUMP', '/usr/bin/mysqldump', 'chaine', 0, '', 0);" > /dev/null 2>&1
 
   if [[ ${DOLI_INIT_DEMO} -eq 1 ]]; then
+    echo "Load demo data ..."
     for fileSQL in /var/www/dev/initdemo/*.sql; do
     	# We exclude the old load file.
         if [[ $fileSQL =~ mysqldump_dolibarr_3.5 ]]; then
@@ -207,7 +208,7 @@ function initializeDatabase()
     	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /dev/null 2>&1
     done
   fi
-  
+
   echo "Enable user module ..."
   php /var/www/scripts/docker-init.php
 
@@ -258,25 +259,30 @@ function run()
   echo "Current Version is : ${DOLI_VERSION}"
 
   # If install of mysql database (and not install of cron) is requested
-  if [[ ${DOLI_INSTALL_AUTO} -eq 1 && ${DOLI_CRON} -ne 1 && ! -f /var/www/documents/install.lock && ${DOLI_DB_TYPE} != "pgsql" ]]; then
-    waitForDataBase
+  if [[ ${DOLI_INSTALL_AUTO} -eq 1 && ${DOLI_CRON} -ne 1 && ${DOLI_DB_TYPE} != "pgsql" ]]; then
+    echo "DOLI_INSTALL_AUTO is on, so we check to initialize or upgrade mariadb database"
+    if [[ ! -f /var/www/documents/install.lock ]]; then
+      waitForDataBase
 
-    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', ''))))) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/lastinstall.result 2>&1
-    r=$?
-    if [[ ${r} -ne 0 ]]; then
-      initializeDatabase
-    else
-      INSTALLED_VERSION=`grep -v LAST_INSTALLED_VERSION /tmp/lastinstall.result`
-      echo "Last installed Version is : ${INSTALLED_VERSION}"
-      if [[ "$(echo ${INSTALLED_VERSION} | cut -d. -f1)" -lt "$(echo ${DOLI_VERSION} | cut -d. -f1)" ]]; then
-        migrateDatabase
+      mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', ''))))) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/lastinstall.result 2>&1
+      r=$?
+      if [[ ${r} -ne 0 ]]; then
+        initializeDatabase
       else
-        echo "Schema update is not required ... Enjoy !!"
+        INSTALLED_VERSION=`grep -v LAST_INSTALLED_VERSION /tmp/lastinstall.result`
+        echo "Last installed Version is : ${INSTALLED_VERSION}"
+        if [[ "$(echo ${INSTALLED_VERSION} | cut -d. -f1)" -lt "$(echo ${DOLI_VERSION} | cut -d. -f1)" ]]; then
+          migrateDatabase
+        else
+          echo "Schema update is not required ... Enjoy !!"
+        fi
       fi
-    fi
 
-    if [[ ${DOLI_VERSION} != "develop" ]]; then
-      lockInstallation
+      if [[ ${DOLI_VERSION} != "develop" ]]; then
+        lockInstallation
+      fi
+    else
+      echo "File /var/www/documents/install.lock exists so we cancel database init"
     fi
   fi
 
