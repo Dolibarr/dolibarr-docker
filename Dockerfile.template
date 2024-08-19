@@ -1,5 +1,6 @@
 ARG ARCH=
 
+# Use an image like PHP_BASE_IMAGE=x.y-apache-buster
 FROM ${ARCH}php:%PHP_BASE_IMAGE%
 
 LABEL maintainer="Garcia MICHEL <garcia@soamichel.fr>"
@@ -60,6 +61,7 @@ RUN apt-get update -y \
         default-mysql-client \
         postgresql-client \
         cron \
+        wget \        
     && apt-get autoremove -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip \
