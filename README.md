@@ -151,8 +151,8 @@ You can use the following variables for a better customization of your docker-co
 | **DOLI_DB_USER**                | *doli*                         | Database user
 | **DOLI_DB_PASSWORD**            | *doli_pass*                    | Database user's password
 | **DOLI_DB_NAME**                | *dolidb*                       | Database name
-| **DOLI_ADMIN_LOGIN**            | *admin*                        | Admin's login create on the first boot
-| **DOLI_ADMIN_PASSWORD**         | *admin*                        | Admin'password
+| **DOLI_ADMIN_LOGIN**            | *admin*                        | Admin's login created on the first boot
+| **DOLI_ADMIN_PASSWORD**         | *admin*                        | Admin's initial password created on the first boot
 | **DOLI_URL_ROOT**               | *http://localhost*             | Url root of the Dolibarr installation
 | **DOLI_ENABLE_MODULES**         |                                | Comma-separated list of modules to be activated at install. modUser will always be activated. (Ex: `Societe,Facture,Stock`)
 | **DOLI_COMPANY_NAME**           |                                | Set the company name of Dolibarr at container init
