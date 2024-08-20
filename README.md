@@ -13,7 +13,7 @@ Dolibarr is a modern software package to manage your organization's activity (co
 * 16.0.5-php8.1 16.0.5 16
 * 17.0.4-php8.1 17.0.4 17
 * 18.0.5-php8.1 18.0.5 18
-* 19.0.2-php8.2 19.0.2 19 latest
+* 19.0.3-php8.2 19.0.3 19 latest
 * develop
 
 **End of support for PHP < 7.4**
@@ -193,6 +193,7 @@ Environment variables that are compatible with docker secrets:
 
 
 ## Add post-deployment and before starting scripts
+
 It is possible to execute `*.sh`, `*.sql` and/or `*.php` custom file at the end of deployment or before starting Apache by mounting volumes.
 For scripts executed during deployment mount volume in `/var/www/scripts/docker-init.d`.
 For scripts executed before Apache stating mount volume in `/var/www/scripts/before-starting.d`.

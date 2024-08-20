@@ -1,10 +1,11 @@
 ARG ARCH=
 
+# Use an image like PHP_BASE_IMAGE=x.y-apache-buster
 FROM ${ARCH}php:8.2-apache-buster
 
 LABEL maintainer="Garcia MICHEL <garcia@soamichel.fr>"
 
-ENV DOLI_VERSION 19.0.2
+ENV DOLI_VERSION 19.0.3
 ENV DOLI_INSTALL_AUTO 1
 ENV DOLI_PROD 1
 
