@@ -193,6 +193,7 @@ Environment variables that are compatible with docker secrets:
 
 
 ## Add post-deployment and before starting scripts
+
 It is possible to execute `*.sh`, `*.sql` and/or `*.php` custom file at the end of deployment or before starting Apache by mounting volumes.
 For scripts executed during deployment mount volume in `/var/www/scripts/docker-init.d`.
 For scripts executed before Apache stating mount volume in `/var/www/scripts/before-starting.d`.

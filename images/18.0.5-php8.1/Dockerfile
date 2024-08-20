@@ -1,5 +1,6 @@
 ARG ARCH=
 
+# Use an image like PHP_BASE_IMAGE=x.y-apache-buster
 FROM ${ARCH}php:8.1-apache-buster
 
 LABEL maintainer="Garcia MICHEL <garcia@soamichel.fr>"
