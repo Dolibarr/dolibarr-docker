@@ -202,12 +202,9 @@ function initializeDatabase()
     echo "Load demo data from file https://raw.githubusercontent.com/Dolibarr/dolibarr/${DOLI_VERSION}/dev/initdemo/mysqldump_dolibarr_$versiondemo.sql ..."
     curl -fLSs -o /var/www/dev/initdemo/initdemo.sql https://raw.githubusercontent.com/Dolibarr/dolibarr/${DOLI_VERSION}/dev/initdemo/mysqldump_dolibarr_$versiondemo.sql
     for fileSQL in /var/www/dev/initdemo/*.sql; do
-    	# We exclude the old load file.
-        if [[ $fileSQL =~ mysqldump_dolibarr_3.5 ]]; then
-        	continue
-        fi
   		echo "Load demo data ${fileSQL} ..."
         sed -i 's/--.*//g;' ${fileSQL}
+        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL}"
     	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /dev/null 2>&1
     done
   fi
