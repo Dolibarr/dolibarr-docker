@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Run this script to generate all files found into images directory, used for each image.
+# The source files are the files into the root.
+# 
 
 set -e
 
