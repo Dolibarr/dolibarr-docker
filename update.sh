@@ -15,6 +15,10 @@ source "${BASE_DIR}/versions.sh"
 
 tags=""
 
+# First, clean the directory /images
+if [ -f "${BASE_DIR}/images/README.md" ]; then
+	mv "${BASE_DIR}/images/README.md" "/tmp/tmp-README.md"
+fi
 rm -rf "${BASE_DIR}/images" "${BASE_DIR}/docker-compose-links"
 
 if [ "${DOCKER_BUILD}" = "1" ] && [ "${DOCKER_PUSH}" = "1" ]; then
@@ -93,5 +97,11 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
     tags="${tags} latest"
   fi
 done
+
+
+if [ -f "/tmp/tmp-README.md" ]; then
+	mv "/tmp/tmp-README.md" "${BASE_DIR}/images/README.md"
+fi
+
 
 sed 's/%TAGS%/'"${tags}"'/' "${BASE_DIR}/README.template" > "${BASE_DIR}/README.md"
