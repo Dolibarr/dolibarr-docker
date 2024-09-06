@@ -35,7 +35,7 @@ using the tools saved in the [Dolibarr docker build repository](https://github.c
 This image does not contains database, so you need to link it with a database container. Let's use [Docker Compose](https://docs.docker.com/compose/) to integrate it with [MariaDB](https://hub.docker.com/_/mariadb/) (you can also use [MySQL](https://hub.docker.com/_/mysql/) if you prefer):
 
 If you want to have a persistent database and dolibarr data files after reboot or upgrade, you must first
-create a directory /home/mariadb_data, /home/dolibarr_data and /home/dolibarr_custom on you host to store persistent files.
+create a directory /home/mariadb_data, /home/dolibarr_data and /home/dolibarr_custom on you host to store persistent files, respectively, of the database, of the Dolibarr document fils and of the external Dolibarr modules.
 
 `mkdir /home/mariadb_data /home/dolibarr_data /home/dolibarr_custom;`
 
