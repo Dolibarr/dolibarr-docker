@@ -29,9 +29,10 @@ Linux x86-64 (`amd64`), ARMv7 32-bit (`arm32v7` :warning: MariaDB/Mysql docker i
 
 ## How to run this image ?
 
-This image is based on the [official PHP repository](https://registry.hub.docker.com/_/php/) and the [official Dolibarr repository](https://github.com/Dolibarr/dolibarr) but doesn't contains database. So you need to link it with a database container.
+This image is based on the [official PHP repository](https://registry.hub.docker.com/_/php/) and the [official Dolibarr repository](https://github.com/Dolibarr/dolibarr). It is build
+using the tools saved in the [Dolibarr docker build repository](https://github.com/Dolibarr/dolibarr-docker). 
 
-Let's use [Docker Compose](https://docs.docker.com/compose/) to integrate it with [MariaDB](https://hub.docker.com/_/mariadb/) (you can also use [MySQL](https://hub.docker.com/_/mysql/) if you prefer):
+This image does not contains database, so you need to link it with a database container. Let's use [Docker Compose](https://docs.docker.com/compose/) to integrate it with [MariaDB](https://hub.docker.com/_/mariadb/) (you can also use [MySQL](https://hub.docker.com/_/mysql/) if you prefer):
 
 If you want to have a persistent database and dolibarr data files after reboot or upgrade, you must first
 create a directory /home/mariadb_data, /home/dolibarr_data and /home/dolibarr_custom on you host to store persistent files.
