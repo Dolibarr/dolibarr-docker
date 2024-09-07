@@ -1,4 +1,7 @@
 #!/bin/bash
+# This script is run when the Docker web container is started.
+# It is embedded into the Docker image of dolibarr/dolibarr.
+
 
 # usage: get_env_value VAR [DEFAULT]
 #    ie: get_env_value 'XYZ_DB_PASSWORD' 'example'
@@ -152,6 +155,7 @@ function runScripts()
   fi
 }
 
+# Function called to initialize the database (creation of tables and init data)
 function initializeDatabase()
 {
   for fileSQL in /var/www/html/install/mysql/tables/*.sql; do
@@ -198,17 +202,18 @@ function initializeDatabase()
 
   if [[ ${DOLI_INIT_DEMO} -eq 1 ]]; then
     mkdir -p /var/www/dev/initdemo/
+    > /var/www/documents/initdemo.log
     versiondemo=`echo "${DOLI_VERSION}" | sed "s/^\([0-9]*\.[0-9]*\).*/\1.0/"`
     echo "Get demo data from file https://raw.githubusercontent.com/Dolibarr/dolibarr/${DOLI_VERSION}/dev/initdemo/mysqldump_dolibarr_$versiondemo.sql ..."
     curl -fLSs -o /var/www/dev/initdemo/initdemo.sql https://raw.githubusercontent.com/Dolibarr/dolibarr/${DOLI_VERSION}/dev/initdemo/mysqldump_dolibarr_$versiondemo.sql
     for fileSQL in /var/www/dev/initdemo/*.sql; do
     	echo "Found demo data file, so we first drop table llx_accounting_system ..."
-    	echo "mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_system\" > /var/www/documents/initdemo.log 2>&1"
-    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DROP TABLE llx_accounting_system" > /var/www/documents/initdemo.log 2>&1
+    	echo "mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_system\" >> /var/www/documents/initdemo.log 2>&1"
+    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DROP TABLE llx_accounting_system" >> /var/www/documents/initdemo.log 2>&1
   		echo "Then we load demo data ${fileSQL} ..."
         sed -i 's/--.*//g;' ${fileSQL}
-        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /var/www/documents/initdemo.log 2>&1"
-    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /var/www/documents/initdemo.log 2>&1
+        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdemo.log 2>&1"
+    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdemo.log 2>&1
     done
   fi
 
@@ -264,6 +269,8 @@ function run()
   # If install of mysql database (and not install of cron) is requested
   if [[ ${DOLI_INSTALL_AUTO} -eq 1 && ${DOLI_CRON} -ne 1 && ${DOLI_DB_TYPE} != "pgsql" ]]; then
     echo "DOLI_INSTALL_AUTO is on, so we check to initialize or upgrade mariadb database"
+
+    # If install.lock does not exists, we launch the initializeDataze
     if [[ ! -f /var/www/documents/install.lock ]]; then
       waitForDataBase
 

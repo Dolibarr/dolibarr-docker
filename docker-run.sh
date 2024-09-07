@@ -202,17 +202,18 @@ function initializeDatabase()
 
   if [[ ${DOLI_INIT_DEMO} -eq 1 ]]; then
     mkdir -p /var/www/dev/initdemo/
+    > /var/www/documents/initdemo.log
     versiondemo=`echo "${DOLI_VERSION}" | sed "s/^\([0-9]*\.[0-9]*\).*/\1.0/"`
     echo "Get demo data from file https://raw.githubusercontent.com/Dolibarr/dolibarr/${DOLI_VERSION}/dev/initdemo/mysqldump_dolibarr_$versiondemo.sql ..."
     curl -fLSs -o /var/www/dev/initdemo/initdemo.sql https://raw.githubusercontent.com/Dolibarr/dolibarr/${DOLI_VERSION}/dev/initdemo/mysqldump_dolibarr_$versiondemo.sql
     for fileSQL in /var/www/dev/initdemo/*.sql; do
     	echo "Found demo data file, so we first drop table llx_accounting_system ..."
-    	echo "mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_system\" > /var/www/documents/initdemo.log 2>&1"
-    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DROP TABLE llx_accounting_system" > /var/www/documents/initdemo.log 2>&1
+    	echo "mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_system\" >> /var/www/documents/initdemo.log 2>&1"
+    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DROP TABLE llx_accounting_system" >> /var/www/documents/initdemo.log 2>&1
   		echo "Then we load demo data ${fileSQL} ..."
         sed -i 's/--.*//g;' ${fileSQL}
-        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /var/www/documents/initdemo.log 2>&1"
-    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} > /var/www/documents/initdemo.log 2>&1
+        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdemo.log 2>&1"
+    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdemo.log 2>&1
     done
   fi
 
