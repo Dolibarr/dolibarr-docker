@@ -1,4 +1,7 @@
 #!/bin/bash
+# This script is run when the Docker web container is started.
+# It is embedded into the Docker image of dolibarr/dolibarr.
+
 
 # usage: get_env_value VAR [DEFAULT]
 #    ie: get_env_value 'XYZ_DB_PASSWORD' 'example'
@@ -152,6 +155,7 @@ function runScripts()
   fi
 }
 
+# Function called to initialize the database (creation of tables and init data)
 function initializeDatabase()
 {
   for fileSQL in /var/www/html/install/mysql/tables/*.sql; do
@@ -264,6 +268,8 @@ function run()
   # If install of mysql database (and not install of cron) is requested
   if [[ ${DOLI_INSTALL_AUTO} -eq 1 && ${DOLI_CRON} -ne 1 && ${DOLI_DB_TYPE} != "pgsql" ]]; then
     echo "DOLI_INSTALL_AUTO is on, so we check to initialize or upgrade mariadb database"
+
+    # If install.lock does not exists, we launch the initializeDataze
     if [[ ! -f /var/www/documents/install.lock ]]; then
       waitForDataBase
 
