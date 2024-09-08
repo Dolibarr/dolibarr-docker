@@ -56,6 +56,7 @@ services:
             DOLI_ADMIN_LOGIN: 'admin'
             DOLI_ADMIN_PASSWORD: 'admin'
             DOLI_INIT_DEMO: 0
+            DOLI_CRON: 0
         ports:
             - "80:80"
         links:
