@@ -35,9 +35,9 @@ using the tools saved in the [Dolibarr docker build repository](https://github.c
 This image does not contains database, so you need to link it with a database container. Let's use [Docker Compose](https://docs.docker.com/compose/) to integrate it with [MariaDB](https://hub.docker.com/_/mariadb/) (you can also use [MySQL](https://hub.docker.com/_/mysql/) if you prefer):
 
 If you want to have a persistent database and dolibarr data files after reboot or upgrade, you must first
-create a directory /home/mariadb_data, /home/dolibarr_data and /home/dolibarr_custom on you host to store persistent files, respectively, of the database, of the Dolibarr document fils and of the external Dolibarr modules.
+create a directory `/home/mariadb_data`, `/home/dolibarr_documents` and `/home/dolibarr_custom` on your host to store persistent files, respectively, of the database, of the Dolibarr document files and of the installed external Dolibarr modules.
 
-`mkdir /home/mariadb_data /home/dolibarr_data /home/dolibarr_custom;`
+`mkdir /home/mariadb_data /home/dolibarr_documents /home/dolibarr_custom;`
 
 Then, create a `docker-compose.yml` file as following:
 
@@ -61,13 +61,13 @@ services:
             DOLI_URL_ROOT: 'http://0.0.0.0'
             DOLI_ADMIN_LOGIN: 'admin'
             DOLI_ADMIN_PASSWORD: 'admin'
-            PHP_INI_DATE_TIMEZONE: 'Europe/Paris'
+            DOLI_INIT_DEMO: 0
         ports:
             - "80:80"
         links:
             - mariadb
         volumes:
-            - /home/dolibarr_data:/var/www/documents
+            - /home/dolibarr_documents:/var/www/documents
             - /home/dolibarr_custom:/var/www/html/custom
 ```
 

@@ -1,5 +1,8 @@
 #!/usr/bin/env php
 <?php
+# This script is called by the docker-run.sh script to enabled modules during Dolibarr first installation.
+# It is embedded into the Docker image of dolibarr/dolibarr.
+
 require_once '../htdocs/master.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
 
@@ -32,9 +35,9 @@ if (!empty(getenv('DOLI_ENABLE_MODULES'))) {
   $mods = explode(',', getenv('DOLI_ENABLE_MODULES'));
   foreach ($mods as $mod) {
     printf("Activating module ".$mod." ...");
-    try { 
+    try {
       $res = activateModule('mod' . $mod);
-      if ($res < 0) { 
+      if ($res < 0) {
         print(" FAILED. Unable to load module. Be sure to check the case\n");
       } else {
         printf(" OK\n");

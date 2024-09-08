@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script is run when the Docker web container is started.
 # It is embedded into the Docker image of dolibarr/dolibarr.
-
+#
 
 # usage: get_env_value VAR [DEFAULT]
 #    ie: get_env_value 'XYZ_DB_PASSWORD' 'example'
