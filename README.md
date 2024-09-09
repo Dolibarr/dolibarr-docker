@@ -62,6 +62,7 @@ services:
             DOLI_ADMIN_LOGIN: 'admin'
             DOLI_ADMIN_PASSWORD: 'admin'
             DOLI_INIT_DEMO: 0
+            DOLI_CRON: 0
         ports:
             - "80:80"
         links:
@@ -222,7 +223,10 @@ services:
             DOLI_DB_PASSWORD: root
             DOLI_DB_NAME: dolibarr
             DOLI_URL_ROOT: 'http://0.0.0.0'
-            PHP_INI_DATE_TIMEZONE: 'Europe/Paris'
+            DOLI_ADMIN_LOGIN: 'admin'
+            DOLI_ADMIN_PASSWORD: 'admin'
+            DOLI_INIT_DEMO: 0
+            DOLI_CRON: 0
         volumes :
           - volume-scripts:/var/www/scripts/docker-init.d
           - before-starting-scripts:/var/www/scripts/before-starting.d
