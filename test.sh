@@ -1,4 +1,10 @@
 #!/bin/bash
+# Script to build and tests Dolibarr Docker images.
+#
+# Usage:
+# sudo test.sh develop
+# sudo test.sh 18.0.5 php8.1
+#
 
 set -e
 
@@ -34,6 +40,7 @@ echo " - Dolibarr ${DOLI_VER}"
 if [ "${PHP_VER}" = "" ]; then
   echo " - PHP most recent"
   echo "Building image ..."
+  echo "DOLI_VERSION=${DOLI_VER} PHP_VERSION='' $dockerComposeBin -f '${BASE_DIR}/docker-compose.yml ...'"
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down 1> /dev/null 2>/dev/null
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" build web
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" up --force-recreate web cron

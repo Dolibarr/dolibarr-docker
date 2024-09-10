@@ -62,7 +62,8 @@ services:
             DOLI_ADMIN_LOGIN: 'admin'
             DOLI_ADMIN_PASSWORD: 'admin'
             DOLI_INIT_DEMO: 0
-            DOLI_CRON: 0
+            WWW_USER_ID: 1000
+            WWW_GROUP_ID: 1000
         ports:
             - "80:80"
         links:
@@ -226,7 +227,8 @@ services:
             DOLI_ADMIN_LOGIN: 'admin'
             DOLI_ADMIN_PASSWORD: 'admin'
             DOLI_INIT_DEMO: 0
-            DOLI_CRON: 0
+            WWW_USER_ID: 1000
+            WWW_GROUP_ID: 1000
         volumes :
           - volume-scripts:/var/www/scripts/docker-init.d
           - before-starting-scripts:/var/www/scripts/before-starting.d

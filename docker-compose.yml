@@ -67,10 +67,11 @@ services:
             - mysql-password
         volumes:
             - ./.volumes/dolibarr/custom:/var/www/html/custom
+            - ./.volumes/dolibarr/documents:/var/www/documents
         depends_on:
             - mariadb
         environment:
-            DOLI_INSTANCE_UNIQUE_ID: xxxx
+            DOL_INIT_DEMO: 1
             DOLI_DB_USER_FILE: "/run/secrets/mysql-user"
             DOLI_DB_PASSWORD_FILE: "/run/secrets/mysql-password"
             DOLI_ADMIN_LOGIN: "administrator"
@@ -78,10 +79,11 @@ services:
             DOLI_DB_HOST: mariadb
             DOLI_DB_NAME: dolibarr
             DOLI_URL_ROOT: 'http://0.0.0.0'
+            DOLI_INSTANCE_UNIQUE_ID: xxxx
             WWW_USER_ID: 1000
             WWW_GROUP_ID: 1000
         ports:
-            - "80:80"
+            - "81:80"
         networks:
             - internal-pod
             - external-pod
