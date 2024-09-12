@@ -57,6 +57,7 @@ RUN apt-get update -y \
         default-mysql-client \
         postgresql-client \
         cron \
+        rsync \
     && apt-get autoremove -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip \
@@ -72,7 +73,8 @@ RUN apt-get update -y \
 # Get Dolibarr
 RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.gz |\
     tar -C /tmp -xz && \
-    cp -r /tmp/dolibarr-${DOLI_VERSION}/htdocs/* /var/www/html/ && \
+    mkdir -p /usr/src/dolibarr && \
+    cp -r /tmp/dolibarr-${DOLI_VERSION}/htdocs/* /usr/src/dolibarr/ && \
     ln -s /var/www/html /var/www/htdocs && \
     cp -r /tmp/dolibarr-${DOLI_VERSION}/scripts /var/www/ && \
     rm -rf /tmp/* && \
@@ -82,6 +84,7 @@ RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.
 
 EXPOSE %EXPOSE%
 VOLUME /var/www/documents
+VOLUME /var/www/html
 VOLUME /var/www/html/custom
 
 COPY docker-init.php /var/www/scripts/
