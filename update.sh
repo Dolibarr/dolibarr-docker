@@ -69,6 +69,10 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
 
       if [ "${dolibarrVersion}" = "develop" ]; then
         currentTag="${dolibarrVersion}"
+
+        if [ "$imageVariant" != "$DEFAULT_VARIANT" ]; then
+          currentTag+="-$imageVariant"
+        fi
       else
         currentTag="${dolibarrVersion}-php${phpVersion}"
 
@@ -127,12 +131,17 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
   done
 
   if [ "${dolibarrVersion}" = "develop" ]; then
-    tags="${tags} develop"
+    tags="${tags} develop develop-fpm"
   else
     tags="${tags} ${dolibarrVersion} ${dolibarrMajor}"
+    for imageVariant in "${VARIANTS[@]}"; do
+      if [ "$imageVariant" != "$DEFAULT_VARIANT" ]; then
+        tags="${tags} ${dolibarrVersion}-${imageVariant} ${dolibarrMajor}-${imageVariant}"
+      fi
+    done
   fi
   if [ "${dolibarrVersion}" = "${DOLIBARR_LATEST_TAG}" ]; then
-    tags="${tags} latest"
+    tags="${tags} latest latest-fpm"
   fi
 done
 
