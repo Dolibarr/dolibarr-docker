@@ -54,6 +54,7 @@ EOF
 
 if [[ ! -f /var/www/html/conf/conf.php ]]; then
     echo "[INIT] => update Dolibarr Config ..."
+    mkdir /var/www/html/conf
     cat > /var/www/html/conf/conf.php << EOF
 <?php
 \$dolibarr_main_url_root='${DOLI_URL_ROOT}';
@@ -155,6 +156,13 @@ function runScripts()
   fi
 }
 
+# Function called to update the htdocs folde with the new code
+function updateHtdocs()
+{
+  echo "Updating htdocs folder..."
+  rsync -rlD --chown www-data:www-data --delete --exclude custom --exclude conf/conf.php /usr/src/dolibarr/ /var/www/html/
+}
+
 # Function called to initialize the database (creation of tables and init data)
 function initializeDatabase()
 {
@@ -202,7 +210,7 @@ function initializeDatabase()
 
   if [[ ${DOLI_INIT_DEMO} -eq 1 ]]; then
     mkdir -p /var/www/dev/initdemo/
-    > /var/www/documents/vi 
+    > /var/www/documents/vi
     versiondemo=`echo "${DOLI_VERSION}" | sed "s/^\([0-9]*\.[0-9]*\).*/\1.0/"`
     echo "Get demo data from file https://raw.githubusercontent.com/Dolibarr/dolibarr/${DOLI_VERSION}/dev/initdemo/mysqldump_dolibarr_$versiondemo.sql ..."
     curl -fLSs -o /var/www/dev/initdemo/initdemo.sql https://raw.githubusercontent.com/Dolibarr/dolibarr/${DOLI_VERSION}/dev/initdemo/mysqldump_dolibarr_$versiondemo.sql
@@ -281,11 +289,13 @@ function run()
       mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', ''))))) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/lastinstall.result 2>&1
       r=$?
       if [[ ${r} -ne 0 ]]; then
+        updateHtdocs
         initializeDatabase
       else
         INSTALLED_VERSION=`grep -v LAST_INSTALLED_VERSION /tmp/lastinstall.result`
         echo "Last installed Version is : ${INSTALLED_VERSION}"
         if [[ "$(echo ${INSTALLED_VERSION} | cut -d. -f1)" -lt "$(echo ${DOLI_VERSION} | cut -d. -f1)" ]]; then
+          updateHtdocs
           migrateDatabase
         else
           echo "Schema update is not required ... Enjoy !!"

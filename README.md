@@ -9,12 +9,12 @@ Dolibarr is a modern software package to manage your organization's activity (co
 
 ## Supported tags
 
-* 15.0.3-php7.4 15.0.3 15
-* 16.0.5-php8.1 16.0.5 16
-* 17.0.4-php8.1 17.0.4 17
-* 18.0.5-php8.1 18.0.5 18
-* 19.0.3-php8.2 19.0.3 19 latest
-* develop
+* 15.0.3-php7.4 15.0.3-php7.4-fpm 15.0.3 15 15.0.3-fpm 15-fpm
+* 16.0.5-php8.1 16.0.5-php8.1-fpm 16.0.5 16 16.0.5-fpm 16-fpm
+* 17.0.4-php8.1 17.0.4-php8.1-fpm 17.0.4 17 17.0.4-fpm 17-fpm
+* 18.0.5-php8.1 18.0.5-php8.1-fpm 18.0.5 18 18.0.5-fpm 18-fpm
+* 19.0.3-php8.2 19.0.3-php8.2-fpm 19.0.3 19 19.0.3-fpm 19-fpm latest latest-fpm
+* develop develop-fpm
 
 **End of support for PHP < 7.4**
 
