@@ -13,6 +13,12 @@ BASE_DIR="$( cd "$(dirname "$0")" && pwd )"
 DOLI_VER=${1}
 PHP_VER=${2:-""}
 
+if [ "${DOLI_VER}" = "" ]; then
+	echo "Usage: sudo test.sh develop"
+	echo "       sudo test.sh 18.0.5 8.1"
+	exit
+fi
+
 rm -rf "${BASE_DIR}/docker-compose-links/" && mkdir "${BASE_DIR}/docker-compose-links"
 
 # shellcheck disable=SC2044
@@ -40,8 +46,8 @@ echo " - Dolibarr ${DOLI_VER}"
 if [ "${PHP_VER}" = "" ]; then
   echo " - PHP most recent"
   echo "Building image ..."
-  echo "DOLI_VERSION=${DOLI_VER} PHP_VERSION='' $dockerComposeBin -f '${BASE_DIR}/docker-compose.yml ...'"
-  DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down 1> /dev/null 2>/dev/null
+  echo "DOLI_VERSION=${DOLI_VER} PHP_VERSION='' $dockerComposeBin -f '${BASE_DIR}/docker-compose.yml' [down|...]"
+  DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down 1>/dev/null 2>/dev/null
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" build web
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" up --force-recreate web cron
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down

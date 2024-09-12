@@ -48,8 +48,8 @@ services:
             DOLI_INSTANCE_UNIQUE_ID: xxxx
             DOLI_DB_USER_FILE: /run/secrets/mysql-user
             DOLI_DB_PASSWORD_FILE: /run/secrets/mysql-password
-            DOLI_ADMIN_LOGIN: administrator
-            DOLI_ADMIN_PASSWORD: admin456
+            DOLI_ADMIN_LOGIN: admintest
+            DOLI_ADMIN_PASSWORD: admintest
             DOLI_DB_HOST: mariadb
             DOLI_DB_NAME: dolibarr
             DOLI_URL_ROOT: http://0.0.0.0
@@ -71,11 +71,11 @@ services:
         depends_on:
             - mariadb
         environment:
-            DOL_INIT_DEMO: 1
+            DOLI_INIT_DEMO: 1
             DOLI_DB_USER_FILE: "/run/secrets/mysql-user"
             DOLI_DB_PASSWORD_FILE: "/run/secrets/mysql-password"
-            DOLI_ADMIN_LOGIN: "administrator"
-            DOLI_ADMIN_PASSWORD: "admin456"
+            DOLI_ADMIN_LOGIN: "admintest"
+            DOLI_ADMIN_PASSWORD: "admintest"
             DOLI_DB_HOST: mariadb
             DOLI_DB_NAME: dolibarr
             DOLI_URL_ROOT: 'http://0.0.0.0'

@@ -65,7 +65,8 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
 
     mkdir -p "${dir}"
     sed 's/%PHP_BASE_IMAGE%/'"${php_base_image}"'/;' "${BASE_DIR}/Dockerfile.template" | \
-    sed 's/%DOLI_VERSION%/'"${dolibarrVersion}"'/;' \
+    sed 's/%DOLI_VERSION%/'"${dolibarrVersion}"'/;' | \
+    sed 's/%DOLIBARR_VERSION_FOR_INIT_DEMO%/'"${DOLIBARR_VERSION_FOR_INIT_DEMO}"'/;' \
     > "${dir}/Dockerfile"
 
     cp -a "${BASE_DIR}/docker-init.php" "${dir}/docker-init.php"
