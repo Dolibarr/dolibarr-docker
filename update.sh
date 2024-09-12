@@ -2,7 +2,7 @@
 #
 # Run this script to generate all files found into images directory, used for each image.
 # The source files are the files into the root.
-# 
+#
 
 set -e
 
@@ -10,6 +10,25 @@ DOCKER_BUILD=${DOCKER_BUILD:-0}
 DOCKER_PUSH=${DOCKER_PUSH:-0}
 
 BASE_DIR="$( cd "$(dirname "$0")" && pwd )"
+
+VARIANTS=( apache-buster fpm )
+DEFAULT_VARIANT="apache-buster"
+declare -A VARIANTS_EXTRAS=(
+  [apache-buster]="RUN sed -i \
+-e 's/^\(ServerSignature On\)\$/#\1/g' \
+-e 's/^#\(ServerSignature Off\)\$/\1/g' \
+-e 's/^\(ServerTokens\) OS\$/\1 Prod/g' \
+/etc/apache2/conf-available/security.conf"
+  [fpm]=""
+)
+declare -A VARIANTS_CMD=(
+  [apache-buster]=apache2-foreground
+  [fpm]=php-fpm
+)
+declare -A VARIANTS_EXPOSE=(
+  [apache-buster]="80"
+  [fpm]="9000"
+)
 
 source "${BASE_DIR}/versions.sh"
 
@@ -36,65 +55,93 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
   # Mapping version according https://wiki.dolibarr.org/index.php/Versions
   # Regarding PHP Supported version : https://www.php.net/supported-versions.php
   if [ "${dolibarrVersion}" = "develop" ] || [ "${dolibarrMajor}" -ge "19" ] || [ "${dolibarrMajor}" -ge "20" ]; then
-    php_base_images=( "8.2-apache-buster" )
+    phpVersions=( "8.2" )
   elif [ "${dolibarrMajor}" -ge "16" ]; then
-    php_base_images=( "8.1-apache-buster" )
+    phpVersions=( "8.1" )
   else
-    php_base_images=( "7.4-apache-buster" )
+    phpVersions=( "7.4" )
   fi
 
-  for php_base_image in "${php_base_images[@]}"; do
-    php_version=$(echo "${php_base_image}" | cut -d\- -f1)
+  for phpVersion in "${phpVersions[@]}"; do
+    for imageVariant in "${VARIANTS[@]}"; do
+      echo "- Variant $imageVariant"
+      phpBaseImage="$phpVersion-$imageVariant"
 
-    if [ "${dolibarrVersion}" = "develop" ]; then
-      currentTag="${dolibarrVersion}"
-    else
-      currentTag="${dolibarrVersion}-php${php_version}"
-      tags="${tags} ${currentTag}"
-    fi
+      if [ "${dolibarrVersion}" = "develop" ]; then
+        currentTag="${dolibarrVersion}"
 
-    buildOptionTags="--tag dolibarr/dolibarr:${currentTag}"
-    if [ "${dolibarrVersion}" != "develop" ]; then
-      buildOptionTags="${buildOptionTags} --tag dolibarr/dolibarr:${dolibarrVersion} --tag dolibarr/dolibarr:${dolibarrMajor}"
-    fi
-    if [ "${dolibarrVersion}" = "${DOLIBARR_LATEST_TAG}" ]; then
-      buildOptionTags="${buildOptionTags} --tag dolibarr/dolibarr:latest"
-    fi
-
-    dir="${BASE_DIR}/images/${currentTag}"
-
-    mkdir -p "${dir}"
-    sed 's/%PHP_BASE_IMAGE%/'"${php_base_image}"'/;' "${BASE_DIR}/Dockerfile.template" | \
-    sed 's/%DOLI_VERSION%/'"${dolibarrVersion}"'/;' \
-    > "${dir}/Dockerfile"
-
-    cp -a "${BASE_DIR}/docker-init.php" "${dir}/docker-init.php"
-    cp -a "${BASE_DIR}/docker-run.sh" "${dir}/docker-run.sh"
-
-    if [ "${DOCKER_BUILD}" = "1" ]; then
-      if [ "${DOCKER_PUSH}" = "1" ]; then
-        docker buildx build \
-          --push \
-          --compress \
-          --platform linux/arm/v7,linux/arm64,linux/amd64 \
-          ${buildOptionTags} \
-          "${dir}"
+        if [ "$imageVariant" != "$DEFAULT_VARIANT" ]; then
+          currentTag+="-$imageVariant"
+        fi
       else
-        docker build \
-          --compress \
-          ${buildOptionTags} \
-          "${dir}"
+        currentTag="${dolibarrVersion}-php${phpVersion}"
+
+        if [ "$imageVariant" != "$DEFAULT_VARIANT" ]; then
+          currentTag+="-$imageVariant"
+        fi
+
+        tags="${tags} ${currentTag}"
       fi
-    fi
+
+      buildOptionTags="--tag dolibarr/dolibarr:${currentTag}"
+      if [ "${dolibarrVersion}" != "develop" ]; then
+        if [ "$imageVariant" = "$DEFAULT_VARIANT" ]; then
+          buildOptionTags="${buildOptionTags} --tag dolibarr/dolibarr:${dolibarrVersion} --tag dolibarr/dolibarr:${dolibarrMajor}"
+        else
+          buildOptionTags="${buildOptionTags} --tag dolibarr/dolibarr:${dolibarrVersion}-${imageVariant} --tag dolibarr/dolibarr:${dolibarrMajor}-${imageVariant}"
+        fi
+      fi
+      if [ "${dolibarrVersion}" = "${DOLIBARR_LATEST_TAG}" ]; then
+        if [ "$imageVariant" = "$DEFAULT_VARIANT" ]; then
+          buildOptionTags="${buildOptionTags} --tag dolibarr/dolibarr:latest"
+        else
+          buildOptionTags="${buildOptionTags} --tag dolibarr/dolibarr:latest-${imageVariant}"
+        fi
+      fi
+
+      dir="${BASE_DIR}/images/${dolibarrVersion}/${imageVariant}"
+
+      mkdir -p "${dir}"
+      sed 's/%PHP_BASE_IMAGE%/'"${phpBaseImage}"'/;' "${BASE_DIR}/Dockerfile.template" | \
+      sed 's/%DOLI_VERSION%/'"${dolibarrVersion}"'/;' | \
+      sed 's~%EXTRAS%~'"$(sed 's/[&/\]/\\&/g' <<< "${VARIANTS_EXTRAS[$imageVariant]}")"'~;' | \
+      sed 's/%EXPOSE%/'"${VARIANTS_EXPOSE[$imageVariant]}"'/;' | \
+      sed 's/%CMD%/'"${VARIANTS_CMD[$imageVariant]}"'/;' \
+      > "${dir}/Dockerfile"
+
+      cp -a "${BASE_DIR}/docker-init.php" "${dir}/docker-init.php"
+      cp -a "${BASE_DIR}/docker-run.sh" "${dir}/docker-run.sh"
+
+      if [ "${DOCKER_BUILD}" = "1" ]; then
+        if [ "${DOCKER_PUSH}" = "1" ]; then
+          docker buildx build \
+            --push \
+            --compress \
+            --platform linux/arm/v7,linux/arm64,linux/amd64 \
+            ${buildOptionTags} \
+            "${dir}"
+        else
+          docker build \
+            --compress \
+            ${buildOptionTags} \
+            "${dir}"
+        fi
+      fi
+    done
   done
 
   if [ "${dolibarrVersion}" = "develop" ]; then
-    tags="${tags} develop"
+    tags="${tags} develop develop-fpm"
   else
     tags="${tags} ${dolibarrVersion} ${dolibarrMajor}"
+    for imageVariant in "${VARIANTS[@]}"; do
+      if [ "$imageVariant" != "$DEFAULT_VARIANT" ]; then
+        tags="${tags} ${dolibarrVersion}-${imageVariant} ${dolibarrMajor}-${imageVariant}"
+      fi
+    done
   fi
   if [ "${dolibarrVersion}" = "${DOLIBARR_LATEST_TAG}" ]; then
-    tags="${tags} latest"
+    tags="${tags} latest latest-fpm"
   fi
 done
 

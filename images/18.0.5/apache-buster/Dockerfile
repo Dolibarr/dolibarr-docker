@@ -5,7 +5,7 @@ FROM ${ARCH}php:8.1-apache-buster
 
 LABEL maintainer="Garcia MICHEL <garcia@soamichel.fr>"
 
-ENV DOLI_VERSION 16.0.5
+ENV DOLI_VERSION 18.0.5
 ENV DOLI_INSTALL_AUTO 1
 ENV DOLI_PROD 1
 
@@ -40,11 +40,7 @@ ENV PHP_INI_UPLOAD_MAX_FILESIZE 2M
 ENV PHP_INI_POST_MAX_SIZE 8M
 ENV PHP_INI_ALLOW_URL_FOPEN 0
 
-RUN sed -i \
-  -e 's/^\(ServerSignature On\)$/#\1/g' \
-  -e 's/^#\(ServerSignature Off\)$/\1/g' \
-  -e 's/^\(ServerTokens\) OS$/\1 Prod/g' \
-  /etc/apache2/conf-available/security.conf
+RUN sed -i -e 's/^\(ServerSignature On\)$/#\1/g' -e 's/^#\(ServerSignature Off\)$/\1/g' -e 's/^\(ServerTokens\) OS$/\1 Prod/g' /etc/apache2/conf-available/security.conf
 
 RUN apt-get update -y \
     && apt-get dist-upgrade -y \
@@ -61,6 +57,7 @@ RUN apt-get update -y \
         default-mysql-client \
         postgresql-client \
         cron \
+        rsync \
     && apt-get autoremove -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip \
@@ -76,7 +73,8 @@ RUN apt-get update -y \
 # Get Dolibarr
 RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.gz |\
     tar -C /tmp -xz && \
-    cp -r /tmp/dolibarr-${DOLI_VERSION}/htdocs/* /var/www/html/ && \
+    mkdir -p /usr/src/dolibarr && \
+    cp -r /tmp/dolibarr-${DOLI_VERSION}/htdocs/* /usr/src/dolibarr/ && \
     ln -s /var/www/html /var/www/htdocs && \
     cp -r /tmp/dolibarr-${DOLI_VERSION}/scripts /var/www/ && \
     rm -rf /tmp/* && \
@@ -86,6 +84,7 @@ RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.
 
 EXPOSE 80
 VOLUME /var/www/documents
+VOLUME /var/www/html
 VOLUME /var/www/html/custom
 
 COPY docker-init.php /var/www/scripts/

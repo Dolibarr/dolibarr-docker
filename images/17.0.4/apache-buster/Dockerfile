@@ -1,11 +1,11 @@
 ARG ARCH=
 
 # Use an image like PHP_BASE_IMAGE=x.y-apache-buster
-FROM ${ARCH}php:%PHP_BASE_IMAGE%
+FROM ${ARCH}php:8.1-apache-buster
 
 LABEL maintainer="Garcia MICHEL <garcia@soamichel.fr>"
 
-ENV DOLI_VERSION %DOLI_VERSION%
+ENV DOLI_VERSION 17.0.4
 ENV DOLI_INSTALL_AUTO 1
 ENV DOLI_PROD 1
 
@@ -40,7 +40,7 @@ ENV PHP_INI_UPLOAD_MAX_FILESIZE 2M
 ENV PHP_INI_POST_MAX_SIZE 8M
 ENV PHP_INI_ALLOW_URL_FOPEN 0
 
-%EXTRAS%
+RUN sed -i -e 's/^\(ServerSignature On\)$/#\1/g' -e 's/^#\(ServerSignature Off\)$/\1/g' -e 's/^\(ServerTokens\) OS$/\1 Prod/g' /etc/apache2/conf-available/security.conf
 
 RUN apt-get update -y \
     && apt-get dist-upgrade -y \
@@ -82,7 +82,7 @@ RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.
     mkdir -p /var/www/html/custom && \
     chown -R www-data:www-data /var/www
 
-EXPOSE %EXPOSE%
+EXPOSE 80
 VOLUME /var/www/documents
 VOLUME /var/www/html
 VOLUME /var/www/html/custom
@@ -91,4 +91,4 @@ COPY docker-init.php /var/www/scripts/
 COPY docker-run.sh /usr/local/bin/
 ENTRYPOINT ["docker-run.sh"]
 
-CMD ["%CMD%"]
+CMD ["apache2-foreground"]
