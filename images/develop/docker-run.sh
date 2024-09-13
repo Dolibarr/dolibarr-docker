@@ -208,7 +208,7 @@ function initializeDatabase()
     echo "Importing data from `basename ${fileSQL}` ..."
     echo "Importing data from `basename ${fileSQL}` ..." >> /var/www/documents/initdb.log
     sed -i 's/--.*//g;' ${fileSQL}
-    sed -i 's/__ENTITY__/1/g;' ${file}
+    sed -i 's/__ENTITY__/1/g;' ${fileSQL}
     mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
   done
 
