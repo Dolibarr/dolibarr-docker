@@ -35,7 +35,7 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
 
   # Mapping PHP version according Dolibarr version (See https://wiki.dolibarr.org/index.php/Versions)
   # Regarding PHP Supported version : https://www.php.net/supported-versions.php
-  if [ "${dolibarrVersion}" = "develop" ] || [ "${dolibarrMajor}" -ge "19" ] || [ "${dolibarrMajor}" -ge "20" ]; then
+  if [ "${dolibarrVersion}" = "develop" ] || [ "${dolibarrMajor}" -ge "19" ] || [ "${dolibarrMajor}" -ge "20" ] || [ "${dolibarrMajor}" -ge "21" ]; then
     php_base_images=( "8.2-apache-buster" )
   elif [ "${dolibarrMajor}" -ge "16" ]; then
     php_base_images=( "8.1-apache-buster" )
@@ -63,15 +63,18 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
 
     dir="${BASE_DIR}/images/${currentTag}"
 
-	# Set DOLIBARR_VERSION_FOR_INIT_DEMO to x.y version
-	if [ ${dolibarrVersion} != "dolibarr" ]; then
-		DOLIBARR_VERSION_FOR_INIT_DEMO=$(echo "${dolibarrVersion}" | sed 's/\(\.[^\.]*\)\.[^\.]*$/\1/')
+	# Set DOLI_VERSION_FOR_INIT_DEMO to x.y version
+	if [ ${dolibarrVersion} != "develop" ]; then
+		DOLI_VERSION_FOR_INIT_DEMO=$(echo "${dolibarrVersion}" | sed 's/\(\.[^\.]*\)\.[^\.]*$/\1/')
+	else
+		DOLI_VERSION_FOR_INIT_DEMO=$DOLIBARR_VERSION_FOR_INIT_DEMO
 	fi
 
+	echo "Replace Dockerfile.template with DOLI_VERSION_FOR_INIT_DEMO=$DOLI_VERSION_FOR_INIT_DEMO"
     mkdir -p "${dir}"
     sed 's/%PHP_BASE_IMAGE%/'"${php_base_image}"'/;' "${BASE_DIR}/Dockerfile.template" | \
     sed 's/%DOLI_VERSION%/'"${dolibarrVersion}"'/;' | \
-    sed 's/%DOLI_VERSION_FOR_INIT_DEMO%/'"${DOLIBARR_VERSION_FOR_INIT_DEMO}"'/;' \
+    sed 's/%DOLI_VERSION_FOR_INIT_DEMO%/'"${DOLI_VERSION_FOR_INIT_DEMO}"'/;' \
     > "${dir}/Dockerfile"
 
     cp -a "${BASE_DIR}/docker-init.php" "${dir}/docker-init.php"

@@ -3,10 +3,13 @@ ARG ARCH=
 # Use an image like PHP_BASE_IMAGE=x.y-apache-buster
 FROM ${ARCH}php:8.2-apache-buster
 
-LABEL maintainer="Garcia MICHEL <garcia@soamichel.fr>"
+# Credit/Initial maintainer: Garcia MICHEL <garcia@soamichel.fr>
+# Modified according the GPL license by developers of the Dolibarr community.
+#LABEL maintainer="Garcia MICHEL <garcia@soamichel.fr>"
+LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 
 ENV DOLI_VERSION develop
-ENV DOLI_VERSION_FOR_INIT_DEMO develop
+ENV DOLI_VERSION_FOR_INIT_DEMO 20.0
 ENV DOLI_INSTALL_AUTO 1
 ENV DOLI_PROD 1
 

@@ -4,6 +4,7 @@ ARG ARCH=
 FROM ${ARCH}php:%PHP_BASE_IMAGE%
 
 # Credit/Initial maintainer: Garcia MICHEL <garcia@soamichel.fr>
+# Modified according the GPL license by developers of the Dolibarr community.
 #LABEL maintainer="Garcia MICHEL <garcia@soamichel.fr>"
 LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 
