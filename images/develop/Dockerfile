@@ -65,6 +65,7 @@ RUN apt-get update -y \
         libzip-dev \
         default-mysql-client \
         postgresql-client \
+        vim-tiny \
         cron \
     && apt-get autoremove -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \

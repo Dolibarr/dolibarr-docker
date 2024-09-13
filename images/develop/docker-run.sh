@@ -161,7 +161,7 @@ function runScripts()
       echo "Importing custom ${isExec} from `basename ${file}` ..."
       echo "Importing custom ${isExec} from `basename ${file}` ..." >> /var/www/documents/initdb.log
       if [ "$isExec" == "SQL" ] ; then
-        sed -i 's/--.*//g;' ${file}
+        sed -i 's/^--.*//g;' ${file}
         sed -i 's/__ENTITY__/1/g;' ${file}
         mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${file} >> /var/www/documents/initdb.log 2>&1
       elif [ "$isExec" == "PHP" ] ; then
@@ -181,7 +181,7 @@ function initializeDatabase()
     if [[ ${fileSQL} != *.key.sql ]]; then
       echo "Importing table from `basename ${fileSQL}` ..."
       echo "Importing table from `basename ${fileSQL}` ..." >> /var/www/documents/initdb.log
-      sed -i 's/--.*//g;' ${fileSQL} # remove all comment
+      sed -i 's/--.*//g;' ${fileSQL} 	# remove all comment because comments into create sql crash the load
       mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
     fi
   done
@@ -189,14 +189,14 @@ function initializeDatabase()
   for fileSQL in /var/www/html/install/mysql/tables/*.key.sql; do
     echo "Importing table key from `basename ${fileSQL}` ..."
     echo "Importing table key from `basename ${fileSQL}` ..." >> /var/www/documents/initdb.log
-    sed -i 's/--.*//g;' ${fileSQL}
+    sed -i 's/^--.*//g;' ${fileSQL}
     mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
   done
 
   for fileSQL in /var/www/html/install/mysql/functions/*.sql; do
     echo "Importing `basename ${fileSQL}` ..."
     echo "Importing `basename ${fileSQL}` ..." >> /var/www/documents/initdb.log
-    sed -i 's/--.*//g;' ${fileSQL}
+    sed -i 's/^--.*//g;' ${fileSQL}
     mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
   done
 
@@ -207,7 +207,7 @@ function initializeDatabase()
     fi
     echo "Importing data from `basename ${fileSQL}` ..."
     echo "Importing data from `basename ${fileSQL}` ..." >> /var/www/documents/initdb.log
-    sed -i 's/--.*//g;' ${fileSQL}
+    sed -i 's/^--.*//g;' ${fileSQL}
     sed -i 's/__ENTITY__/1/g;' ${fileSQL}
     mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
   done
@@ -250,7 +250,7 @@ function initializeDatabase()
 	  		
 	  		echo "Then we load demo data ${fileSQL} ..."
 	  		echo "Then we load demo data ${fileSQL} ..." >> /var/www/documents/initdb.log
-	        #sed -i 's/--.*//g;' ${fileSQL}
+	        #sed -i 's/^--.*//g;' ${fileSQL}
 	        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1"
 	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
 	    done
