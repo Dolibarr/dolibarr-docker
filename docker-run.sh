@@ -250,7 +250,7 @@ function initializeDatabase()
 	  		
 	  		echo "Then we load demo data ${fileSQL} ..."
 	  		echo "Then we load demo data ${fileSQL} ..." >> /var/www/documents/initdb.log
-	        #sed -i 's/^--.*//g;' ${fileSQL}
+	        sed -i 's/\/\*!999999\\- enable the sandbox mode \*\///g;' ${fileSQL}
 	        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1"
 	        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1" >> /var/www/documents/initdb.log
 	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
