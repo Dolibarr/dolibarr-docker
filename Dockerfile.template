@@ -3,9 +3,12 @@ ARG ARCH=
 # Use an image like PHP_BASE_IMAGE=x.y-apache-buster
 FROM ${ARCH}php:%PHP_BASE_IMAGE%
 
-LABEL maintainer="Garcia MICHEL <garcia@soamichel.fr>"
+# Credit/Initial maintainer: Garcia MICHEL <garcia@soamichel.fr>
+#LABEL maintainer="Garcia MICHEL <garcia@soamichel.fr>"
+LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 
 ENV DOLI_VERSION %DOLI_VERSION%
+ENV DOLI_VERSION_FOR_INIT_DEMO %DOLI_VERSION_FOR_INIT_DEMO%
 ENV DOLI_INSTALL_AUTO 1
 ENV DOLI_PROD 1
 

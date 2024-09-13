@@ -47,14 +47,14 @@ if [ "${PHP_VER}" = "" ]; then
   echo " - PHP most recent"
   echo "Building image ..."
   echo "DOLI_VERSION=${DOLI_VER} PHP_VERSION='' $dockerComposeBin -f '${BASE_DIR}/docker-compose.yml' [down|...]"
-  DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down 1>/dev/null 2>/dev/null
+  DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down 1>/dev/null
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" build web
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" up --force-recreate web cron
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down
 else
   echo " - PHP ${PHP_VER}"
   echo "Building image ..."
-  DOLI_VERSION=${DOLI_VER} PHP_VERSION="-php${PHP_VER}" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down 1> /dev/null
+  DOLI_VERSION=${DOLI_VER} PHP_VERSION="-php${PHP_VER}" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down 1>/dev/null
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="-php${PHP_VER}" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" build web
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="-php${PHP_VER}" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" up --force-recreate web cron
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="-php${PHP_VER}" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down

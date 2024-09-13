@@ -210,12 +210,16 @@ function initializeDatabase()
     mkdir -p /var/www/dev/initdemo/
 
 	echo "DOLI_VERSION=$DOLI_VERSION"     
-    # Convert version x.y into x.y.0
+
+	# Set DOLI_VERSION to a number "x.y", even if value is "develop"
     if [ ${DOLI_VERSION} == "develop" ]; then
-    	echo "DOLI_VERSION is develop, we will use the file for version %DOLIBARR_VERSION_FOR_INIT_DEMO%"
-	    DOLI_VERSION="%DOLIBARR_VERSION_FOR_INIT_DEMO%"
+    	echo "DOLI_VERSION is develop, we will use the github source files for version $DOLI_VERSION_FOR_INIT_DEMO"
+	    DOLI_VERSION="$DOLI_VERSION_FOR_INIT_DEMO"
 	fi 
-    versiondemo=`echo "${DOLI_VERSION}" | sed "s/^\([0-9]*\.[0-9]*\).*/\1.0/"`		# Convert vesion x.y into x.y.0 
+
+    # Convert version x.y.z into x.y.0
+    versiondemo=`echo "${DOLI_VERSION}" | sed "s/^\([0-9]*\.[0-9]*\).*/\1.0/"`		# Convert vesion x.y.z into x.y.0 
+
     echo "Get demo data with: curl -fLSs -o /var/www/dev/initdemo/initdemo.sql https://raw.githubusercontent.com/Dolibarr/dolibarr/${DOLI_VERSION}/dev/initdemo/mysqldump_dolibarr_$versiondemo.sql"
     curl -fLSs -o /var/www/dev/initdemo/initdemo.sql https://raw.githubusercontent.com/Dolibarr/dolibarr/${DOLI_VERSION}/dev/initdemo/mysqldump_dolibarr_$versiondemo.sql
     if [ $? -ne 0 ]; then

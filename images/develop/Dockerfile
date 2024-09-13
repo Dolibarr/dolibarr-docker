@@ -6,6 +6,7 @@ FROM ${ARCH}php:8.2-apache-buster
 LABEL maintainer="Garcia MICHEL <garcia@soamichel.fr>"
 
 ENV DOLI_VERSION develop
+ENV DOLI_VERSION_FOR_INIT_DEMO develop
 ENV DOLI_INSTALL_AUTO 1
 ENV DOLI_PROD 1
 
