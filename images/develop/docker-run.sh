@@ -322,7 +322,7 @@ function run()
     echo "DB Exists is : ${DB_EXISTS}"
 
     # If install.lock does not exists, or if db does not exists, we launch the initializeDatabase
-    if [[ ! -f /var/www/documents/install.lock || "$DB_EXIST" -eq 0 ]]; then
+    if [[ ! -f /var/www/documents/install.lock || "${DB_EXISTS}" -eq 0 ]]; then
 	  echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', ''))))) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
       mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', ''))))) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
       r=$?
