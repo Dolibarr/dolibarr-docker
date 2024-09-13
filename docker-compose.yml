@@ -1,11 +1,15 @@
 # This docker-compose.yml file is used to build and test quickly
-# a specific version of Dolibarr
+# a specific version of Dolibarr.
 #
 # Before build, define the variable DOLI_VERSION as following:
-# $ export DOLI_VERSION=4.0.4
+# $ export DOLI_VERSION=19.0.3
 # And then, you can run :
 # $ docker-compose up
 #
+# OR run the script ./test.sh dolversion [phpversion]
+# sudo ./test.sh develop
+# sudo ./test.sh 19.0.3  8.2
+#  
 # More information about Docker-compose : https://docs.docker.com/compose/
 
 networks:
@@ -43,16 +47,16 @@ services:
             - mysql-password
         environment:
             DOLI_CRON: 1
-            DOLI_CRON_KEY: xxxx
-            DOLI_CRON_USER: administrator
-            DOLI_INSTANCE_UNIQUE_ID: xxxx
+            DOLI_CRON_KEY: mycronsecurekey
+            DOLI_CRON_USER: admintest
+            DOLI_INSTANCE_UNIQUE_ID: myinstanceuniqueid
             DOLI_DB_USER_FILE: /run/secrets/mysql-user
             DOLI_DB_PASSWORD_FILE: /run/secrets/mysql-password
             DOLI_ADMIN_LOGIN: admintest
             DOLI_ADMIN_PASSWORD: admintest
             DOLI_DB_HOST: mariadb
             DOLI_DB_NAME: dolibarr
-            DOLI_URL_ROOT: http://0.0.0.0
+            DOLI_URL_ROOT: http://0.0.0.0:81
             WWW_USER_ID: 1000
             WWW_GROUP_ID: 1000
         networks:
@@ -78,8 +82,8 @@ services:
             DOLI_ADMIN_PASSWORD: "admintest"
             DOLI_DB_HOST: mariadb
             DOLI_DB_NAME: dolibarr
-            DOLI_URL_ROOT: 'http://0.0.0.0'
-            DOLI_INSTANCE_UNIQUE_ID: xxxx
+            DOLI_URL_ROOT: 'http://0.0.0.0:81'
+            DOLI_INSTANCE_UNIQUE_ID: myinstanceuniqueid
             WWW_USER_ID: 1000
             WWW_GROUP_ID: 1000
         ports:

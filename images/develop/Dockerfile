@@ -4,8 +4,9 @@ ARG ARCH=
 FROM ${ARCH}php:8.2-apache-buster
 
 # Credit/Initial maintainer: Garcia MICHEL <garcia@soamichel.fr>
-# Modified according the GPL license by developers of the Dolibarr community.
-#LABEL maintainer="Garcia MICHEL <garcia@soamichel.fr>"
+# Modified according to the GPL license by developers of the Dolibarr community:
+# 2024 Alois Micard 
+# 2024 Laurent Destailleur 
 LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 
 ENV DOLI_VERSION develop
