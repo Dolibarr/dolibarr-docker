@@ -51,6 +51,8 @@ RUN sed -i \
   -e 's/^\(ServerTokens\) OS$/\1 Prod/g' \
   /etc/apache2/conf-available/security.conf
 
+RUN a2enmod remoteip
+
 RUN apt-get update -y \
     && apt-get dist-upgrade -y \
     && apt-get install -y --no-install-recommends \
