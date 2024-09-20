@@ -238,3 +238,38 @@ services:
         links:
             - mariadb
 ```
+
+## Tuning the apache config to suit you
+
+### ServerName
+
+If you run apache2ctl configtest inside the container you'll probably get a message like this:
+> AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using x.y.z.w Set the 'ServerName' directive globally to suppress this message
+
+Easy fix, create a single text file
+
+Contents: "ServerName dolibarr.example.com"
+
+Mountpoint: "/etc/apache2/conf-enabled/servername.conf"
+
+read-only: Yes, mount it read only with :ro 
+
+### Running your dolibarr behind a proxy?
+
+If you want Dolibarr or the logs from the dolibarr container to reveal the original IP address and not just the proxy's IP address you should create 2 text files:
+
+#### remoteip.load
+This file will load the apache module remoteip https://httpd.apache.org/docs/current/mod/mod_remoteip.html
+
+Contents: "LoadModule remoteip_module /usr/lib/apache2/modules/mod_remoteip.so"
+
+Mountpoint: "/etc/apache2/mods-enabled/remoteip.load"
+
+read-only: Yes, mount it read only with :ro 
+
+#### remoteip.conf
+This file will contain the configuration for remoteip and should also be bind mounted read-only inside the container. Content will depend on your proxy and which kind of header it uses. You may perhaps also enable the proxy protocol, read more at https://httpd.apache.org/docs/current/mod/mod_remoteip.html
+
+Example content: "RemoteIPHeader X-Forwarded-For"
+
+Mountpoint: "/etc/apache2/mods-enabled/remoteip.conf"
