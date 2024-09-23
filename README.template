@@ -7,7 +7,7 @@ Dolibarr is a modern software package to manage your organization's activity (co
 > [More information](https://github.com/dolibarr/dolibarr)
 
 
-## Supported tags
+## Available versions/tags on Docker
 %TAGS%
 
 **End of support for PHP < 7.4**
