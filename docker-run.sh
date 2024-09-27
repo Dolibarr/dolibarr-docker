@@ -376,7 +376,7 @@ function run()
 	  	if [ -f /tmp/docker-run-lastinstall.result ]; then
 			INSTALLED_VERSION=`grep -v LAST_INSTALLED_VERSION /tmp/docker-run-lastinstall.result`
 			echo "Database Version is : ${INSTALLED_VERSION}"
-			echo "Files Version are : ${DOLI_VERSION}"
+			echo "Files Version are   : ${DOLI_VERSION}"
 			
 			if [[ ${DOLI_VERSION} != "develop" ]]; then
 				# Test if x in INSTALLED_VERSION is lower than X of DOLI_VERSION (in x.y.z)

@@ -52,6 +52,10 @@ services:
             - /home/mariadb_data:/var/lib/mysql
 
     web:
+    	# Choose the version of image to install
+    	# dolibarr/dolibarr:latest (the latest stable version)
+    	# dolibarr/dolibarr:develop
+    	# dolibarr/dolibarr:x.y.z
         image: dolibarr/dolibarr:latest
         environment:
             DOLI_DB_HOST: mariadb
