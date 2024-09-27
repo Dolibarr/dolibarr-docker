@@ -17,7 +17,7 @@ tags=""
 
 # First, clean the directory /images
 if [ -f "${BASE_DIR}/images/README.md" ]; then
-	mv "${BASE_DIR}/images/README.md" "/tmp/tmp-README.md"
+	cp -f "${BASE_DIR}/images/README.md" "/tmp/tmp-README.md"
 fi
 rm -rf "${BASE_DIR}/images" "${BASE_DIR}/docker-compose-links"
 
