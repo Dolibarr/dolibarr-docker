@@ -339,7 +339,7 @@ function run()
 
     waitForDataBase
 
-	# Check if DB exists
+	# Check if DB exists (even if empty)
 	DB_EXISTS=0
 	echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} -e \"SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '${DOLI_DB_NAME}';\" > /tmp/docker-run-checkdb.result 2>&1" >> /var/www/documents/initdb.log 2>&1
 	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} -e "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '${DOLI_DB_NAME}';" > /tmp/docker-run-checkdb.result 2>&1
@@ -351,33 +351,36 @@ function run()
     echo "DB Exists is : ${DB_EXISTS}"
 
 	if [[ ! -f /var/www/documents/install.lock ]]; then
-		echo "Install.lock file Exists is : no" >> /var/www/documents/initdb.log 2>&1 
-    	echo "Install.lock file Exists is : no"
+		echo "Install.lock Exists is : no" >> /var/www/documents/initdb.log 2>&1 
+    	echo "Install.lock Exists is : no"
 	else
-		echo "Install.lock file Exists is : yes" >> /var/www/documents/initdb.log 2>&1 
-    	echo "Install.lock file Exists is : yes"
+		echo "Install.lock Exists is : yes" >> /var/www/documents/initdb.log 2>&1 
+    	echo "Install.lock Exists is : yes"
 	fi
 
     # If install.lock does not exists, or if db does not exists, we launch the initializeDatabase, then upgrade if required.
-    if [[ ! -f /var/www/documents/install.lock || "${DB_EXISTS}" -eq 0 ]]; then
+    if [[ ! -f /var/www/documents/install.lock || "${DB_EXISTS}" = "" ]]; then
 		echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', ''))))) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
 		mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', ''))))) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
 		r=$?
 		if [[ ${r} -ne 0 ]]; then
 			# If test fails, it means tables does not exists, so we create them
+			echo "No table found, we launch initializeDatabase" >> /var/www/documents/initdb.log 2>&1 
+    		echo "No table found, we launch initializeDatabase"
+
 			initializeDatabase
 
 			# Regenerate the /tmp/docker-run-lastinstall.result 
 			echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', ''))))) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
 			mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', ''))))) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
 	  	fi
-	
+
 	  	# Now database exists. Do we have to upgrade it ?
 	  	if [ -f /tmp/docker-run-lastinstall.result ]; then
 			INSTALLED_VERSION=`grep -v LAST_INSTALLED_VERSION /tmp/docker-run-lastinstall.result`
 			echo "Database Version is : ${INSTALLED_VERSION}"
 			echo "Files Version are   : ${DOLI_VERSION}"
-			
+
 			if [[ ${DOLI_VERSION} != "develop" ]]; then
 				# Test if x in INSTALLED_VERSION is lower than X of DOLI_VERSION (in x.y.z)
 				if [[ "$(echo ${INSTALLED_VERSION} | cut -d. -f1)" -lt "$(echo ${DOLI_VERSION} | cut -d. -f1)" ]]; then
@@ -407,7 +410,7 @@ function run()
 			fi
 		fi
     else
-		echo "File /var/www/documents/install.lock exists and database eists so we cancel database init"
+		echo "File /var/www/documents/install.lock exists and database exists so we cancel database init"
     fi
   fi
 
