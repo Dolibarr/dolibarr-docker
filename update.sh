@@ -33,7 +33,7 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
   tags="${tags}\n\*"
   dolibarrMajor=$(echo ${dolibarrVersion} | cut -d. -f1)
 
-  # Mapping PHP version according Dolibarr version (See https://wiki.dolibarr.org/index.php/Versions)
+  # Mapping PHP version according to Dolibarr version (See https://wiki.dolibarr.org/index.php/Versions)
   # Regarding PHP Supported version : https://www.php.net/supported-versions.php
   if [ "${dolibarrVersion}" = "develop" ] || [ "${dolibarrMajor}" -ge "19" ] || [ "${dolibarrMajor}" -ge "20" ] || [ "${dolibarrMajor}" -ge "21" ]; then
     php_base_images=( "8.2-apache-buster" )
