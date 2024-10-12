@@ -14,7 +14,7 @@ Dolibarr is a modern software package to manage your organization's activity (co
 * 17.0.4-php8.1 17.0.4 17
 * 18.0.5-php8.1 18.0.5 18
 * 19.0.3-php8.2 19.0.3 19
-* 20.0.0-php8.2 20.0.0 20 latest
+* 20.0.1-php8.2 20.0.1 20 latest
 * develop
 
 *Dolibarr versions 14 and lower are no more updated on docker hub. You can get them as standard zip package from Dolibarr official web site*
