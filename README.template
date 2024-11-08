@@ -37,8 +37,8 @@ services:
     mariadb:
         image: mariadb:latest
         environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: dolibarr
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:-dolibarr}
         volumes:
             - /home/dolibarr_mariadb:/var/lib/mysql
 
@@ -49,16 +49,16 @@ services:
     	# dolibarr/dolibarr:x.y.z
         image: dolibarr/dolibarr:latest
         environment:
-            DOLI_DB_HOST: mariadb
-            DOLI_DB_USER: root
-            DOLI_DB_PASSWORD: root
-            DOLI_DB_NAME: dolibarr
-            DOLI_URL_ROOT: 'http://0.0.0.0'
-            DOLI_ADMIN_LOGIN: 'admin'
-            DOLI_ADMIN_PASSWORD: 'admin'
-            DOLI_INIT_DEMO: 0
-            WWW_USER_ID: 1000
-            WWW_GROUP_ID: 1000
+            DOLI_DB_HOST: ${DOLI_DB_HOST:-mariadb}
+            DOLI_DB_USER: ${DOLI_DB_USER:-root}
+            DOLI_DB_PASSWORD: ${DOLI_DB_PASSWORD:-root}
+            DOLI_DB_NAME: ${DOLI_DB_NAME:-dolibarr}
+            DOLI_URL_ROOT: "${DOLI_URL_ROOT:-http://0.0.0.0}"
+            DOLI_ADMIN_LOGIN: "${DOLI_ADMIN_LOGIN:-admin}"
+            DOLI_ADMIN_PASSWORD: "${DOLI_ADMIN_PASSWORD:-admin}"
+            DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
+            WWW_USER_ID: ${WWW_USER_ID:-1000}
+            WWW_GROUP_ID: ${WWW_GROUP_ID:-1000}
         ports:
             - "80:80"
         links:
@@ -194,8 +194,8 @@ services:
     mariadb:
         image: mariadb:latest
         environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: dolibarr
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:-dolibarr}
 
     web:
     	# Choose the version of image to install
@@ -204,16 +204,16 @@ services:
     	# dolibarr/dolibarr:x.y.z
         image: dolibarr/dolibarr
         environment:
-            DOLI_DB_HOST: mariadb
-            DOLI_DB_USER: root
-            DOLI_DB_PASSWORD: root
-            DOLI_DB_NAME: dolibarr
-            DOLI_URL_ROOT: 'http://0.0.0.0'
-            DOLI_ADMIN_LOGIN: 'admin'
-            DOLI_ADMIN_PASSWORD: 'admin'
-            DOLI_INIT_DEMO: 0
-            WWW_USER_ID: 1000
-            WWW_GROUP_ID: 1000
+            DOLI_DB_HOST: ${DOLI_DB_HOST:-mariadb}
+            DOLI_DB_USER: ${DOLI_DB_USER:-root}
+            DOLI_DB_PASSWORD: ${DOLI_DB_PASSWORD:-root}
+            DOLI_DB_NAME: ${DOLI_DB_NAME:-dolibarr}
+            DOLI_URL_ROOT: "${DOLI_URL_ROOT:-http://0.0.0.0}"
+            DOLI_ADMIN_LOGIN: "${DOLI_ADMIN_LOGIN:-admin}"
+            DOLI_ADMIN_PASSWORD: "${DOLI_ADMIN_PASSWORD:-admin}"
+            DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
+            WWW_USER_ID: ${WWW_USER_ID:-1000}
+            WWW_GROUP_ID: ${WWW_GROUP_ID:-1000}
         volumes :
           - volume-scripts:/var/www/scripts/docker-init.d
           - before-starting-scripts:/var/www/scripts/before-starting.d
