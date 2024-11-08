@@ -2,7 +2,7 @@
 #
 # Run this script to generate all files found into images directory, used for each image.
 # The source files are the files into the root.
-# 
+#
 
 set -e
 
@@ -36,11 +36,11 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
   # Mapping PHP version according to Dolibarr version (See https://wiki.dolibarr.org/index.php/Versions)
   # Regarding PHP Supported version : https://www.php.net/supported-versions.php
   if [ "${dolibarrVersion}" = "develop" ] || [ "${dolibarrMajor}" -ge "19" ] || [ "${dolibarrMajor}" -ge "20" ] || [ "${dolibarrMajor}" -ge "21" ]; then
-    php_base_images=( "8.2-apache-buster" )
+    php_base_images=( "8.2-apache-bullseye" )
   elif [ "${dolibarrMajor}" -ge "16" ]; then
-    php_base_images=( "8.1-apache-buster" )
+    php_base_images=( "8.1-apache-bullseye" )
   else
-    php_base_images=( "7.4-apache-buster" )
+    php_base_images=( "7.4-apache-bullseye" )
   fi
 
   for php_base_image in "${php_base_images[@]}"; do
