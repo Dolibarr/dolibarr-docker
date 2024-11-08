@@ -417,19 +417,40 @@ function run()
   # Run scripts before starting
   runScripts "before-starting.d"
   
-  echo "You can connect to your Dolibarr..."
+  echo "*** You can connect to the docker Mariadb with:"
+  echo "sudo docker exec -it nameofmariadbcontainer bash"
+  echo "mysql -uroot -p'MYSQL_ROOT_PASSWORD' -h localhost"
+  echo "ls /var/lib/mysql"
+  echo
+  echo "*** You can connect to the docker Dolibarr with:"
+  echo "sudo docker exec -it nameofwebcontainer bash"
+  echo "ls /var/www/documents"
+  echo "ls /var/www/html/custom"
+  echo
+  echo "*** You can access persistent directory from the host with:"
+  echo "ls /home/dolibarr_mariadb_latest"
+  echo "ls /home/dolibarr_documents_latest"
+  echo "ls /home/dolibarr_custom_latest"
+  echo
+  echo "*** You can connect to your Dolibarr web application with:"
+  echo "http://127.0.0.1:port"
 }
 
 
-DOLI_DB_USER=$(get_env_value 'DOLI_DB_USER' 'doli')
-DOLI_DB_PASSWORD=$(get_env_value 'DOLI_DB_PASSWORD' 'doli_pass')
+
+# main script 
+
+echo "docker-run.sh started"
+
+DOLI_DB_USER=$(get_env_value 'DOLI_DB_USER' 'dolidbuser')
+DOLI_DB_PASSWORD=$(get_env_value 'DOLI_DB_PASSWORD' 'dolidbpass')
 DOLI_ADMIN_LOGIN=$(get_env_value 'DOLI_ADMIN_LOGIN' 'admin')
 DOLI_ADMIN_PASSWORD=$(get_env_value 'DOLI_ADMIN_PASSWORD' 'admin')
 DOLI_CRON_KEY=$(get_env_value 'DOLI_CRON_KEY' '')
 DOLI_CRON_USER=$(get_env_value 'DOLI_CRON_USER' '')
 DOLI_INSTANCE_UNIQUE_ID=$(get_env_value 'DOLI_INSTANCE_UNIQUE_ID' '')
 
-# Launch main script
+# Launch the run function
 run
 
 set -e
@@ -447,4 +468,4 @@ fi
 
 exec "$@"
 
-echo "docker-run.sh finished."
+echo "docker-run.sh stopped."

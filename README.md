@@ -40,12 +40,19 @@ create a directory `/home/dolibarr_mariadb`, `/home/dolibarr_documents` and `/ho
 Then, create a `docker-compose.yml` file as following:
 
 ```yaml
+# Edit this file then run 
+# docker-compose up -d
+# docker-compose logs
+
 services:
     mariadb:
         image: mariadb:latest
         environment:
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-            MYSQL_DATABASE: ${MYSQL_DATABASE:-dolibarr}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:-dolidb}
+            MYSQL_USER: ${MYSQL_USER:-dolidbuser}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dolidbpass}
+
         volumes:
             - /home/dolibarr_mariadb:/var/lib/mysql
 
@@ -56,16 +63,19 @@ services:
     	# dolibarr/dolibarr:x.y.z
         image: dolibarr/dolibarr:latest
         environment:
+            WWW_USER_ID: ${WWW_USER_ID:-1000}
+            WWW_GROUP_ID: ${WWW_GROUP_ID:-1000}
             DOLI_DB_HOST: ${DOLI_DB_HOST:-mariadb}
-            DOLI_DB_USER: ${DOLI_DB_USER:-root}
-            DOLI_DB_PASSWORD: ${DOLI_DB_PASSWORD:-root}
-            DOLI_DB_NAME: ${DOLI_DB_NAME:-dolibarr}
+            DOLI_DB_NAME: ${DOLI_DB_NAME:-dolidb}
+            DOLI_DB_USER: ${DOLI_DB_USER:-dolidbuser}
+            DOLI_DB_PASSWORD: ${DOLI_DB_PASSWORD:-dolidbpass}
             DOLI_URL_ROOT: "${DOLI_URL_ROOT:-http://0.0.0.0}"
             DOLI_ADMIN_LOGIN: "${DOLI_ADMIN_LOGIN:-admin}"
             DOLI_ADMIN_PASSWORD: "${DOLI_ADMIN_PASSWORD:-admin}"
+            DOLI_CRON: ${DOLI_CRON:-0}
             DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
-            WWW_USER_ID: ${WWW_USER_ID:-1000}
-            WWW_GROUP_ID: ${WWW_GROUP_ID:-1000}
+            DOLI_COMPANY_NAME: ${DOLI_COMPANY_NAME:-MyBigCompany}
+
         ports:
             - "80:80"
         links:
@@ -133,28 +143,28 @@ You can use the following variables for a better customization of your docker-co
 
 | Variable                        | Default value                  | Description |
 | ------------------------------- | ------------------------------ | ----------- |
-| **DOLI_INSTALL_AUTO**           | *1*                            | 1: The installation will be done during docker first boot
-| **DOLI_INIT_DEMO**              | *0*                            | 1: The installation will also load demo data during docker first boot
-| **DOLI_PROD**                   | *1*                            | 1: Dolibarr will be run in production mode
-| **DOLI_DB_TYPE**                | *mysqli*                       | Type of the DB server (**mysqli**, pgsql)
-| **DOLI_DB_HOST**                | *mysql*                        | Host name of the MariaDB/MySQL server
-| **DOLI_DB_HOST_PORT**           | *3306*                         | Host port of the MariaDB/MySQL server
-| **DOLI_DB_USER**                | *doli*                         | Database user
-| **DOLI_DB_PASSWORD**            | *doli_pass*                    | Database user's password
-| **DOLI_DB_NAME**                | *dolidb*                       | Database name
-| **DOLI_ADMIN_LOGIN**            | *admin*                        | Admin's login created on the first boot
-| **DOLI_ADMIN_PASSWORD**         | *admin*                        | Admin's initial password created on the first boot
-| **DOLI_URL_ROOT**               | *http://localhost*             | Url root of the Dolibarr installation
-| **DOLI_ENABLE_MODULES**         |                                | Comma-separated list of modules to be activated at install. modUser will always be activated. (Ex: `Societe,Facture,Stock`)
-| **DOLI_COMPANY_NAME**           |                                | Set the company name of Dolibarr at container init
-| **DOLI_COMPANY_COUNTRYCODE**    |                                | Set the company and Dolibarr country at container init. Need 2-letter codes like "FR", "GB", "US",...
+| **WWW_USER_ID**                 |                                | ID of user www-data. ID will not changed if leave empty. During a development, it is very practical to put the same ID as the host user.
+| **WWW_GROUP_ID**                |                                | ID of group www-data. ID will not changed if leave empty.
 | **PHP_INI_DATE_TIMEZONE**       | *UTC*                          | Default timezone on PHP
 | **PHP_INI_MEMORY_LIMIT**        | *256M*                         | PHP Memory limit
 | **PHP_INI_UPLOAD_MAX_FILESIZE** | *2M*                           | PHP Maximum allowed size for uploaded files
 | **PHP_INI_POST_MAX_SIZE**       | *8M*                           | PHP Maximum size of POST data that PHP will accept.
 | **PHP_INI_ALLOW_URL_FOPEN**     | *0*                            | Allow URL-aware fopen wrappers
-| **WWW_USER_ID**                 |                                | ID of user www-data. ID will not changed if leave empty. During a development, it is very practical to put the same ID as the host user.
-| **WWW_GROUP_ID**                |                                | ID of group www-data. ID will not changed if leave empty.
+| **DOLI_INSTALL_AUTO**           | *1*                            | 1: The installation will be done during docker first boot
+| **DOLI_INIT_DEMO**              | *0*                            | 1: The installation will also load demo data during docker first boot
+| **DOLI_PROD**                   | *1*                            | 1: Dolibarr will be run in production mode
+| **DOLI_DB_TYPE**                | *mysqli*                       | Type of the DB server (**mysqli**, pgsql)
+| **DOLI_DB_HOST**                | *mariadb*                      | Host name of the MariaDB/MySQL server
+| **DOLI_DB_HOST_PORT**           | *3306*                         | Host port of the MariaDB/MySQL server
+| **DOLI_DB_NAME**                | *dolidb*                       | Database name
+| **DOLI_DB_USER**                | *dolidbuser*                   | Database user
+| **DOLI_DB_PASSWORD**            | *dolidbpass*                   | Database user's password
+| **DOLI_URL_ROOT**               | *http://localhost*             | Url root of the Dolibarr installation
+| **DOLI_ADMIN_LOGIN**            | *admin*                        | Admin's login created on the first boot
+| **DOLI_ADMIN_PASSWORD**         | *admin*                        | Admin's initial password created on the first boot
+| **DOLI_ENABLE_MODULES**         |                                | Comma-separated list of modules to be activated at install. modUser will always be activated. (Ex: `Societe,Facture,Stock`)
+| **DOLI_COMPANY_NAME**           |                                | Set the company name of Dolibarr at container init
+| **DOLI_COMPANY_COUNTRYCODE**    |                                | Set the company and Dolibarr country at container init. Need 2-letter codes like "FR", "GB", "US",...
 | **DOLI_AUTH**                   | *dolibarr*                     | Which method is used to connect users, change to `ldap` or `ldap, dolibarr` to use LDAP
 | **DOLI_LDAP_HOST**              | *127.0.0.1*                    | The host of the LDAP server
 | **DOLI_LDAP_PORT**              | *389*                          | The port of the LDAP server
@@ -202,7 +212,9 @@ services:
         image: mariadb:latest
         environment:
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-            MYSQL_DATABASE: ${MYSQL_DATABASE:-dolibarr}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:-dolidb}
+            MYSQL_USER: ${MYSQL_USER:-dolidbuser}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dolidbpass}
 
     web:
     	# Choose the version of image to install
@@ -212,9 +224,9 @@ services:
         image: dolibarr/dolibarr
         environment:
             DOLI_DB_HOST: ${DOLI_DB_HOST:-mariadb}
-            DOLI_DB_USER: ${DOLI_DB_USER:-root}
-            DOLI_DB_PASSWORD: ${DOLI_DB_PASSWORD:-root}
-            DOLI_DB_NAME: ${DOLI_DB_NAME:-dolibarr}
+            DOLI_DB_NAME: ${DOLI_DB_NAME:-dolidb}
+            DOLI_DB_USER: ${DOLI_DB_USER:-dolidbuser}
+            DOLI_DB_PASSWORD: ${DOLI_DB_PASSWORD:-dolidbpass}
             DOLI_URL_ROOT: "${DOLI_URL_ROOT:-http://0.0.0.0}"
             DOLI_ADMIN_LOGIN: "${DOLI_ADMIN_LOGIN:-admin}"
             DOLI_ADMIN_PASSWORD: "${DOLI_ADMIN_PASSWORD:-admin}"
@@ -244,3 +256,10 @@ When setup this way, to upgrade version the use of the web interface is mandator
  - Browse to `http://0.0.0.0/install`;
  - Upgrade DB;
  - Add `install.lock` inside the container volume `/var/www/html/documents` (ex `docker-compose exec services-data_dolibarr_1 /bin/bash -c "touch /var/www/html/documents/install.lock"`).
+
+ 
+## Trouble shooting
+
+If you get error "urllib3.exceptions.URLSchemeUnknown: Not supported URL scheme http+docker" during docker-compose, try to upgrade or downgrade the pip package:
+pip install requests==2.31.0
+
