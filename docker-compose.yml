@@ -32,7 +32,7 @@ services:
             - mysql-password
         environment:
             MYSQL_RANDOM_ROOT_PASSWORD: "1"
-            MYSQL_DATABASE: "dolibarr"
+            MYSQL_DATABASE: "dolidb"
             MYSQL_USER_FILE: "/run/secrets/mysql-user"
             MYSQL_PASSWORD_FILE: "/run/secrets/mysql-password"
         networks:
@@ -48,17 +48,17 @@ services:
         environment:
             WWW_USER_ID: 1000
             WWW_GROUP_ID: 1000
-            DOLI_CRON: 1
-            DOLI_CRON_KEY: mycronsecurekey
-            DOLI_CRON_USER: admintest
-            DOLI_INSTANCE_UNIQUE_ID: myinstanceuniqueid
+            DOLI_DB_HOST: mariadb
+            DOLI_DB_NAME: dolidb
             DOLI_DB_USER_FILE: /run/secrets/mysql-user
             DOLI_DB_PASSWORD_FILE: /run/secrets/mysql-password
             DOLI_ADMIN_LOGIN: admintest
             DOLI_ADMIN_PASSWORD: admintest
-            DOLI_DB_HOST: mariadb
-            DOLI_DB_NAME: dolidb
             DOLI_URL_ROOT: http://0.0.0.0:81
+            DOLI_INSTANCE_UNIQUE_ID: myinstanceuniqueid
+            DOLI_CRON: 1
+            DOLI_CRON_KEY: mycronsecurekey
+            DOLI_CRON_USER: admintest
         networks:
             - internal-pod
 
@@ -77,15 +77,15 @@ services:
         environment:
             WWW_USER_ID: 1000
             WWW_GROUP_ID: 1000
-            DOLI_INIT_DEMO: 1
+            DOLI_DB_HOST: mariadb
+            DOLI_DB_NAME: dolidb
             DOLI_DB_USER_FILE: "/run/secrets/mysql-user"
             DOLI_DB_PASSWORD_FILE: "/run/secrets/mysql-password"
             DOLI_ADMIN_LOGIN: "admintest"
             DOLI_ADMIN_PASSWORD: "admintest"
-            DOLI_DB_HOST: mariadb
-            DOLI_DB_NAME: dolidb
             DOLI_URL_ROOT: 'http://0.0.0.0:81'
             DOLI_INSTANCE_UNIQUE_ID: myinstanceuniqueid
+            DOLI_INIT_DEMO: 1
         ports:
             - "81:80"
         networks:
