@@ -425,7 +425,7 @@ function run()
   echo "*** You can connect to the docker Dolibarr with:"
   echo "sudo docker exec -it nameofwebcontainer bash"
   echo "ls /var/www/documents"
-  echo "ls /var/www/html/custom"
+  echo "ls /var/www/html"
   echo
   echo "*** You can access persistent directory from the host with:"
   echo "ls /home/dolibarr_mariadb_latest"
