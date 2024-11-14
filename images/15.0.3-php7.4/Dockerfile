@@ -1,12 +1,12 @@
 ARG ARCH=
 
 # Use an image like PHP_BASE_IMAGE=x.y-apache-buster
-FROM ${ARCH}php:7.4-apache-buster
+FROM ${ARCH}php:7.4-apache-bullseye
 
 # Credit/Initial maintainer: Garcia MICHEL <garcia@soamichel.fr>
 # Modified according to the GPL license by developers of the Dolibarr community:
-# 2024 Alois Micard 
-# 2024 Laurent Destailleur 
+# 2024 Alois Micard
+# 2024 Laurent Destailleur
 LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 
 ENV DOLI_VERSION 15.0.3
@@ -59,6 +59,7 @@ RUN apt-get update -y \
         libjpeg62-turbo-dev \
         libkrb5-dev \
         libldap2-dev \
+        libldap-common \
         libpng-dev \
         libpq-dev \
         libxml2-dev \
