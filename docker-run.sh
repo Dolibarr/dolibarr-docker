@@ -240,19 +240,23 @@ function initializeDatabase()
     curl -fLSs -o /var/www/dev/initdemo/initdemo.sql https://raw.githubusercontent.com/Dolibarr/dolibarr/${DOLI_TAG}/dev/initdemo/mysqldump_dolibarr_$versiondemo.sql
     if [ $? -ne 0 ]; then
 		echo "ERROR: failed to get the online init demo file. No demo init will be done."
+		echo "ERROR: failed to get the online init demo file. No demo init will be done." >>/var/www/documents/initdb.log 2>&1
 	else   
 	    for fileSQL in /var/www/dev/initdemo/*.sql; do
 	    	echo "Found demo data file, so we first drop tables llx_accounting_xxx ..."
-	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_account\" >> /var/www/documents/initdb.log 2>&1"
+	    	echo "Found demo data file, so we first drop tables llx_accounting_xxx ..." >> /var/www/documents/initdb.log
+	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_account\""
+	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_account\"" >> /var/www/documents/initdb.log 2>&1
 	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DROP TABLE llx_accounting_account" >> /var/www/documents/initdb.log 2>&1
-	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_system\" >> /var/www/documents/initdb.log 2>&1"
+	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_system\""
+	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_system\"" >> /var/www/documents/initdb.log 2>&1
 	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DROP TABLE llx_accounting_system" >> /var/www/documents/initdb.log 2>&1
 	  		
 	  		echo "Then we load demo data ${fileSQL} ..."
 	  		echo "Then we load demo data ${fileSQL} ..." >> /var/www/documents/initdb.log
 	        sed -i 's/\/\*!999999\\- enable the sandbox mode \*\///g;' ${fileSQL}
-	        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1"
-	        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1" >> /var/www/documents/initdb.log
+	        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL}"
+	        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL}" >> /var/www/documents/initdb.log 2>&1
 	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
 	    done
 	fi
@@ -417,9 +421,10 @@ function run()
   # Run scripts before starting
   runScripts "before-starting.d"
   
+  echo
   echo "*** You can connect to the docker Mariadb with:"
   echo "sudo docker exec -it nameofmariadbcontainer bash"
-  echo "mysql -uroot -p'MYSQL_ROOT_PASSWORD' -h localhost"
+  echo "mariadb -uroot -p'MYSQL_ROOT_PASSWORD' -h localhost"
   echo "ls /var/lib/mysql"
   echo
   echo "*** You can connect to the docker Dolibarr with:"
