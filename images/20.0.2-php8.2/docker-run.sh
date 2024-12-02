@@ -271,8 +271,10 @@ function initializeDatabase()
   #pass_crypted2=`php -r "echo password_hash(${DOLI_ADMIN_PASSWORD}, PASSWORD_BCRYPT);"`
   
   # Insert may fails if record already exists
+  echo "Try insert into llx_user ..." >> /var/www/documents/initdb.log
   mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "INSERT INTO llx_user (entity, login, pass_crypted, lastname, admin, statut) VALUES (0, '${DOLI_ADMIN_LOGIN}', '${pass_crypted}', 'SuperAdmin', 1, 1);" >> /var/www/documents/initdb.log 2>&1
   # Insert may fails if record already exists
+  echo "Now do update llx_user ..." >> /var/www/documents/initdb.log
   mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "UPDATE llx_user SET pass_crypted = '${pass_crypted}' WHERE login = '${DOLI_ADMIN_LOGIN}';" >> /var/www/documents/initdb.log 2>&1
 
   echo "Enable user module ..."
