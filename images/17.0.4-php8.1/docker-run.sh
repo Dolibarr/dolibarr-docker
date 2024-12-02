@@ -441,6 +441,7 @@ function run()
   echo
   echo "*** You can connect to your Dolibarr web application with:"
   echo "http://127.0.0.1:port"
+  echo
 }
 
 
