@@ -405,9 +405,7 @@ function run()
     fi
   fi
 
-  # Run scripts before starting
-  runScripts "before-starting.d"
-
+  # Set permission
   local CURRENT_UID=$(id -u www-data)
   local CURRENT_GID=$(id -g www-data)
   usermod -u ${WWW_USER_ID} www-data
@@ -415,13 +413,17 @@ function run()
 
   if [[ ${CURRENT_UID} -ne ${WWW_USER_ID} || ${CURRENT_GID} -ne ${WWW_GROUP_ID} ]]; then
     # Refresh file ownership cause it has changed
-    echo "[INIT] => As UID / GID have changed from default, update ownership for files in /var/ww ..."
+    echo "As UID / GID have changed from default, update ownership for files in /var/ww ..."
     chown -R www-data:www-data /var/www
   else
     # Reducing load on init : change ownership only for volumes declared in docker
-    echo "[INIT] => update ownership for files in /var/www/documents ..."
+    echo "Update ownership for files in /var/www/documents ..."
     chown -R www-data:www-data /var/www/documents
   fi
+
+
+  # Run scripts before starting
+  runScripts "before-starting.d"
 
   
   echo
