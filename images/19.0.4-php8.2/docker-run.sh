@@ -51,6 +51,7 @@ EOF
 
 if [[ ! -f /var/www/html/conf/conf.php ]]; then
     echo "[INIT] => update Dolibarr Config ..."
+    mkdir /var/www/html/conf
     cat > /var/www/html/conf/conf.php << EOF
 <?php
 \$dolibarr_main_url_root='${DOLI_URL_ROOT}';
