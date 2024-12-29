@@ -16,6 +16,7 @@ jobs:
                 DOCKER_BUILD: 1
                 DOCKER_PUSH: 1
               run: |
+                echo secrets.DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
                 echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
                 ./update.sh
 
@@ -24,6 +25,7 @@ jobs:
         steps:
             - uses: actions/checkout@v3
             - run: |
+                echo secrets.DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }} 
                 docker run --rm -t \
                 -v $(pwd):/src \
                 -e DOCKER_USER=${{ secrets.DOCKER_HUB_USERNAME }} \
