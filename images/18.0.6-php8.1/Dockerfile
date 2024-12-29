@@ -1,15 +1,15 @@
 ARG ARCH=
 
 # Use an image like PHP_BASE_IMAGE=x.y-apache-buster
-FROM ${ARCH}php:8.1-apache-buster
+FROM ${ARCH}php:8.1-apache-bullseye
 
 # Credit/Initial maintainer: Garcia MICHEL <garcia@soamichel.fr>
 # Modified according to the GPL license by developers of the Dolibarr community:
-# 2024 Alois Micard 
-# 2024 Laurent Destailleur 
+# 2024 Alois Micard
+# 2024 Laurent Destailleur
 LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 
-ENV DOLI_VERSION 18.0.5
+ENV DOLI_VERSION 18.0.6
 ENV DOLI_VERSION_FOR_INIT_DEMO 18.0
 ENV DOLI_INSTALL_AUTO 1
 ENV DOLI_PROD 1
@@ -59,6 +59,7 @@ RUN apt-get update -y \
         libjpeg62-turbo-dev \
         libkrb5-dev \
         libldap2-dev \
+        libldap-common \
         libpng-dev \
         libpq-dev \
         libxml2-dev \
@@ -69,7 +70,7 @@ RUN apt-get update -y \
         cron \
     && apt-get autoremove -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip \
+    && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip opcache \
     && docker-php-ext-configure pgsql -with-pgsql \
     && docker-php-ext-install pdo_pgsql pgsql \
     && docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)/ \
@@ -88,7 +89,8 @@ RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.
     rm -rf /tmp/* && \
     mkdir -p /var/www/documents && \
     mkdir -p /var/www/html/custom && \
-    chown -R www-data:www-data /var/www
+    chown -R www-data:www-data /var/www && \
+    chmod -R u-w /var/www/html
 
 EXPOSE 80
 VOLUME /var/www/documents

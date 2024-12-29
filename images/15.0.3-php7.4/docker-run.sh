@@ -32,11 +32,6 @@ function get_env_value() {
 # Function to create directories, create conf.php file and set permissions on files
 function initDolibarr()
 {
-  local CURRENT_UID=$(id -u www-data)
-  local CURRENT_GID=$(id -g www-data)
-  usermod -u ${WWW_USER_ID} www-data
-  groupmod -g ${WWW_GROUP_ID} www-data
-
   if [[ ! -d /var/www/documents ]]; then
     echo "[INIT] => create volume directory /var/www/documents ..."
     mkdir -p /var/www/documents
@@ -51,11 +46,12 @@ upload_max_filesize = ${PHP_INI_UPLOAD_MAX_FILESIZE}
 post_max_size = ${PHP_INI_POST_MAX_SIZE}
 allow_url_fopen = ${PHP_INI_ALLOW_URL_FOPEN}
 session.use_strict_mode = 1
-disable_functions = pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wifcontinued,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_get_handler,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,pcntl_async_signals,passthru,shell_exec,system,proc_open,popen
+disable_functions = pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wifcontinued,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_get_handler,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,pcntl_async_signals,passthru,shell_exec,system,proc_open,popen,dl,apache_note,apache_setenv,show_source,virtual
 EOF
 
 if [[ ! -f /var/www/html/conf/conf.php ]]; then
     echo "[INIT] => update Dolibarr Config ..."
+    mkdir /var/www/html/conf
     cat > /var/www/html/conf/conf.php << EOF
 <?php
 \$dolibarr_main_url_root='${DOLI_URL_ROOT}';
@@ -108,16 +104,6 @@ EOF
     chmod 600 /var/www/html/conf/conf.php
   else
     chmod 400 /var/www/html/conf/conf.php
-  fi
-
-  if [[ ${CURRENT_UID} -ne ${WWW_USER_ID} || ${CURRENT_GID} -ne ${WWW_GROUP_ID} ]]; then
-    # Refresh file ownership cause it has changed
-    echo "[INIT] => As UID / GID have changed from default, update ownership for files in /var/ww ..."
-    chown -R www-data:www-data /var/www
-  else
-    # Reducing load on init : change ownership only for volumes declared in docker
-    echo "[INIT] => update ownership for files in /var/www/documents ..."
-    chown -R www-data:www-data /var/www/documents
   fi
 }
 
@@ -240,19 +226,23 @@ function initializeDatabase()
     curl -fLSs -o /var/www/dev/initdemo/initdemo.sql https://raw.githubusercontent.com/Dolibarr/dolibarr/${DOLI_TAG}/dev/initdemo/mysqldump_dolibarr_$versiondemo.sql
     if [ $? -ne 0 ]; then
 		echo "ERROR: failed to get the online init demo file. No demo init will be done."
+		echo "ERROR: failed to get the online init demo file. No demo init will be done." >>/var/www/documents/initdb.log 2>&1
 	else   
 	    for fileSQL in /var/www/dev/initdemo/*.sql; do
 	    	echo "Found demo data file, so we first drop tables llx_accounting_xxx ..."
-	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_account\" >> /var/www/documents/initdb.log 2>&1"
+	    	echo "Found demo data file, so we first drop tables llx_accounting_xxx ..." >> /var/www/documents/initdb.log
+	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_account\""
+	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_account\"" >> /var/www/documents/initdb.log 2>&1
 	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DROP TABLE llx_accounting_account" >> /var/www/documents/initdb.log 2>&1
-	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_system\" >> /var/www/documents/initdb.log 2>&1"
+	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_system\""
+	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_system\"" >> /var/www/documents/initdb.log 2>&1
 	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DROP TABLE llx_accounting_system" >> /var/www/documents/initdb.log 2>&1
 	  		
 	  		echo "Then we load demo data ${fileSQL} ..."
 	  		echo "Then we load demo data ${fileSQL} ..." >> /var/www/documents/initdb.log
 	        sed -i 's/\/\*!999999\\- enable the sandbox mode \*\///g;' ${fileSQL}
-	        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1"
-	        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1" >> /var/www/documents/initdb.log
+	        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL}"
+	        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL}" >> /var/www/documents/initdb.log 2>&1
 	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
 	    done
 	fi
@@ -267,8 +257,10 @@ function initializeDatabase()
   #pass_crypted2=`php -r "echo password_hash(${DOLI_ADMIN_PASSWORD}, PASSWORD_BCRYPT);"`
   
   # Insert may fails if record already exists
+  echo "Try insert into llx_user ..." >> /var/www/documents/initdb.log
   mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "INSERT INTO llx_user (entity, login, pass_crypted, lastname, admin, statut) VALUES (0, '${DOLI_ADMIN_LOGIN}', '${pass_crypted}', 'SuperAdmin', 1, 1);" >> /var/www/documents/initdb.log 2>&1
   # Insert may fails if record already exists
+  echo "Now do update llx_user ..." >> /var/www/documents/initdb.log
   mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "UPDATE llx_user SET pass_crypted = '${pass_crypted}' WHERE login = '${DOLI_ADMIN_LOGIN}';" >> /var/www/documents/initdb.log 2>&1
 
   echo "Enable user module ..."
@@ -339,7 +331,7 @@ function run()
 
     waitForDataBase
 
-	# Check if DB exists
+	# Check if DB exists (even if empty)
 	DB_EXISTS=0
 	echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} -e \"SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '${DOLI_DB_NAME}';\" > /tmp/docker-run-checkdb.result 2>&1" >> /var/www/documents/initdb.log 2>&1
 	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} -e "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '${DOLI_DB_NAME}';" > /tmp/docker-run-checkdb.result 2>&1
@@ -351,33 +343,36 @@ function run()
     echo "DB Exists is : ${DB_EXISTS}"
 
 	if [[ ! -f /var/www/documents/install.lock ]]; then
-		echo "Install.lock file Exists is : no" >> /var/www/documents/initdb.log 2>&1 
-    	echo "Install.lock file Exists is : no"
+		echo "Install.lock Exists is : no" >> /var/www/documents/initdb.log 2>&1 
+    	echo "Install.lock Exists is : no"
 	else
-		echo "Install.lock file Exists is : yes" >> /var/www/documents/initdb.log 2>&1 
-    	echo "Install.lock file Exists is : yes"
+		echo "Install.lock Exists is : yes" >> /var/www/documents/initdb.log 2>&1 
+    	echo "Install.lock Exists is : yes"
 	fi
 
     # If install.lock does not exists, or if db does not exists, we launch the initializeDatabase, then upgrade if required.
-    if [[ ! -f /var/www/documents/install.lock || "${DB_EXISTS}" -eq 0 ]]; then
-		echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', ''))))) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
-		mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', ''))))) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
+    if [[ ! -f /var/www/documents/install.lock || "${DB_EXISTS}" = "" ]]; then
+		echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
+		mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
 		r=$?
 		if [[ ${r} -ne 0 ]]; then
 			# If test fails, it means tables does not exists, so we create them
+			echo "No table found, we launch initializeDatabase" >> /var/www/documents/initdb.log 2>&1 
+    		echo "No table found, we launch initializeDatabase"
+
 			initializeDatabase
 
 			# Regenerate the /tmp/docker-run-lastinstall.result 
-			echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', ''))))) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
-			mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', ''))))) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
+			echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
+			mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
 	  	fi
-	
+
 	  	# Now database exists. Do we have to upgrade it ?
 	  	if [ -f /tmp/docker-run-lastinstall.result ]; then
 			INSTALLED_VERSION=`grep -v LAST_INSTALLED_VERSION /tmp/docker-run-lastinstall.result`
 			echo "Database Version is : ${INSTALLED_VERSION}"
-			echo "Files Version are : ${DOLI_VERSION}"
-			
+			echo "Files Version are   : ${DOLI_VERSION}"
+
 			if [[ ${DOLI_VERSION} != "develop" ]]; then
 				# Test if x in INSTALLED_VERSION is lower than X of DOLI_VERSION (in x.y.z)
 				if [[ "$(echo ${INSTALLED_VERSION} | cut -d. -f1)" -lt "$(echo ${DOLI_VERSION} | cut -d. -f1)" ]]; then
@@ -390,7 +385,7 @@ function run()
 						migrateDatabase
 					else
 						# Test if z in INSTALLED_VERSION is lower than Z of DOLI_VERSION (in x.y.z)
-						if [[ "$(echo ${INSTALLED_VERSION} | cut -d. -f1)" -eq "$(echo ${DOLI_VERSION} | cut -d. -f1)" && "$(echo ${INSTALLED_VERSION} | cut -d. -f2)" -eq "$(echo ${DOLI_VERSION} | cut -d. -f2)" && "$(echo ${INSTALLED_VERSION} | cut -d. -f3)" -lt "$(echo ${DOLI_VERSION} | cut -d. -f3)" ]]; then
+						if [[ "$(echo ${INSTALLED_VERSION} | cut -d. -f1)" -eq "$(echo ${DOLI_VERSION} | cut -d. -f1)" && "$(echo ${INSTALLED_VERSION} | cut -d. -f2)" -eq "$(echo ${DOLI_VERSION} | cut -d. -f2)" && "$(echo ${INSTALLED_VERSION} | cut -d. -f3 | sed -e 's/\-(beta|alpha)//')" -lt "$(echo ${DOLI_VERSION} | cut -d. -f3)" ]]; then
 						   	echo "Database version is a minor lower version, so we must run the upgrade process"
 							migrateDatabase
 						else
@@ -407,26 +402,67 @@ function run()
 			fi
 		fi
     else
-		echo "File /var/www/documents/install.lock exists and database eists so we cancel database init"
+		echo "File /var/www/documents/install.lock exists and database exists so we cancel database init"
     fi
   fi
 
+  # Set permission
+  local CURRENT_UID=$(id -u www-data)
+  local CURRENT_GID=$(id -g www-data)
+  usermod -u ${WWW_USER_ID} www-data
+  groupmod -g ${WWW_GROUP_ID} www-data
+
+  if [[ ${CURRENT_UID} -ne ${WWW_USER_ID} || ${CURRENT_GID} -ne ${WWW_GROUP_ID} ]]; then
+    # Refresh file ownership cause it has changed
+    echo "As UID / GID have changed from default, update ownership for files in /var/ww ..."
+    chown -R www-data:www-data /var/www
+  else
+    # Reducing load on init : change ownership only for volumes declared in docker
+    echo "Update ownership for files in /var/www/documents ..."
+    chown -R www-data:www-data /var/www/documents
+  fi
+
+
   # Run scripts before starting
   runScripts "before-starting.d"
+
   
-  echo "You can connect to your Dolibarr..."
+  echo
+  echo "*** You can connect to the docker Mariadb with:"
+  echo "sudo docker exec -it nameofwebcontainer-mariadb-1 bash"
+  echo "mariadb -uroot -p'MYSQL_ROOT_PASSWORD' -h localhost"
+  echo "ls /var/lib/mysql"
+  echo
+  echo "*** You can connect to the docker Dolibarr with:"
+  echo "sudo docker exec -it nameofwebcontainer-web-1 bash"
+  echo "ls /var/www/documents"
+  echo "ls /var/www/html"
+  echo
+  echo "*** You can access persistent directory from the host with:"
+  echo "ls /home/dolibarr_mariadb_latest"
+  echo "ls /home/dolibarr_documents_latest"
+  echo "ls /home/dolibarr_custom_latest"
+  echo
+  echo "*** You can connect to your Dolibarr web application with:"
+  echo "http://127.0.0.1:port"
+  echo
 }
 
 
-DOLI_DB_USER=$(get_env_value 'DOLI_DB_USER' 'doli')
-DOLI_DB_PASSWORD=$(get_env_value 'DOLI_DB_PASSWORD' 'doli_pass')
+
+# main script 
+
+echo "docker-run.sh started"
+
+DOLI_DB_USER=$(get_env_value 'DOLI_DB_USER' 'dolidbuser')
+DOLI_DB_PASSWORD=$(get_env_value 'DOLI_DB_PASSWORD' 'dolidbpass')
 DOLI_ADMIN_LOGIN=$(get_env_value 'DOLI_ADMIN_LOGIN' 'admin')
 DOLI_ADMIN_PASSWORD=$(get_env_value 'DOLI_ADMIN_PASSWORD' 'admin')
 DOLI_CRON_KEY=$(get_env_value 'DOLI_CRON_KEY' '')
 DOLI_CRON_USER=$(get_env_value 'DOLI_CRON_USER' '')
 DOLI_INSTANCE_UNIQUE_ID=$(get_env_value 'DOLI_INSTANCE_UNIQUE_ID' '')
 
-# Launch main script
+# Launch the run function
 run
 
 set -e
@@ -444,4 +480,4 @@ fi
 
 exec "$@"
 
-echo "docker-run.sh finished."
+echo "docker-run.sh stopped."
