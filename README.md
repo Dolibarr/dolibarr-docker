@@ -79,9 +79,11 @@ services:
             - /home/dolibarr_custom:/var/www/html/custom
 ```
 
-Then build and run all services (-d is to run in background)
+Then build and run all services (-d is to run in background).
 
 `sudo docker-compose up -d`
+
+If the "docker-compose" command is not available, you can replace it with the command "docker compose".
 
 You can check the web and the mariadb containers are up and see logs with
 
@@ -89,7 +91,7 @@ You can check the web and the mariadb containers are up and see logs with
 
 `sudo docker-compose logs`
 
-Once the log shows that the start is complete, go to http://0.0.0.0 to access to the new Dolibarr installation, first admin login is admin/admin. 
+Once the log shows that the start is complete (you should see a message "You can connect to your Dolibarr web application..."), go to http://0.0.0.0 to access to the new Dolibarr installation, first admin login is admin/admin (if you did not change default value previously in the docker-compose.yml file). 
 
 Note: If the host port 80 is already used, you can replace "80:80" with "xx:80" where xx a free port on the host. You will be
 able to access the Dolibarr using the URL http://0.0.0.0:xx
@@ -108,7 +110,7 @@ You can find several examples in the `examples` directory, such as:
 
 Warning: Only data stored into persistent directories will not be lost after an upgrade of containers.
 
-Remove the `install.lock` file. The `install.lock` file is located inside the container volume `/var/www/documents`.
+Remove the `install.lock` file located inside the container volume `/var/www/documents`.
 
 `sudo docker exec nameofwebcontainer bash -c "rm -f /var/www/documents/install.lock"`
 
@@ -117,6 +119,10 @@ or
 `sudo docker exec -it nameofwebcontainer bash`
 
 `rm -f /var/www/documents/install.lock; exit`
+
+or if the document directory has been set as a persistent directory, you can do it from the host:
+
+`rm -f /home/dolibarr_documents/install.lock`
 
 
 Then start an updated version container.
