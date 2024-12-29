@@ -8,11 +8,19 @@ on:
 jobs:
     check-update:
         runs-on: ubuntu-latest
+
         steps:
-            - uses: actions/checkout@v3
-            - run: |
-                ./update.sh
-                git diff --exit-code
+        - name: Checkout code
+          uses: actions/checkout@v3
+
+        - name: Test the update was run, files will differ if not
+          run: |
+            ./update.sh
+            git diff --exit-code
+
+        - name: Display error message on failure
+          if: failure()  # This condition ensures the step runs only if the previous step failed
+          run: echo "The diff after running the update.sh shows that the update.sh was not run before commiting the PR."
 
     check-build:
         runs-on: ubuntu-latest

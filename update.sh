@@ -111,6 +111,3 @@ done
 if [ -f "/tmp/tmp-README.md" ]; then
 	mv "/tmp/tmp-README.md" "${BASE_DIR}/images/README.md"
 fi
-
-
-sed 's/%TAGS%/'"${tags}"'/' "${BASE_DIR}/README.template" > "${BASE_DIR}/README.md"

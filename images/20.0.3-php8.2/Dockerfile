@@ -9,7 +9,7 @@ FROM ${ARCH}php:8.2-apache-bullseye
 # 2024 Laurent Destailleur
 LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 
-ENV DOLI_VERSION 20.0.2
+ENV DOLI_VERSION 20.0.3
 ENV DOLI_VERSION_FOR_INIT_DEMO 20.0
 ENV DOLI_INSTALL_AUTO 1
 ENV DOLI_PROD 1

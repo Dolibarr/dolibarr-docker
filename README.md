@@ -9,15 +9,9 @@ Dolibarr is a modern software package to manage your organization's activity (co
 
 ## Available versions/tags on Docker
 
-* 15.0.3-php7.4 15.0.3 15
-* 16.0.5-php8.1 16.0.5 16
-* 17.0.4-php8.1 17.0.4 17
-* 18.0.6-php8.1 18.0.6 18
-* 19.0.4-php8.2 19.0.4 19
-* 20.0.2-php8.2 20.0.2 20 latest
-* develop
+See https://hub.docker.com/repository/docker/dolibarr/dolibarr/tags
 
-*Dolibarr versions 14 and lower are no more updated on docker hub. You can get them as standard zip package from Dolibarr official web site*
+*Very old Dolibarr versions may not be updated on docker hub, but you can always get them as standard zip package from Dolibarr official web site*
 
 
 ## Supported architectures
@@ -193,7 +187,10 @@ Environment variables that are compatible with docker secrets:
 * `DOLI_INSTANCE_UNIQUE_ID` => `DOLI_INSTANCE_UNIQUE_ID_FILE`
 
 
-## Add post-deployment and before starting scripts
+
+## Advnced setup
+
+### Add post-deployment and before starting scripts
 
 It is possible to execute `*.sh`, `*.sql` and/or `*.php` custom files at the end of a deployment or before starting Apache by mounting volumes.
 For scripts to execute during deployment, mount volume in `/var/www/scripts/docker-init.d`.
@@ -206,6 +203,7 @@ For scripts to execute before Apache start, mount volume in `/var/www/scripts/be
 ```
 
 Mount the volumes with compose file : 
+
 ```yaml
 services:
     mariadb:
@@ -243,7 +241,43 @@ services:
 ```
 
 
-## Early support for PostgreSQL
+### Tuning the apache configuration to suit you
+
+#### ServerName
+
+If you run apache2ctl configtest inside the container you'll probably get a message like this:
+> AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using x.y.z.w Set the 'ServerName' directive globally to suppress this message
+
+Easy fix, create a single text file
+
+Contents: "ServerName dolibarr.example.com"
+
+Mountpoint: "/etc/apache2/conf-enabled/servername.conf"
+
+read-only: Yes, mount it read only with :ro 
+
+#### Running your dolibarr behind a proxy?
+
+If you want Dolibarr or the logs from the dolibarr container to reveal the original IP address and not just the proxy's IP address you should create 2 text files:
+
+*remoteip.load*
+This file will load the apache module remoteip https://httpd.apache.org/docs/current/mod/mod_remoteip.html
+
+Contents: "LoadModule remoteip_module /usr/lib/apache2/modules/mod_remoteip.so"
+
+Mountpoint: "/etc/apache2/mods-enabled/remoteip.load"
+
+read-only: Yes, mount it read only with :ro 
+
+*remoteip.conf*
+This file will contain the configuration for remoteip and should also be bind mounted read-only inside the container. Content will depend on your proxy and which kind of header it uses. You may perhaps also enable the proxy protocol, read more at https://httpd.apache.org/docs/current/mod/mod_remoteip.html
+
+Example content: "RemoteIPHeader X-Forwarded-For"
+
+Mountpoint: "/etc/apache2/mods-enabled/remoteip.conf"
+
+
+### Support for PostgreSQL
 
 Setting `DOLI_DB_TYPE` to `pgsql` enable Dolibarr to run with a PostgreSQL database.
 When set to use `pgsql`, Dolibarr must be installed manually on it's first execution:
@@ -262,4 +296,3 @@ When setup this way, to upgrade version the use of the web interface is mandator
 
 If you get error "urllib3.exceptions.URLSchemeUnknown: Not supported URL scheme http+docker" during docker-compose, try to upgrade or downgrade the pip package:
 pip install requests==2.31.0
-
