@@ -194,7 +194,7 @@ Environment variables that are compatible with docker secrets:
 
 
 
-## Advnced setup
+## Advanced setup
 
 ### Add post-deployment and before starting scripts
 
