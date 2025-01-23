@@ -108,9 +108,9 @@ You can find several examples in the `examples` directory, such as:
 
 ## Upgrading Dolibarr version and migrating DB
 
-Warning: Only data stored into persistent directories will not be lost after an upgrade of containers.
+Warning: Only data stored into the persistent directories (see the section "volumes" of your docker-compose.yml") will not be lost after an upgrade of containers.
 
-Remove the `install.lock` file located inside the container volume `/var/www/documents`.
+Remove the `install.lock` file located inside the container volume `/var/www/documents` using one of this method:
 
 `sudo docker exec nameofwebcontainer bash -c "rm -f /var/www/documents/install.lock"`
 
