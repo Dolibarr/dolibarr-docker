@@ -108,7 +108,7 @@ You can find several examples in the `examples` directory, such as:
 
 ## Upgrading Dolibarr version and migrating DB
 
-Warning: Only data stored into the persistent directories (see the section "volumes" of your docker-compose.yml") will not be lost after an upgrade of containers.
+Warning: Only data stored into the persistent directories (see the section "volumes" of your docker-compose.yml) will not be lost after an upgrade of containers.
 
 Remove the `install.lock` file located inside the container volume `/var/www/documents` using one of this method:
 
@@ -133,8 +133,8 @@ Then download the updated version of containers and restart them.
 
 `sudo docker-compose logs`
 
-Ensure that env `DOLI_INSTALL_AUTO` is set to `1` so it will migrate Database to the new version.
-You can still use the standard way to upgrade through web interface.
+Ensure that env `DOLI_INSTALL_AUTO` in your docker-compose.yml is set to `1` so it will migrate the Database to the new version, or
+you can prefer to use the standard way to upgrade Dolibarr through the web interface by calling the /install page.
 
 
 ## Environment variables summary
