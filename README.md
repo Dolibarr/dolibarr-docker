@@ -125,7 +125,7 @@ or if the document directory has been set as a persistent directory, you can do 
 `rm -f /home/dolibarr_documents/install.lock`
 
 
-Then start an updated version container.
+Then download the updated version of containers and restart them.
 
 `sudo docker-compose pull`
 
