@@ -9,7 +9,7 @@ Dolibarr is a modern software package to manage your organization's activity (co
 
 ## Available versions/tags on Docker
 
-See https://hub.docker.com/repository/docker/dolibarr/dolibarr/tags
+See https://hub.docker.com/r/dolibarr/dolibarr/tags
 
 *Very old Dolibarr versions may not be updated on docker hub, but you can always get them as standard zip package from Dolibarr official web site*
 
