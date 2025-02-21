@@ -9,7 +9,7 @@ Dolibarr is a modern software package to manage your organization's activity (co
 
 ## Available versions/tags on Docker
 
-See https://hub.docker.com/repository/docker/dolibarr/dolibarr/tags
+See https://hub.docker.com/r/dolibarr/dolibarr/tags
 
 *Very old Dolibarr versions may not be updated on docker hub, but you can always get them as standard zip package from Dolibarr official web site*
 
@@ -21,7 +21,7 @@ Linux x86-64 (`amd64`), ARMv7 32-bit (`arm32v7` :warning: MariaDB/Mysql docker i
 
 ## How to run this image ?
 
-This image is based on the [official PHP repository](https://registry.hub.docker.com/_/php/) and the [official Dolibarr repository](https://github.com/Dolibarr/dolibarr). It is build
+This image is based on the [official PHP repository](https://hub.docker.com/_/php/) and the [official Dolibarr repository](https://github.com/Dolibarr/dolibarr). It is build
 using the tools saved in the [Dolibarr docker build repository](https://github.com/Dolibarr/dolibarr-docker). 
 
 This image does not contains database, so you need to link it with a database container. Let's use [Docker Compose](https://docs.docker.com/compose/) to integrate it with [MariaDB](https://hub.docker.com/_/mariadb/) (you can also use [MySQL](https://hub.docker.com/_/mysql/) if you prefer):
