@@ -21,7 +21,7 @@ Linux x86-64 (`amd64`), ARMv7 32-bit (`arm32v7` :warning: MariaDB/Mysql docker i
 
 ## How to run this image ?
 
-This image is based on the [official PHP repository](https://registry.hub.docker.com/_/php/) and the [official Dolibarr repository](https://github.com/Dolibarr/dolibarr). It is build
+This image is based on the [official PHP repository](https://hub.docker.com/_/php/) and the [official Dolibarr repository](https://github.com/Dolibarr/dolibarr). It is build
 using the tools saved in the [Dolibarr docker build repository](https://github.com/Dolibarr/dolibarr-docker). 
 
 This image does not contains database, so you need to link it with a database container. Let's use [Docker Compose](https://docs.docker.com/compose/) to integrate it with [MariaDB](https://hub.docker.com/_/mariadb/) (you can also use [MySQL](https://hub.docker.com/_/mysql/) if you prefer):
