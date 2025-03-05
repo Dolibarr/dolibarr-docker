@@ -64,13 +64,14 @@ RUN apt-get update -y \
         libpq-dev \
         libxml2-dev \
         libzip-dev \
+        libtidy-dev \
         default-mysql-client \
         postgresql-client \
         vim-tiny \
         cron \
     && apt-get autoremove -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip opcache \
+    && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip opcache tidy \
     && docker-php-ext-configure pgsql -with-pgsql \
     && docker-php-ext-install pdo_pgsql pgsql \
     && docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)/ \
