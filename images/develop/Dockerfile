@@ -73,7 +73,8 @@ RUN apt-get update -y \
     && apt-get autoremove -y
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-install -j$(nproc) calendar intl mysqli gd zip xml
-RUN docker-php-ext-install -j$(nproc) soap opcache
+RUN docker-php-ext-install -j$(nproc) soap
+RUN docker-php-ext-install -j$(nproc) opcache
 RUN docker-php-ext-configure pgsql -with-pgsql
 RUN docker-php-ext-install pgsql
 RUN docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)/
