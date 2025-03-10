@@ -1,8 +1,11 @@
 name: build
 on:
-    push:
-        branches:
-            - main
+    #push:
+    #    branches:
+    #        - main
+    # can run job manually
+    workflow_dispatch:			
+    # Run once a week 
     schedule:
         - cron: '0 0 * * 6'
 
