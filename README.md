@@ -67,6 +67,7 @@ services:
             DOLI_ADMIN_LOGIN: "${DOLI_ADMIN_LOGIN:-admin}"
             DOLI_ADMIN_PASSWORD: "${DOLI_ADMIN_PASSWORD:-admin}"
             DOLI_CRON: ${DOLI_CRON:-0}
+            DOLI_CRON_KEY: ${DOLI_CRON_KEY:-mycronsecurekey}
             DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
             DOLI_COMPANY_NAME: ${DOLI_COMPANY_NAME:-MyBigCompany}
 
@@ -234,6 +235,8 @@ services:
             DOLI_URL_ROOT: "${DOLI_URL_ROOT:-http://0.0.0.0}"
             DOLI_ADMIN_LOGIN: "${DOLI_ADMIN_LOGIN:-admin}"
             DOLI_ADMIN_PASSWORD: "${DOLI_ADMIN_PASSWORD:-admin}"
+            DOLI_CRON: ${DOLI_CRON:-0}
+            DOLI_CRON_KEY: ${DOLI_CRON_KEY:-mycronsecurekey}
             DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
             WWW_USER_ID: ${WWW_USER_ID:-1000}
             WWW_GROUP_ID: ${WWW_GROUP_ID:-1000}

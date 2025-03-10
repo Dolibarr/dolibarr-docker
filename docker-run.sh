@@ -267,6 +267,10 @@ function initializeDatabase()
   echo "Enable user module ..." >> /var/www/documents/initdb.log
   php /var/www/scripts/docker-init.php
 
+  echo "Set cron key to ${DOLI_CRON_KEY}..."
+  echo "Set cron key to ${DOLI_CRON_KEY}..." >> /var/www/documents/initdb.log
+  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "UPDATE llx_const set value = '${DOLI_CRON_KEY}' WHERE name = 'CRON_KEY'" >> /var/www/documents/initdb.log 2>&1
+
   # Run init scripts
   echo "Run scripts into docker-init.d if there is ..."
   echo "Run scripts into docker-init.d if there is ..." >> /var/www/documents/initdb.log
@@ -431,6 +435,8 @@ function run()
   echo "*** You can connect to the docker Mariadb with:"
   echo "sudo docker exec -it nameofwebcontainer-mariadb-1 bash"
   echo "mariadb -uroot -p'MYSQL_ROOT_PASSWORD' -h localhost"
+  echo "or"
+  echo "mariadb -uxxx -p'yyy' -h mariadb  where xxx is in /run/secrets/mysql-user and yyy in /run/secrets/mysql-password"
   echo "ls /var/lib/mysql"
   echo
   echo "*** You can connect to the docker Dolibarr with:"
