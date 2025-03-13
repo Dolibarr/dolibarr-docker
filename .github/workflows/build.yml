@@ -1,8 +1,5 @@
 name: build
 on:
-  #push:
-  #    branches:
-  #        - main
   # can run job manually
   workflow_dispatch:
   # Run once a week
@@ -11,6 +8,9 @@ on:
 
 jobs:
   build-docker-images:
+    strategy:
+      matrix:
+        dolibarr_version: [ 15.0.3, 16.0.5, 17.0.4, 18.0.6, 19.0.4, 20.0.4, develop ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -21,7 +21,7 @@ jobs:
         run: |
           echo secrets.DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          ./update.sh
+          ./update.sh ${{ matrix.dolibarr_version }}
 
   update-readme:
     runs-on: ubuntu-latest
