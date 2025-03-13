@@ -52,8 +52,7 @@ RUN sed -i \
   /etc/apache2/conf-available/security.conf
 
 RUN apt-get update -y \
-    && apt-get dist-upgrade -y
-RUN apt-get update -y \    
+    && apt-get dist-upgrade -y \
     && apt-get install -y --no-install-recommends \
         libc-client-dev \
         libfreetype6-dev \
@@ -65,24 +64,22 @@ RUN apt-get update -y \
         libpq-dev \
         libxml2-dev \
         libzip-dev \
+        libtidy-dev \
         default-mysql-client \
         postgresql-client \
         vim-tiny \
         cron \
-        curl \
-    && apt-get autoremove -y
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg
-RUN docker-php-ext-install -j$(nproc) calendar intl mysqli gd zip xml
-RUN docker-php-ext-install -j$(nproc) soap
-RUN docker-php-ext-install -j$(nproc) opcache
-RUN docker-php-ext-configure pgsql -with-pgsql
-RUN docker-php-ext-install pgsql
-RUN docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)/
-RUN docker-php-ext-install -j$(nproc) ldap
-RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl
-RUN docker-php-ext-install imap
-RUN mv ${PHP_INI_DIR}/php.ini-production ${PHP_INI_DIR}/php.ini
-RUN rm -rf /var/lib/apt/lists/*
+    && apt-get autoremove -y \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip opcache tidy \
+    && docker-php-ext-configure pgsql -with-pgsql \
+    && docker-php-ext-install pdo_pgsql pgsql \
+    && docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)/ \
+    && docker-php-ext-install -j$(nproc) ldap \
+    && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
+    && docker-php-ext-install imap \
+    && mv ${PHP_INI_DIR}/php.ini-production ${PHP_INI_DIR}/php.ini \
+    && rm -rf /var/lib/apt/lists/*
 
 # Get Dolibarr
 RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.gz |\
