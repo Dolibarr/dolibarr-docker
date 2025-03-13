@@ -97,6 +97,7 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
       else
         docker build \
           --compress \
+          --platform linux/arm/v7,linux/arm64,linux/amd64 \
           ${buildOptionTags} \
           "${dir}"
       fi
