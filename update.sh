@@ -11,14 +11,13 @@ DOCKER_PUSH=${DOCKER_PUSH:-0}
 
 BASE_DIR="$( cd "$(dirname "$0")" && pwd )"
 
+source "${BASE_DIR}/versions.sh"
+
 # If a target version is provided to the build script, only build this one
-# otherwise fallback to previous logic and build versions defined in ./versions.sh script
-if [ -z "$1" ]
-  then
-    source "${BASE_DIR}/versions.sh"
-else
-  DOLIBARR_VERSIONS=("$1")
-fi
+ if [ "$#" -eq  "1" ]
+   then
+     DOLIBARR_VERSIONS=("$1")
+ fi
 
 tags=""
 
