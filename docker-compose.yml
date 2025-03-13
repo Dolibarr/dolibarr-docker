@@ -31,6 +31,7 @@ services:
             - mysql-user
             - mysql-password
         environment:
+            #MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
             MYSQL_RANDOM_ROOT_PASSWORD: "1"
             MYSQL_DATABASE: "dolidb"
             MYSQL_USER_FILE: "/run/secrets/mysql-user"
@@ -86,6 +87,7 @@ services:
             DOLI_URL_ROOT: 'http://0.0.0.0:81'
             DOLI_INSTANCE_UNIQUE_ID: myinstanceuniqueid
             DOLI_INIT_DEMO: 1
+            DOLI_CRON_KEY: mycronsecurekey
         ports:
             - "81:80"
         networks:

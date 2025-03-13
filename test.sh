@@ -13,12 +13,17 @@ BASE_DIR="$( cd "$(dirname "$0")" && pwd )"
 DOLI_VER=${1}
 PHP_VER=${2:-""}
 
+echo "Test - working in $BASE_DIR"
+
 if [ "${DOLI_VER}" = "" ]; then
-	echo "Usage: sudo test.sh develop"
-	echo "       sudo test.sh 18.0.5 8.1"
+	echo "Usage:   sudo test.sh dolversion [phpversion]"
+	echo "         The couple dolversion/phpversion must be an existing couple into /images directory."
+	echo "Example: sudo test.sh develop"
+	echo "         sudo test.sh 18.0.5 8.1"
 	exit
 fi
 
+# Create links of images into docker-compose-links
 rm -rf "${BASE_DIR}/docker-compose-links/" && mkdir "${BASE_DIR}/docker-compose-links"
 
 # shellcheck disable=SC2044
@@ -45,17 +50,23 @@ echo "Testing for:"
 echo " - Dolibarr ${DOLI_VER}"
 if [ "${PHP_VER}" = "" ]; then
   echo " - PHP most recent"
-  echo "Building image ..."
+  echo "Stopping existing image (if exists) ..."
   echo "DOLI_VERSION=${DOLI_VER} PHP_VERSION='' $dockerComposeBin -f '${BASE_DIR}/docker-compose.yml' [down|...]"
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down 1>/dev/null
+  echo "Building image using docker-compose.yml in $BASE_DIR..."
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" build web
+  echo "Starting image ..."
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" up --force-recreate web cron
+  echo "Stopping image ..."
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down
 else
   echo " - PHP ${PHP_VER}"
-  echo "Building image ..."
+  echo "Stopping existing image (if exists) ..."
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="-php${PHP_VER}" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down 1>/dev/null
+  echo "Building image using docker-compose.yml in $BASE_DIR..."
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="-php${PHP_VER}" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" build web
+  echo "Starting image ..."
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="-php${PHP_VER}" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" up --force-recreate web cron
+  echo "Stopping image ..."
   DOLI_VERSION=${DOLI_VER} PHP_VERSION="-php${PHP_VER}" $dockerComposeBin -f "${BASE_DIR}/docker-compose.yml" down
 fi
