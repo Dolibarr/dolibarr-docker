@@ -92,13 +92,13 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
         docker buildx build \
           --push \
           --compress \
-          --platform "$platform"
+          --platform "$platform" \
           ${buildOptionTags} \
           "${dir}"
       else
         docker build \
           --compress \
-          --platform "$platform"
+          --platform "$platform" \
           ${buildOptionTags} \
           "${dir}"
       fi
