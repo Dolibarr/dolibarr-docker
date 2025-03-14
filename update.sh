@@ -13,6 +13,12 @@ BASE_DIR="$( cd "$(dirname "$0")" && pwd )"
 
 source "${BASE_DIR}/versions.sh"
 
+# If a target version is provided to the build script, only build this one
+ if [ "$#" -eq  "1" ]
+   then
+     DOLIBARR_VERSIONS=("$1")
+ fi
+
 tags=""
 
 # First, clean the directory /images
@@ -20,12 +26,6 @@ if [ -f "${BASE_DIR}/images/README.md" ]; then
 	cp -f "${BASE_DIR}/images/README.md" "/tmp/tmp-README.md"
 fi
 rm -rf "${BASE_DIR}/images" "${BASE_DIR}/docker-compose-links"
-
-if [ "${DOCKER_BUILD}" = "1" ] && [ "${DOCKER_PUSH}" = "1" ]; then
-  docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-  docker buildx create --driver docker-container --use
-  docker buildx inspect --bootstrap
-fi
 
 for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
   echo "Generate Dockerfile for Dolibarr ${dolibarrVersion}"
@@ -85,7 +85,6 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
         docker buildx build \
           --push \
           --compress \
-          --platform linux/arm/v7,linux/arm64,linux/amd64 \
           ${buildOptionTags} \
           "${dir}"
       else

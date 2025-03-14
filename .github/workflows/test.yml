@@ -23,7 +23,7 @@ jobs:
           run: echo "The diff after running the update.sh shows that the update.sh was not run before commiting the PR."
 
     check-build:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@v3
             - env:
