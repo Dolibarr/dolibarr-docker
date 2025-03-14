@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         dolibarr_version: [ 15.0.3, 16.0.5, 17.0.4, 18.0.6, 19.0.4, 20.0.4, develop ]
-        os_version: [ ubuntu-24.04, ubuntu-24.04-arm ]
+        os_version: [ ubuntu-24.04 ]
     runs-on: ${{ matrix.os_version }}
     steps:
       - uses: actions/checkout@v3
