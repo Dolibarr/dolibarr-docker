@@ -16,7 +16,7 @@ See https://hub.docker.com/r/dolibarr/dolibarr/tags
 
 ## Supported architectures
 
-Linux x86-64 (`amd64`), ARMv7 32-bit (`arm32v7` :warning: MariaDB/Mysql docker images don't support it) and ARMv8 64-bit (`arm64v8`)
+Linux x86-64 (`amd64`) and ARMv8 64-bit (`arm64v8`).
 
 
 ## How to run this image ?
