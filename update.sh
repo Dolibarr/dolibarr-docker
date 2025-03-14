@@ -14,10 +14,17 @@ BASE_DIR="$( cd "$(dirname "$0")" && pwd )"
 source "${BASE_DIR}/versions.sh"
 
 # If a target version is provided to the build script, only build this one
- if [ "$#" -eq  "1" ]
+ if [ "$#" -ge  "1" ]
    then
      DOLIBARR_VERSIONS=("$1")
  fi
+
+# Enforce build arch based on host arch
+if [[ "$2" == *"arm"* ]]; then
+  platform="linux/arm64"
+else
+  platform="linux/amd64"
+fi
 
 tags=""
 
@@ -85,11 +92,13 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
         docker buildx build \
           --push \
           --compress \
+          --platform "$platform"
           ${buildOptionTags} \
           "${dir}"
       else
         docker build \
           --compress \
+          --platform "$platform"
           ${buildOptionTags} \
           "${dir}"
       fi

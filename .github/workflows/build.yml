@@ -22,7 +22,7 @@ jobs:
         run: |
           echo secrets.DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          ./update.sh ${{ matrix.dolibarr_version }}
+          ./update.sh ${{ matrix.dolibarr_version }} ${{ matrix.os_version }}
 
   update-readme:
     runs-on: ubuntu-24.04
