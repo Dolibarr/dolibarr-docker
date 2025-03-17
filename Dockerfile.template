@@ -70,6 +70,7 @@ RUN apt-get update -y \
         vim-tiny \
         cron \
     && apt-get autoremove -y \
+    && a2dismod status \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip opcache tidy \
     && docker-php-ext-configure pgsql -with-pgsql \
