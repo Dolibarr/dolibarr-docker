@@ -3,7 +3,7 @@
 set -e
 
 # The list of version to build docker packages for
-DOLIBARR_VERSIONS=("21.0.0")
+DOLIBARR_VERSIONS=("15.0.3" "16.0.5" "17.0.4" "18.0.6" "19.0.4" "20.0.4" "develop" "21.0.0")
 
 # The version to use when installing dolibarr/dolibarr:latest
 DOLIBARR_LATEST_TAG="21.0.0"
