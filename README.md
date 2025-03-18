@@ -163,7 +163,7 @@ You can use the following variables for a better customization of your docker-co
 | **DOLI_URL_ROOT**               | *http://localhost*             | Url root of the Dolibarr installation
 | **DOLI_ADMIN_LOGIN**            | *admin*                        | Admin's login created on the first boot
 | **DOLI_ADMIN_PASSWORD**         | *admin*                        | Admin's initial password created on the first boot
-| **DOLI_ENABLE_MODULES**         |                                | Comma-separated list of modules to be activated at install. modUser will always be activated. (Ex: `Societe,Facture,Stock`)
+| **DOLI_ENABLE_MODULES**         |                                | Comma-separated list of modules to be activated at install. modUser will always be activated. (Ex: `Societe,Facture,Stock`). Modules can't be activated correctly if DOLI_COMPANY_NAME and DOLI_COMPANY_COUNTRYCODE are not set
 | **DOLI_COMPANY_NAME**           |                                | Set the company name of Dolibarr at container init
 | **DOLI_COMPANY_COUNTRYCODE**    |                                | Set the company and Dolibarr country at container init. Need 2-letter codes like "FR", "GB", "US",...
 | **DOLI_AUTH**                   | *dolibarr*                     | Which method is used to connect users, change to `ldap` or `ldap, dolibarr` to use LDAP
