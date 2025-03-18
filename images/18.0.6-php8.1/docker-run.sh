@@ -327,7 +327,7 @@ function run()
   > /var/www/documents/initdb.log 2>&1
  
   initDolibarr
-  echo "Current Version is : ${DOLI_VERSION}"
+  echo "Current Version of files is : ${DOLI_VERSION}"
 
   # If install of mysql database (and not install of cron) is requested
   if [[ ${DOLI_INSTALL_AUTO} -eq 1 && ${DOLI_CRON} -ne 1 && ${DOLI_DB_TYPE} != "pgsql" ]]; then
@@ -436,7 +436,7 @@ function run()
   echo "sudo docker exec -it nameofwebcontainer-mariadb-1 bash"
   echo "mariadb -uroot -p'MYSQL_ROOT_PASSWORD' -h localhost"
   echo "or"
-  echo "mariadb -uxxx -p'yyy' -h mariadb  where xxx is in /run/secrets/mysql-user and yyy in /run/secrets/mysql-password"
+  echo "mariadb -uxxx -p'yyy' -h mariadb  with xxx in /run/secrets/mysql-user and yyy in /run/secrets/mysql-password if these files were used in docker-compose.yml"
   echo "ls /var/lib/mysql"
   echo
   echo "*** You can connect to the docker Dolibarr with:"
@@ -449,7 +449,7 @@ function run()
   echo "ls /home/dolibarr_documents_latest"
   echo "ls /home/dolibarr_custom_latest"
   echo
-  echo "*** You can connect to your Dolibarr web application with:"
+  echo "*** You can connect to the running Dolibarr web application with:"
   echo "http://127.0.0.1:port"
   echo
 }
