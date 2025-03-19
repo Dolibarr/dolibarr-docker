@@ -181,6 +181,9 @@ You can use the following variables for a better customization of your docker-co
 | **DOLI_CRON_KEY**               |                                | Security key launch cron jobs
 | **DOLI_CRON_USER**              |                                | Dolibarr user used for cron jobs
 | **DOLI_INSTANCE_UNIQUE_ID**     |                                | Secret ID used as a salt / key for some encryption. By default, it is set randomly when the docker container is created.
+| **APACHE_REMOTEIP_CONF**	  | empty or variable not set	   | If this variable is set and it is not empty, then the full contents of this variable will be echoed to /etc/apache2/mods-available/remoteip.conf and then a2enmod remoteip will be run
+| **APACHE_MODULES**		  | empty or variable not set	   | If this variable is set and not empty, then all the apache modules in this variable will be installed using a2enmod. Apache module names should be separated by a single space character.
+
 
 Some environment variables are compatible with docker secrets behaviour, just add the `_FILE` suffix to var name and point the value file to read.
 Environment variables that are compatible with docker secrets:
@@ -266,6 +269,8 @@ Mountpoint: "/etc/apache2/conf-enabled/servername.conf"
 read-only: Yes, mount it read only with :ro 
 
 #### Running your dolibarr behind a proxy?
+
+This section describes the old method, consider using the environment variable APACHE_REMOTEIP_CONF which is less work.
 
 If you want Dolibarr or the logs from the dolibarr container to reveal the original IP address and not just the proxy's IP address you should create 2 text files:
 
