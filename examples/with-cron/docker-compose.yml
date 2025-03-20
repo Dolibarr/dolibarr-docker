@@ -1,0 +1,109 @@
+x-dolibarr: &dolibarr
+  image: dolibarr/dolibarr:latest # Change the tag to your Dolibarr version
+  # Limiting the container's resources isn't mandatory, but it's recommended.
+  # Adjust for what is feasible for your setup
+  deploy:
+    resources:
+      limits:
+        cpus: '1'
+        memory: 512M
+      reservations:
+        cpus: '0.2'
+        memory: 32M
+  volumes:
+    - custom:/var/www/html/custom
+    - documents:/var/www/documents
+  restart: unless-stopped
+
+volumes:
+  custom:
+  documents:
+  db:
+
+networks:
+  internal-pod:
+  external-pod:
+
+services:
+  db:
+    image: mariadb:lts
+    # Limiting the container's resources isn't mandatory, but it's recommended.
+    # Adjust for what is feasible for your setup
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 32M
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 60s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    environment:
+      MYSQL_DATABASE: ${DOLI_DB_NAME:-dolidb}
+      MYSQL_USER: ${DOLI_DB_USER:-dolidbuser}
+      MYSQL_PASSWORD: ${DOLI_DB_PASSWORD:-dolidbpass}
+      MYSQL_ROOT_PASSWORD: "mysupersupersecretpasswordforrootuser"
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - internal-pod
+
+  app:
+    <<: *dolibarr
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1"]
+      start_period: 300s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WWW_USER_ID: ${WWW_USER_ID:-1000}
+      WWW_GROUP_ID: ${WWW_GROUP_ID:-1000}
+      DOLI_DB_HOST: db
+      DOLI_DB_NAME: ${DOLI_DB_NAME:-dolidb}
+      DOLI_DB_USER: ${DOLI_DB_USER:-dolidbuser}
+      DOLI_DB_PASSWORD: ${DOLI_DB_PASSWORD:-dolidbpass}
+      DOLI_URL_ROOT: "${DOLI_URL_ROOT:-http://0.0.0.0}"
+      DOLI_ADMIN_LOGIN: "${DOLI_ADMIN_LOGIN:-admin}"
+      DOLI_ADMIN_PASSWORD: "${DOLI_ADMIN_PASSWORD:-admin}"
+      DOLI_CRON: 0
+      DOLI_CRON_USER: "${DOLI_ADMIN_PASSWORD:-admin}"
+      DOLI_CRON_KEY: ${DOLI_CRON_KEY:-mycronsecurekey}
+      DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
+      DOLI_COMPANY_NAME: ${DOLI_COMPANY_NAME:-MyBigCompany}
+    ports:
+      - 80:80
+    networks:
+      - internal-pod
+      - external-pod
+
+  cron:
+    <<: *dolibarr
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      WWW_USER_ID: ${WWW_USER_ID:-1000}
+      WWW_GROUP_ID: ${WWW_GROUP_ID:-1000}
+      DOLI_DB_HOST: db
+      DOLI_DB_NAME: ${DOLI_DB_NAME:-dolidb}
+      DOLI_DB_USER: ${DOLI_DB_USER:-dolidbuser}
+      DOLI_DB_PASSWORD: ${DOLI_DB_PASSWORD:-dolidbpass}
+      DOLI_URL_ROOT: "${DOLI_URL_ROOT:-http://0.0.0.0}"
+      DOLI_ADMIN_LOGIN: "${DOLI_ADMIN_LOGIN:-admin}"
+      DOLI_ADMIN_PASSWORD: "${DOLI_ADMIN_PASSWORD:-admin}"
+      DOLI_CRON: 1
+      DOLI_CRON_USER: "${DOLI_ADMIN_PASSWORD:-admin}"
+      DOLI_CRON_KEY: ${DOLI_CRON_KEY:-mycronsecurekey}
+      DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
+      DOLI_COMPANY_NAME: ${DOLI_COMPANY_NAME:-MyBigCompany}
+    networks:
+      - internal-pod
