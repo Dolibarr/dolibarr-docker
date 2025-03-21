@@ -101,6 +101,7 @@ able to access the Dolibarr using the URL http://0.0.0.0:xx
 Other examples:
 
 You can find several examples in the `examples` directory, such as:
+ - [Running Dolibarr with cron (for Scheduled Tasks module)](./examples/with-cron/dolibarr-with-cron.md)
  - [Running Dolibarr with a letsencrypt certificate](./examples/with-certbot/dolibarr-with-certbot.md)
  - [Running Dolibarr with a mysql server](./examples/with-mysql/dolibarr-with-mysql.md)
  - [Running Dolibarr with a Traefik reverse proxy](./examples/with-rp-traefik/dolibarr-with-traefik.md)
