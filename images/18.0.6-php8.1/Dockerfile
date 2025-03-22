@@ -70,7 +70,6 @@ RUN apt-get update -y \
         vim-tiny \
         cron \
     && apt-get autoremove -y \
-    && a2dismod status \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip opcache tidy \
     && docker-php-ext-configure pgsql -with-pgsql \
@@ -81,6 +80,13 @@ RUN apt-get update -y \
     && docker-php-ext-install imap \
     && mv ${PHP_INI_DIR}/php.ini-production ${PHP_INI_DIR}/php.ini \
     && rm -rf /var/lib/apt/lists/*
+
+# Disable useless Apache modules to provide safe defaults
+RUN a2disconf serve-cgi-bin \
+    && a2dismod status \
+    && a2dismod -f alias \
+    && a2dismod -f autoindex \
+    && rm -rf /etc/apache2/mods-enabled/dir.conf
 
 # Get Dolibarr
 RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.gz |\
