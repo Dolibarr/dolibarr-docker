@@ -81,12 +81,6 @@ RUN apt-get update -y \
     && mv ${PHP_INI_DIR}/php.ini-production ${PHP_INI_DIR}/php.ini \
     && rm -rf /var/lib/apt/lists/*
 
-# Disable useless Apache modules to provide safe defaults
-RUN a2disconf serve-cgi-bin \
-    && a2dismod status \
-    && a2dismod -f alias \
-    && a2dismod -f autoindex \
-    && rm -rf /etc/apache2/mods-enabled/dir.conf
 COPY apache-deny.conf /etc/apache2/conf-enabled/deny.conf
 RUN apache2ctl configtest
 
