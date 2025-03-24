@@ -92,7 +92,7 @@ EOF
 \$dolibarr_main_auth_ldap_debug='${DOLI_LDAP_DEBUG}';
 EOF
     fi
-    if [[ ${DOLI_DB_TYPE} == "mysqli" ]]; then
+    if [[ "${DOLI_DB_TYPE}" == "mysqli" ]]; then
     	echo "\$dolibarr_main_db_character_set='utf8mb4';" >> /var/www/html/conf/conf.php
     	echo "\$dolibarr_main_db_collation='utf8mb4_unicode_ci';" >> /var/www/html/conf/conf.php
     fi
@@ -100,7 +100,7 @@ EOF
 
   echo "[INIT] => update ownership for file in Dolibarr Config ..."
   chown www-data:www-data /var/www/html/conf/conf.php
-  if [[ ${DOLI_DB_TYPE} == "pgsql" && ! -f /var/www/documents/install.lock ]]; then
+  if [[ "${DOLI_DB_TYPE}" == "pgsql" && ! -f /var/www/documents/install.lock ]]; then
     chmod 600 /var/www/html/conf/conf.php
   else
     chmod 400 /var/www/html/conf/conf.php
@@ -330,7 +330,7 @@ function run()
   echo "Current Version of files is : ${DOLI_VERSION}"
 
   # If install of mysql database (and not install of cron) is requested
-  if [[ ${DOLI_INSTALL_AUTO} -eq 1 && ${DOLI_CRON} -ne 1 && ${DOLI_DB_TYPE} != "pgsql" ]]; then
+  if [[ ${DOLI_INSTALL_AUTO} -eq 1 && ${DOLI_CRON} -ne 1 && "${DOLI_DB_TYPE}" != "pgsql" ]]; then
     echo "DOLI_INSTALL_AUTO is on, so we check to initialize or upgrade mariadb database"
 
     waitForDataBase
