@@ -114,7 +114,7 @@ function waitForDataBase()
   r=1
 
   while [[ ${r} -ne 0 ]]; do
-    mysql -u ${DOLI_DB_USER} --protocol tcp -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} --connect-timeout=5 -e "status" >> /var/www/documents/initdb.log 2>&1
+    mysql -u ${DOLI_DB_USER} --protocol tcp -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} --connect-timeout=5 -e "status" >> /var/www/documents/initdb.log 2>&1
     r=$?
     if [[ ${r} -ne 0 ]]; then
       echo "Waiting that SQL database is up ..."
@@ -149,7 +149,7 @@ function runScripts()
       if [ "$isExec" == "SQL" ] ; then
         sed -i 's/^--.*//g;' ${file}
         sed -i 's/__ENTITY__/1/g;' ${file}
-        mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${file} >> /var/www/documents/initdb.log 2>&1
+        mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${file} >> /var/www/documents/initdb.log 2>&1
       elif [ "$isExec" == "PHP" ] ; then
         php $file
       elif [ "$isExec" == "SH" ] ; then
@@ -168,7 +168,7 @@ function initializeDatabase()
       echo "Importing table from `basename ${fileSQL}` ..."
       echo "Importing table from `basename ${fileSQL}` ..." >> /var/www/documents/initdb.log
       sed -i 's/--.*//g;' ${fileSQL} 	# remove all comment because comments into create sql crash the load
-      mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
+      mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
     fi
   done
 
@@ -176,14 +176,14 @@ function initializeDatabase()
     echo "Importing table key from `basename ${fileSQL}` ..."
     echo "Importing table key from `basename ${fileSQL}` ..." >> /var/www/documents/initdb.log
     sed -i 's/^--.*//g;' ${fileSQL}
-    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
+    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
   done
 
   for fileSQL in /var/www/html/install/mysql/functions/*.sql; do
     echo "Importing `basename ${fileSQL}` ..."
     echo "Importing `basename ${fileSQL}` ..." >> /var/www/documents/initdb.log
     sed -i 's/^--.*//g;' ${fileSQL}
-    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
+    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
   done
 
   for fileSQL in /var/www/html/install/mysql/data/*.sql; do
@@ -195,17 +195,17 @@ function initializeDatabase()
     echo "Importing data from `basename ${fileSQL}` ..." >> /var/www/documents/initdb.log
     sed -i 's/^--.*//g;' ${fileSQL}
     sed -i 's/__ENTITY__/1/g;' ${fileSQL}
-    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
+    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
   done
 
   echo "Set some default const ..."
   echo "Set some default const ..." >> /var/www/documents/initdb.log
-  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DELETE FROM llx_const WHERE name='MAIN_VERSION_LAST_INSTALL';" >> /var/www/documents/initdb.log 2>&1
-  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DELETE FROM llx_const WHERE name='MAIN_NOT_INSTALLED';" >> /var/www/documents/initdb.log 2>&1
-  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DELETE FROM llx_const WHERE name='MAIN_LANG_DEFAULT';" >> /var/www/documents/initdb.log 2>&1
-  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "INSERT INTO llx_const(name,value,type,visible,note,entity) VALUES ('MAIN_VERSION_LAST_INSTALL', '${DOLI_VERSION}', 'chaine', 0, 'Dolibarr version when install', 0);" >> /var/www/documents/initdb.log 2>&1
-  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "INSERT INTO llx_const(name,value,type,visible,note,entity) VALUES ('MAIN_LANG_DEFAULT', 'auto', 'chaine', 0, 'Default language', 1);" >> /var/www/documents/initdb.log 2>&1
-  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "INSERT INTO llx_const(name,value,type,visible,note,entity) VALUES ('SYSTEMTOOLS_MYSQLDUMP', '/usr/bin/mysqldump', 'chaine', 0, '', 0);" >> /var/www/documents/initdb.log 2>&1
+  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DELETE FROM llx_const WHERE name='MAIN_VERSION_LAST_INSTALL';" >> /var/www/documents/initdb.log 2>&1
+  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DELETE FROM llx_const WHERE name='MAIN_NOT_INSTALLED';" >> /var/www/documents/initdb.log 2>&1
+  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DELETE FROM llx_const WHERE name='MAIN_LANG_DEFAULT';" >> /var/www/documents/initdb.log 2>&1
+  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "INSERT INTO llx_const(name,value,type,visible,note,entity) VALUES ('MAIN_VERSION_LAST_INSTALL', '${DOLI_VERSION}', 'chaine', 0, 'Dolibarr version when install', 0);" >> /var/www/documents/initdb.log 2>&1
+  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "INSERT INTO llx_const(name,value,type,visible,note,entity) VALUES ('MAIN_LANG_DEFAULT', 'auto', 'chaine', 0, 'Default language', 1);" >> /var/www/documents/initdb.log 2>&1
+  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "INSERT INTO llx_const(name,value,type,visible,note,entity) VALUES ('SYSTEMTOOLS_MYSQLDUMP', '/usr/bin/mysqldump', 'chaine', 0, '', 0);" >> /var/www/documents/initdb.log 2>&1
 
   if [[ ${DOLI_INIT_DEMO} -eq 1 ]]; then
     mkdir -p /var/www/dev/initdemo/
@@ -233,17 +233,17 @@ function initializeDatabase()
 	    	echo "Found demo data file, so we first drop tables llx_accounting_xxx ..." >> /var/www/documents/initdb.log
 	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_account\""
 	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_account\"" >> /var/www/documents/initdb.log 2>&1
-	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DROP TABLE llx_accounting_account" >> /var/www/documents/initdb.log 2>&1
+	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DROP TABLE llx_accounting_account" >> /var/www/documents/initdb.log 2>&1
 	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_system\""
 	    	echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"DROP TABLE llx_accounting_system\"" >> /var/www/documents/initdb.log 2>&1
-	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DROP TABLE llx_accounting_system" >> /var/www/documents/initdb.log 2>&1
+	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "DROP TABLE llx_accounting_system" >> /var/www/documents/initdb.log 2>&1
 	  		
 	  		echo "Then we load demo data ${fileSQL} ..."
 	  		echo "Then we load demo data ${fileSQL} ..." >> /var/www/documents/initdb.log
 	        sed -i 's/\/\*!999999\\- enable the sandbox mode \*\///g;' ${fileSQL}
 	        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL}"
 	        echo "mysql -u ${DOLI_DB_USER} -pxxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL}" >> /var/www/documents/initdb.log 2>&1
-	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
+	    	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < ${fileSQL} >> /var/www/documents/initdb.log 2>&1
 	    done
 	fi
   else
@@ -258,10 +258,10 @@ function initializeDatabase()
   
   # Insert may fails if record already exists
   echo "Try insert into llx_user ..." >> /var/www/documents/initdb.log
-  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "INSERT INTO llx_user (entity, login, pass_crypted, lastname, admin, statut) VALUES (0, '${DOLI_ADMIN_LOGIN}', '${pass_crypted}', 'SuperAdmin', 1, 1);" >> /var/www/documents/initdb.log 2>&1
+  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "INSERT INTO llx_user (entity, login, pass_crypted, lastname, admin, statut) VALUES (0, '${DOLI_ADMIN_LOGIN}', '${pass_crypted}', 'SuperAdmin', 1, 1);" >> /var/www/documents/initdb.log 2>&1
   # Insert may fails if record already exists
   echo "Now do update llx_user ..." >> /var/www/documents/initdb.log
-  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "UPDATE llx_user SET pass_crypted = '${pass_crypted}' WHERE login = '${DOLI_ADMIN_LOGIN}';" >> /var/www/documents/initdb.log 2>&1
+  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "UPDATE llx_user SET pass_crypted = '${pass_crypted}' WHERE login = '${DOLI_ADMIN_LOGIN}';" >> /var/www/documents/initdb.log 2>&1
 
   echo "Enable user module ..."
   echo "Enable user module ..." >> /var/www/documents/initdb.log
@@ -269,7 +269,7 @@ function initializeDatabase()
 
   echo "Set cron key to ${DOLI_CRON_KEY}..."
   echo "Set cron key to ${DOLI_CRON_KEY}..." >> /var/www/documents/initdb.log
-  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "UPDATE llx_const set value = '${DOLI_CRON_KEY}' WHERE name = 'CRON_KEY'" >> /var/www/documents/initdb.log 2>&1
+  mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "UPDATE llx_const set value = '${DOLI_CRON_KEY}' WHERE name = 'CRON_KEY'" >> /var/www/documents/initdb.log 2>&1
 
   # Run init scripts
   echo "Run scripts into docker-init.d if there is ..."
@@ -287,7 +287,7 @@ function migrateDatabase()
   TARGET_VERSION="$(echo ${DOLI_VERSION} | cut -d. -f1).$(echo ${DOLI_VERSION} | cut -d. -f2).0"
   echo "Dumping Database into /var/www/documents/backup-before-upgrade.sql ..."
 
-  mysqldump -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} > /var/www/documents/backup-before-upgrade.sql
+  mysqldump -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} > /var/www/documents/backup-before-upgrade.sql
   r=${?}
   if [[ ${r} -ne 0 ]]; then
     echo "Dump failed ... Aborting migration ..."
@@ -311,7 +311,7 @@ function migrateDatabase()
 
   if [[ ${r} -ne 0 ]]; then
     echo "Migration failed ... Restoring DB ... check file /var/www/documents/migration_error.html for more info on error ..."
-    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < /var/www/documents/backup-before-upgrade.sql
+    mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} < /var/www/documents/backup-before-upgrade.sql
     echo "DB Restored ..."
     return ${r}
   else
@@ -338,7 +338,7 @@ function run()
 	# Check if DB exists (even if empty)
 	DB_EXISTS=0
 	echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} -e \"SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '${DOLI_DB_NAME}';\" > /tmp/docker-run-checkdb.result 2>&1" >> /var/www/documents/initdb.log 2>&1
-	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} -e "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '${DOLI_DB_NAME}';" > /tmp/docker-run-checkdb.result 2>&1
+	mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} -e "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '${DOLI_DB_NAME}';" > /tmp/docker-run-checkdb.result 2>&1
     r=$?
     if [[ ${r} -eq 0 ]]; then
 		DB_EXISTS=`grep ${DOLI_DB_NAME} /tmp/docker-run-checkdb.result`
@@ -357,7 +357,7 @@ function run()
     # If install.lock does not exists, or if db does not exists, we launch the initializeDatabase, then upgrade if required.
     if [[ ! -f /var/www/documents/install.lock || "${DB_EXISTS}" = "" ]]; then
 		echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
-		mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
+		mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
 		r=$?
 		if [[ ${r} -ne 0 ]]; then
 			# If test fails, it means tables does not exists, so we create them
@@ -368,7 +368,7 @@ function run()
 
 			# Regenerate the /tmp/docker-run-lastinstall.result 
 			echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
-			mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
+			mysql -u ${DOLI_DB_USER} -p${DOLI_DB_PASSWORD} -h "${DOLI_DB_HOST}" -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
 	  	fi
 
 	  	# Now database exists. Do we have to upgrade it ?
