@@ -480,6 +480,15 @@ if [[ ${DOLI_CRON} -eq 1 ]]; then
     exit 0
 fi
 
+if [[ "" != "${APACHE_REMOTEIP_CONF}" ]]; then
+    echo "RemoteIPHeader X-Forwarded-For" > /etc/apache2/mods-available/remoteip.conf
+    a2enmod remoteip
+fi
+
+for A2MOD in ${APACHE_MODULES}; do
+    a2enmod ${A2MOD}
+done
+
 if [ "${1#-}" != "$1" ]; then
   set -- apache2-foreground "$@"
 fi
