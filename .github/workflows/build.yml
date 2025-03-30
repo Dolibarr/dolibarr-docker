@@ -8,6 +8,9 @@ on:
 
 jobs:
   build-docker-images:
+    strategy:
+      matrix:
+        dolibarr_version: [ 15.0.3, 16.0.5, 17.0.4, 18.0.6, 19.0.4, 20.0.4, 21.0.0, develop ]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
@@ -19,9 +22,9 @@ jobs:
       - uses: docker/setup-buildx-action@v3
       - env:
           DOCKER_BUILD: 1
-          DOCKER_PUSH: 1
+          DOCKER_PUSH: 0
         run: |
-          ./update.sh
+          ./update.sh ${{ matrix.dolibarr_version }}
 
   update-readme:
     runs-on: ubuntu-24.04
