@@ -79,6 +79,7 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
 
     cp -a "${BASE_DIR}/docker-init.php" "${dir}/docker-init.php"
     cp -a "${BASE_DIR}/docker-run.sh" "${dir}/docker-run.sh"
+    cat apache-conf-enabled/*.conf > "${dir}/apache-deny.conf"
 
     if [ "${DOCKER_BUILD}" = "1" ]; then
       if [ "${DOCKER_PUSH}" = "1" ]; then
