@@ -73,9 +73,9 @@ EOF
       echo "[INIT] => update Dolibarr Config with instance unique id ..."
       echo "\$dolibarr_main_instance_unique_id='${DOLI_INSTANCE_UNIQUE_ID}';" >> /var/www/html/conf/conf.php
     else
-      # It is better to have a generic value than no value
+      # Generate random string 
       echo "[INIT] => update Dolibarr Config with instance unique id ..."
-      echo "\$dolibarr_main_instance_unique_id='myinstanceuniquekey';" >> /var/www/html/conf/conf.php
+      echo "\$dolibarr_main_instance_unique_id='$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 25)';" >> /var/www/html/conf/conf.php
     fi
     if [[ ${DOLI_AUTH} =~ .*ldap.* ]]; then
       echo "[INIT] => update Dolibarr Config with LDAP entries ..."
