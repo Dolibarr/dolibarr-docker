@@ -1,0 +1,33 @@
+name: update
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: 'Branch to work on'
+        required: true
+        default: 'patch-1'
+        type: string
+
+jobs:
+  build-docker-images:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_branch }}
+          fetch-depth: 0  # Important pour pouvoir pousser ensuite
+
+      - name: Run update script
+        env:
+          DOCKER_BUILD: 0
+          DOCKER_PUSH: 0
+        run: |
+          ./update.sh
+      - name: Force Git to detect changes
+        run: |
+          git add -f images/
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update generated Dockerfiles" || echo "No changes to commit"
+          git push origin ${{ github.event.inputs.target_branch }}
