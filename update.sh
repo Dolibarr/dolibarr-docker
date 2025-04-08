@@ -19,13 +19,6 @@ source "${BASE_DIR}/versions.sh"
      DOLIBARR_VERSIONS=("$1")
  fi
 
-# Enforce build arch based on host arch
-if [[ "$2" == *"arm"* ]]; then
-  platform="linux/arm64"
-else
-  platform="linux/amd64"
-fi
-
 tags=""
 
 # First, clean the directory /images
@@ -92,13 +85,12 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
         docker buildx build \
           --push \
           --compress \
-          --platform "$platform" \
+          --platform linux/amd64,linux/arm64 \
           ${buildOptionTags} \
           "${dir}"
       else
         docker build \
           --compress \
-          --platform "$platform" \
           ${buildOptionTags} \
           "${dir}"
       fi
