@@ -79,6 +79,7 @@ RUN apt-get update -y \
     && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
     && docker-php-ext-install imap \
     && mv ${PHP_INI_DIR}/php.ini-production ${PHP_INI_DIR}/php.ini \
+    && sed -i 's/expose_php = On/expose_php = Off/g' ${PHP_INI_DIR}/php.ini \
     && rm -rf /var/lib/apt/lists/*
 
 # Get Dolibarr
