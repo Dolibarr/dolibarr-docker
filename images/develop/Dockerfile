@@ -85,8 +85,7 @@ RUN apt-get update -y \
 RUN a2disconf serve-cgi-bin \
     && a2dismod status \
     && a2dismod -f alias \
-    && a2dismod -f autoindex \
-    && rm -rf /etc/apache2/mods-enabled/dir.conf
+    && a2dismod -f autoindex
 
 # Get Dolibarr
 RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.gz |\
