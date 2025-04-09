@@ -24,7 +24,6 @@ tags=""
 # Generate an up-to-date copy of .github/workflows/build.yml using the Dolibarr versions as defined in versions.sh
 FORMATTED_DOLIBARR_VERSIONS=$(IFS=","; echo "${DOLIBARR_VERSIONS[*]}")
 sed 's/%DOLIBARR_VERSIONS%/'"$FORMATTED_DOLIBARR_VERSIONS"'/g' "${BASE_DIR}/.github/build.yml.template" | sed 's/,/, /g' > "${BASE_DIR}/.github/workflows/build.yml"
-exit 0
 
 # Clean the directory /images
 if [ -f "${BASE_DIR}/images/README.md" ]; then
