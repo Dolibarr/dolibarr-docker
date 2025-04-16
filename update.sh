@@ -19,16 +19,13 @@ source "${BASE_DIR}/versions.sh"
      DOLIBARR_VERSIONS=("$1")
  fi
 
-# Enforce build arch based on host arch
-if [[ "$2" == *"arm"* ]]; then
-  platform="linux/arm64"
-else
-  platform="linux/amd64"
-fi
-
 tags=""
 
-# First, clean the directory /images
+# Generate an up-to-date copy of .github/workflows/build.yml using the Dolibarr versions as defined in versions.sh
+FORMATTED_DOLIBARR_VERSIONS=$(IFS=","; echo "${DOLIBARR_VERSIONS[*]}")
+sed 's/%DOLIBARR_VERSIONS%/'"$FORMATTED_DOLIBARR_VERSIONS"'/g' "${BASE_DIR}/.github/build.yml.template" | sed 's/,/, /g' > "${BASE_DIR}/.github/workflows/build.yml"
+
+# Clean the directory /images
 if [ -f "${BASE_DIR}/images/README.md" ]; then
 	cp -f "${BASE_DIR}/images/README.md" "/tmp/tmp-README.md"
 fi
@@ -92,13 +89,12 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
         docker buildx build \
           --push \
           --compress \
-          --platform "$platform" \
+          --platform linux/amd64,linux/arm64 \
           ${buildOptionTags} \
           "${dir}"
       else
         docker build \
           --compress \
-          --platform "$platform" \
           ${buildOptionTags} \
           "${dir}"
       fi

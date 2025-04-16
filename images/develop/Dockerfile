@@ -9,41 +9,41 @@ FROM ${ARCH}php:8.2-apache-bullseye
 # 2024 Laurent Destailleur
 LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 
-ENV DOLI_VERSION develop
-ENV DOLI_VERSION_FOR_INIT_DEMO 21.0
-ENV DOLI_INSTALL_AUTO 1
-ENV DOLI_PROD 1
+ENV DOLI_VERSION=develop
+ENV DOLI_VERSION_FOR_INIT_DEMO=21.0
+ENV DOLI_INSTALL_AUTO=1
+ENV DOLI_PROD=1
 
-ENV DOLI_DB_TYPE mysqli
-ENV DOLI_DB_HOST mysql
-ENV DOLI_DB_HOST_PORT 3306
-ENV DOLI_DB_NAME dolidb
+ENV DOLI_DB_TYPE=mysqli
+ENV DOLI_DB_HOST=mysql
+ENV DOLI_DB_HOST_PORT=3306
+ENV DOLI_DB_NAME=dolidb
 
-ENV DOLI_URL_ROOT 'http://localhost'
-ENV DOLI_NOCSRFCHECK 0
+ENV DOLI_URL_ROOT='http://localhost'
+ENV DOLI_NOCSRFCHECK=0
 
-ENV DOLI_AUTH dolibarr
-ENV DOLI_LDAP_HOST 127.0.0.1
-ENV DOLI_LDAP_PORT 389
-ENV DOLI_LDAP_VERSION 3
-ENV DOLI_LDAP_SERVER_TYPE openldap
-ENV DOLI_LDAP_LOGIN_ATTRIBUTE uid
-ENV DOLI_LDAP_DN 'ou=users,dc=my-domain,dc=com'
-ENV DOLI_LDAP_FILTER ''
-ENV DOLI_LDAP_BIND_DN ''
-ENV DOLI_LDAP_BIND_PASS ''
-ENV DOLI_LDAP_DEBUG false
+ENV DOLI_AUTH=dolibarr
+ENV DOLI_LDAP_HOST=127.0.0.1
+ENV DOLI_LDAP_PORT=389
+ENV DOLI_LDAP_VERSION=3
+ENV DOLI_LDAP_SERVER_TYPE=openldap
+ENV DOLI_LDAP_LOGIN_ATTRIBUTE=uid
+ENV DOLI_LDAP_DN='ou=users,dc=my-domain,dc=com'
+ENV DOLI_LDAP_FILTER=''
+ENV DOLI_LDAP_BIND_DN=''
+ENV DOLI_LDAP_BIND_PASS=''
+ENV DOLI_LDAP_DEBUG=false
 
-ENV DOLI_CRON 0
+ENV DOLI_CRON=0
 
-ENV WWW_USER_ID 33
-ENV WWW_GROUP_ID 33
+ENV WWW_USER_ID=33
+ENV WWW_GROUP_ID=33
 
-ENV PHP_INI_DATE_TIMEZONE 'UTC'
-ENV PHP_INI_MEMORY_LIMIT 256M
-ENV PHP_INI_UPLOAD_MAX_FILESIZE 20M
-ENV PHP_INI_POST_MAX_SIZE 22M
-ENV PHP_INI_ALLOW_URL_FOPEN 0
+ENV PHP_INI_DATE_TIMEZONE='UTC'
+ENV PHP_INI_MEMORY_LIMIT=256M
+ENV PHP_INI_UPLOAD_MAX_FILESIZE=20M
+ENV PHP_INI_POST_MAX_SIZE=22M
+ENV PHP_INI_ALLOW_URL_FOPEN=0
 
 RUN sed -i \
   -e 's/^\(ServerSignature On\)$/#\1/g' \
@@ -79,7 +79,14 @@ RUN apt-get update -y \
     && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
     && docker-php-ext-install imap \
     && mv ${PHP_INI_DIR}/php.ini-production ${PHP_INI_DIR}/php.ini \
+    && sed -i 's/expose_php = On/expose_php = Off/g' ${PHP_INI_DIR}/php.ini \
     && rm -rf /var/lib/apt/lists/*
+
+# Disable useless Apache modules to provide safe defaults
+RUN a2disconf serve-cgi-bin \
+    && a2dismod status \
+    && a2dismod -f alias \
+    && a2dismod -f autoindex
 
 # Get Dolibarr
 RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.gz |\
