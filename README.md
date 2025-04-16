@@ -57,8 +57,7 @@ services:
     	# dolibarr/dolibarr:x.y.z
         image: dolibarr/dolibarr:latest
         environment:
-            WWW_USER_ID: ${WWW_USER_ID:-1000}
-            WWW_GROUP_ID: ${WWW_GROUP_ID:-1000}
+            DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
             DOLI_DB_HOST: ${DOLI_DB_HOST:-mariadb}
             DOLI_DB_NAME: ${DOLI_DB_NAME:-dolidb}
             DOLI_DB_USER: ${DOLI_DB_USER:-dolidbuser}
@@ -68,8 +67,9 @@ services:
             DOLI_ADMIN_PASSWORD: "${DOLI_ADMIN_PASSWORD:-admin}"
             DOLI_CRON: ${DOLI_CRON:-0}
             DOLI_CRON_KEY: ${DOLI_CRON_KEY:-mycronsecurekey}
-            DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
             DOLI_COMPANY_NAME: ${DOLI_COMPANY_NAME:-MyBigCompany}
+            WWW_USER_ID: ${WWW_USER_ID:-1000}
+            WWW_GROUP_ID: ${WWW_GROUP_ID:-1000}
 
         ports:
             - "80:80"
@@ -145,16 +145,10 @@ You can use the following variables for a better customization of your docker-co
 
 | Variable                        | Default value                  | Description |
 | ------------------------------- | ------------------------------ | ----------- |
-| **WWW_USER_ID**                 |                                | ID of user www-data. ID will not changed if leave empty. During a development, it is very practical to put the same ID as the host user.
-| **WWW_GROUP_ID**                |                                | ID of group www-data. ID will not changed if leave empty.
-| **PHP_INI_DATE_TIMEZONE**       | *UTC*                          | Default timezone on PHP
-| **PHP_INI_MEMORY_LIMIT**        | *256M*                         | PHP Memory limit
-| **PHP_INI_UPLOAD_MAX_FILESIZE** | *2M*                           | PHP Maximum allowed size for uploaded files
-| **PHP_INI_POST_MAX_SIZE**       | *8M*                           | PHP Maximum size of POST data that PHP will accept.
-| **PHP_INI_ALLOW_URL_FOPEN**     | *0*                            | Allow URL-aware fopen wrappers
 | **DOLI_INSTALL_AUTO**           | *1*                            | 1: The installation will be done during docker first boot
 | **DOLI_INIT_DEMO**              | *0*                            | 1: The installation will also load demo data during docker first boot
 | **DOLI_PROD**                   | *1*                            | 1: Dolibarr will be run in production mode
+| **DOLI_INSTANCE_UNIQUE_ID**     |                                | Secret ID used as a salt / key for some encryption. By default, it is set randomly when the docker container is created.
 | **DOLI_DB_TYPE**                | *mysqli*                       | Type of the DB server (**mysqli**, pgsql)
 | **DOLI_DB_HOST**                | *mariadb*                      | Host name of the MariaDB/MySQL server
 | **DOLI_DB_HOST_PORT**           | *3306*                         | Host port of the MariaDB/MySQL server
@@ -179,20 +173,26 @@ You can use the following variables for a better customization of your docker-co
 | **DOLI_LDAP_BIND_PASS**         |                                | The password of the bind user
 | **DOLI_LDAP_DEBUG**             | *false*                        | Activate debug mode
 | **DOLI_CRON**                   | *0*                            | 1: Enable cron service
-| **DOLI_CRON_KEY**               |                                | Security key launch cron jobs
-| **DOLI_CRON_USER**              |                                | Dolibarr user used for cron jobs
-| **DOLI_INSTANCE_UNIQUE_ID**     |                                | Secret ID used as a salt / key for some encryption. By default, it is set randomly when the docker container is created.
+| **DOLI_CRON_KEY**               |                                | Security key to launch cron jobs
+| **DOLI_CRON_USER**              |                                | Dolibarr user used to launch cron jobs (will use firstadmin if not defined)
+| **WWW_USER_ID**                 |                                | ID of user www-data. ID will not changed if leave empty. During a development, it is very practical to put the same ID as the host user.
+| **WWW_GROUP_ID**                |                                | ID of group www-data. ID will not changed if leave empty.
+| **PHP_INI_DATE_TIMEZONE**       | *UTC*                          | Default timezone on PHP
+| **PHP_INI_MEMORY_LIMIT**        | *256M*                         | PHP Memory limit
+| **PHP_INI_UPLOAD_MAX_FILESIZE** | *2M*                           | PHP Maximum allowed size for uploaded files
+| **PHP_INI_POST_MAX_SIZE**       | *8M*                           | PHP Maximum size of POST data that PHP will accept.
+| **PHP_INI_ALLOW_URL_FOPEN**     | *0*                            | Allow URL-aware fopen wrappers
 
 Some environment variables are compatible with docker secrets behaviour, just add the `_FILE` suffix to var name and point the value file to read.
 Environment variables that are compatible with docker secrets:
 
+* `DOLI_INSTANCE_UNIQUE_ID` => `DOLI_INSTANCE_UNIQUE_ID_FILE`
 * `DOLI_DB_USER` => `DOLI_DB_USER_FILE`
 * `DOLI_DB_PASSWORD` => `DOLI_DB_PASSWORD_FILE`
 * `DOLI_ADMIN_LOGIN` => `DOLI_ADMIN_LOGIN_FILE`
 * `DOLI_ADMIN_PASSWORD` => `DOLI_ADMIN_PASSWORD_FILE`
 * `DOLI_CRON_KEY` => `DOLI_CRON_KEY_FILE`
 * `DOLI_CRON_USER` => `DOLI_CRON_USER_FILE`
-* `DOLI_INSTANCE_UNIQUE_ID` => `DOLI_INSTANCE_UNIQUE_ID_FILE`
 
 
 
@@ -229,6 +229,7 @@ services:
     	# dolibarr/dolibarr:x.y.z
         image: dolibarr/dolibarr
         environment:
+            DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
             DOLI_DB_HOST: ${DOLI_DB_HOST:-mariadb}
             DOLI_DB_NAME: ${DOLI_DB_NAME:-dolidb}
             DOLI_DB_USER: ${DOLI_DB_USER:-dolidbuser}
@@ -238,7 +239,6 @@ services:
             DOLI_ADMIN_PASSWORD: "${DOLI_ADMIN_PASSWORD:-admin}"
             DOLI_CRON: ${DOLI_CRON:-0}
             DOLI_CRON_KEY: ${DOLI_CRON_KEY:-mycronsecurekey}
-            DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
             WWW_USER_ID: ${WWW_USER_ID:-1000}
             WWW_GROUP_ID: ${WWW_GROUP_ID:-1000}
         volumes :
