@@ -223,10 +223,10 @@ services:
             MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dolidbpass}
 
     web:
-    	# Choose the version of image to install
-    	# dolibarr/dolibarr:latest (the latest stable version)
-    	# dolibarr/dolibarr:develop
-    	# dolibarr/dolibarr:x.y.z
+        # Choose the version of image to install
+        # dolibarr/dolibarr:latest (the latest stable version)
+        # dolibarr/dolibarr:develop
+        # dolibarr/dolibarr:x.y.z
         image: dolibarr/dolibarr
         environment:
             DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
