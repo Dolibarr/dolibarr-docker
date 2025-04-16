@@ -100,11 +100,11 @@ able to access the Dolibarr using the URL http://0.0.0.0:xx
 
 Other examples:
 
-You can find several examples in the `examples` directory, such as:
- - [Running Dolibarr with a letsencrypt certificate](./examples/with-certbot/dolibarr-with-certbot.md)
- - [Running Dolibarr with a mysql server](./examples/with-mysql/dolibarr-with-mysql.md)
- - [Running Dolibarr with a Traefik reverse proxy](./examples/with-rp-traefik/dolibarr-with-traefik.md)
- - [Running Dolibarr with secrets](./examples/with-secrets/dolibarr-with-secrets.md)
+You can find other examples of docker-compose.yml file for enhanced use in the `examples` directory, such as:
+ - [Running Dolibarr with a letsencrypt certificate](https://github.com/Dolibarr/dolibarr-docker/tree/main/examples/with-certbot/)
+ - [Running Dolibarr with a mysql server](https://github.com/Dolibarr/dolibarr-docker/tree/main/examples/with-mysql/)
+ - [Running Dolibarr with a Traefik reverse proxy](https://github.com/Dolibarr/dolibarr-docker/tree/main/examples/with-rp-traefik/)
+ - [Running Dolibarr with secrets](https://github.com/Dolibarr/dolibarr-docker/tree/main/examples/with-secrets/)
 
 
 ## Upgrading Dolibarr version and migrating DB
