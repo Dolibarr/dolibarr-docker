@@ -1,43 +1,81 @@
-networks:
-  internal-pod:
-    internal: true
-  external-pod:
-    internal: false
+x-dolibarr: &dolibarr
+  image: dolibarr/dolibarr:latest # Change the tag to your Dolibarr version
+  deploy:
+    resources:
+      limits:
+        cpus: '1'
+        memory: 512M
+      reservations:
+        cpus: '0.2'
+        memory: 32M
+  volumes:
+    - custom:/var/www/html/custom
+    - documents:/var/www/documents
+  restart: unless-stopped
 
 volumes:
-  dolibarr-custom:
-  dolibarr-docs:
-  postgres-data:
+  custom:
+  documents:
+  db:
+
+networks:
+  internal-pod:
+  external-pod:
 
 services:
-  dolibarr:
-    image: dolibarr/dolibarr:latest
-    depends_on:
-      - postgres
+  db:
+    image: postgres:15
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 32M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      start_period: 60s
+      interval: 10s
+      timeout: 5s
+      retries: 3
     environment:
-      DOLI_DB_TYPE: "pgsql"
-      DOLI_DB_HOST: "postgres"
-      DOLI_DB_HOST_PORT: "5432"
-      DOLI_DB_USER: "dolibarr"
-      DOLI_DB_PASSWORD: "mysupersecretpasswordfordatabase"
-      DOLI_DB_NAME: "dolibarr"
-      DOLI_ADMIN_LOGIN: "admin"
-      DOLI_ADMIN_PASSWORD: "mysuperhypersecretpasswordforadminacount"
+      POSTGRES_DB: ${DOLI_DB_NAME:-dolidb}
+      POSTGRES_USER: ${DOLI_DB_USER:-dolidbuser}
+      POSTGRES_PASSWORD: ${DOLI_DB_PASSWORD:-dolidbpass}
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - internal-pod
+
+  app:
+    <<: *dolibarr
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1"]
+      start_period: 300s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WWW_USER_ID: ${WWW_USER_ID:-1000}
+      WWW_GROUP_ID: ${WWW_GROUP_ID:-1000}
+      DOLI_DB_TYPE: pgsql
+      DOLI_DB_HOST: db
+      DOLI_DB_PORT: 5432
+      DOLI_DB_NAME: ${DOLI_DB_NAME:-dolidb}
+      DOLI_DB_USER: ${DOLI_DB_USER:-dolidbuser}
+      DOLI_DB_PASSWORD: ${DOLI_DB_PASSWORD:-dolidbpass}
+      DOLI_URL_ROOT: "${DOLI_URL_ROOT:-http://0.0.0.0}"
+      DOLI_ADMIN_LOGIN: "${DOLI_ADMIN_LOGIN:-admin}"
+      DOLI_ADMIN_PASSWORD: "${DOLI_ADMIN_PASSWORD:-admin}"
+      DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
+      DOLI_COMPANY_NAME: ${DOLI_COMPANY_NAME:-MyBigCompany}
+      DOLI_INSTANCE_UNIQUE_ID: $DOLI_INSTANCE_ID
     ports:
       - 80:80
-    volumes:
-      - dolibarr-docs:/var/www/documents
-      - dolibarr-custom:/var/www/html/custom
     networks:
       - internal-pod
       - external-pod
-
-  postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: "dolibarr"
-      POSTGRES_PASSWORD: "mysupersecretpasswordfordatabase"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - internal-pod
