@@ -69,8 +69,8 @@ RUN apt-get update -y \
         postgresql-client \
         vim-tiny \
         cron \
-    && apt-get autoremove -y \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && apt-get autoremove -y
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip opcache tidy \
     && docker-php-ext-configure pgsql -with-pgsql \
     && docker-php-ext-install pdo_pgsql pgsql \
