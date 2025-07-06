@@ -59,16 +59,7 @@ if [[ ! -f /var/www/html/conf/conf.php ]]; then
 \$dolibarr_main_url_root_alt='/custom';
 \$dolibarr_main_document_root_alt='/var/www/html/custom';
 \$dolibarr_main_data_root='/var/www/documents';
-EOF
-
-    # Check if SSL is enabled for the database
-    if [[ "${DOLI_DB_SSL}" == "true" && "${DOLI_DB_TYPE}" == "mysqli"]]; then
-      echo "\$dolibarr_main_db_host='ssl://${DOLI_DB_HOST}';" >> /var/www/html/conf/conf.php
-    else
-      echo "\$dolibarr_main_db_host='${DOLI_DB_HOST}';" >> /var/www/html/conf/conf.php
-    fi
-
-cat > /var/www/html/conf/conf.php << EOF
+\$dolibarr_main_db_host='${DOLI_DB_HOST}';
 \$dolibarr_main_db_port='${DOLI_DB_HOST_PORT}';
 \$dolibarr_main_db_name='${DOLI_DB_NAME}';
 \$dolibarr_main_db_prefix='llx_';
@@ -78,8 +69,6 @@ cat > /var/www/html/conf/conf.php << EOF
 \$dolibarr_main_authentication='${DOLI_AUTH}';
 \$dolibarr_main_prod=${DOLI_PROD};
 EOF
-
-
     if [[ ! -z ${DOLI_INSTANCE_UNIQUE_ID} ]]; then
       echo "[INIT] => update Dolibarr Config with instance unique id ..."
       echo "\$dolibarr_main_instance_unique_id='${DOLI_INSTANCE_UNIQUE_ID}';" >> /var/www/html/conf/conf.php

@@ -7,7 +7,6 @@ FROM ${ARCH}php:8.2-apache-bullseye
 # Modified according to the GPL license by developers of the Dolibarr community:
 # 2024 Alois Micard
 # 2024 Laurent Destailleur
-# 2025 Renato de Castro Ferreira
 LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 
 ENV DOLI_VERSION=20.0.4
@@ -19,7 +18,6 @@ ENV DOLI_DB_TYPE=mysqli
 ENV DOLI_DB_HOST=mysql
 ENV DOLI_DB_HOST_PORT=3306
 ENV DOLI_DB_NAME=dolidb
-ENV DOLI_DB_SSL=true
 
 ENV DOLI_URL_ROOT='http://localhost'
 
