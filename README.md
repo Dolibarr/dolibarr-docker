@@ -155,7 +155,7 @@ You can use the following variables for a better customization of your docker-co
 | **DOLI_DB_NAME**                | *dolidb*                       | Database name
 | **DOLI_DB_USER**                | *dolidbuser*                   | Database user
 | **DOLI_DB_PASSWORD**            | *dolidbpass*                   | Database user's password
-| **DOLI_DB_SSL**                 | *true*                         | Enable encrypted database connections (MySQL only)
+| **DOLI_DB_SSL**                 | *false*                        | Enable encrypted database connections (MySQL and Dolibarr >v19 required)
 | **DOLI_URL_ROOT**               | *http://localhost*             | Url root of the Dolibarr installation
 | **DOLI_ADMIN_LOGIN**            | *admin*                        | Admin's login created on the first boot
 | **DOLI_ADMIN_PASSWORD**         | *admin*                        | Admin's initial password created on the first boot
