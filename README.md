@@ -1,8 +1,11 @@
 # Security Notices
-```
+## SSL And MySQL - Security enforcement (2025-07-05)
+
 Since 2025, July 7th, Dolibarr has a default security behaviour with mysql and ssl connection.
-If you experience issue with connecting to mysql, consider enabling SSL connection on your mysql server, or disabling the SSL connection by setting DOLI_DB_SSL to "false". (but the enabling SSL solution is plebicited)
-```
+
+If you experience issue with connecting to mysql, consider one of these solution:
+ - Enabling SSL connection on your mysql server (plebicited solution)
+ - Disabling the SSL connection by setting DOLI_DB_SSL to "false"
 
 # Dolibarr on Docker
 
