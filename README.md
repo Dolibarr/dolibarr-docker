@@ -1,3 +1,9 @@
+# Security Notices
+```
+Since 2025, July 7th, Dolibarr has a default security behaviour with mysql and ssl connection.
+If you experience issue with connecting to mysql, consider enabling SSL connection on your mysql server, or disabling the SSL connection by setting DOLI_DB_SSL to "false". (but the enabling SSL solution is plebicited)
+```
+
 # Dolibarr on Docker
 
 Docker image for Dolibarr ERP & CRM Open source web suite.
