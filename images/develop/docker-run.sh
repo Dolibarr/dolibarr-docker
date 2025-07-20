@@ -261,7 +261,10 @@ function initializeDatabase()
   echo "Create SuperAdmin account ..."
   echo "Create SuperAdmin account ..." >> /var/www/documents/initdb.log
   pass_crypted=`echo -n ${DOLI_ADMIN_PASSWORD} | md5sum | awk '{print $1}'`
+  # TODO Generate pass_crypted using PHP password_hash and set MAIN_SECURITY_HASH_ALGO=password_hash into llx_const
   #pass_crypted2=`php -r "echo password_hash(${DOLI_ADMIN_PASSWORD}, PASSWORD_BCRYPT);"`
+  #mysql -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" "${DOLI_DB_NAME}" -e "DELETE FROM llx_const WHERE name='MAIN_SECURITY_HASH_ALGO';" >> /var/www/documents/initdb.log 2>&1
+  #mysql -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" "${DOLI_DB_NAME}" -e "INSERT INTO llx_const(name,value,type,visible,note,entity) VALUES ('MAIN_SECURITY_HASH_ALGO', 'password_hash', 'chaine', 0, '', 0);" >> /var/www/documents/initdb.log 2>&1
   
   # Insert may fails if record already exists
   echo "Try insert into llx_user ..." >> /var/www/documents/initdb.log
