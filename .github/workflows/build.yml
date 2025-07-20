@@ -3,6 +3,8 @@
 # Instead perform any modifications in .github/build.yml.template
 
 name: build
+permissions:
+  contents: read
 on:
   # can run job manually
   workflow_dispatch:
