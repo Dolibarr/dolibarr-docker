@@ -1,6 +1,6 @@
 ARG ARCH=
 
-# Use a PHP image 
+# Use a PHP image
 # Example: PHP_BASE_IMAGE=x.y-apache-buster
 # Example: PHP_BASE_IMAGE=x.y-apache-bullseye
 # Note: Version of the PHP image must be a compatible version according to https://wiki.dolibarr.org/index.php?title=Versions

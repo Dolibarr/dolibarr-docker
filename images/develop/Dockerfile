@@ -1,6 +1,6 @@
 ARG ARCH=
 
-# Use a PHP image 
+# Use a PHP image
 # Example: PHP_BASE_IMAGE=x.y-apache-buster
 # Example: PHP_BASE_IMAGE=x.y-apache-bullseye
 # Note: Version of the PHP image must be a compatible version according to https://wiki.dolibarr.org/index.php?title=Versions
@@ -14,7 +14,7 @@ FROM ${ARCH}php:8.2-apache-bullseye
 LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 
 ENV DOLI_VERSION=develop
-ENV DOLI_VERSION_FOR_INIT_DEMO=21.0
+ENV DOLI_VERSION_FOR_INIT_DEMO=22.0
 ENV DOLI_INSTALL_AUTO=1
 ENV DOLI_PROD=1
 
