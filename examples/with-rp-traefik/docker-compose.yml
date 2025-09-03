@@ -65,9 +65,10 @@ services:
   mysql:
     image: library/mariadb:latest
     environment:
-      MYSQL_DATABASE: "dolibarr"
-      MYSQL_USER: "dolibarr"
-      MYSQL_PASSWORD: "mysupersecretpasswordfordatabase"
+      MARIADB_DATABASE: "dolibarr"
+      MARIADB_USER: "dolibarr"
+      MARIADB_PASSWORD: "mysupersecretpasswordfordatabase"
+      MARIADB_ROOT_PASSWORD: "mysupersecretrootpassword"
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
