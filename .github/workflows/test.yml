@@ -14,7 +14,7 @@ jobs:
 
         steps:
         - name: Checkout code
-          uses: actions/checkout@v3
+          uses: actions/checkout@v5
 
         - name: Test the update was run, files will differ if not
           run: |
@@ -23,12 +23,12 @@ jobs:
 
         - name: Display error message on failure
           if: failure()  # This condition ensures the step runs only if the previous step failed
-          run: echo "The diff after running the update.sh shows that the update.sh was not run before commiting the PR."
+          run: echo "The diff after running the update.sh shows that the update.sh was not run before committing the PR."
 
     check-build:
         runs-on: ubuntu-24.04
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v5
             - env:
                 DOLI_INSTALL_AUTO: 0
               run: |
