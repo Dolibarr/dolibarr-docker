@@ -1,0 +1,134 @@
+# Docker Compose for Dolibarr 22.0.1 Development Environment
+# Place this in the images/22.0.1-php8.2-devcontainer/ folder
+
+version: '3.8'
+
+services:
+  # Dolibarr Development Application
+  dolibarr-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dolibarr-dev-app
+    ports:
+      - "8080:80"
+    environment:
+      # Database configuration
+      DOLI_DB_HOST: db
+      DOLI_DB_PORT: 3306
+      DOLI_DB_NAME: dolibarr
+      DOLI_DB_USER: dolibarr
+      DOLI_DB_PASSWORD: dolibarr_dev_password
+      
+      # Application settings
+      DOLI_URL_ROOT: http://localhost:8080
+      DOLI_ADMIN_LOGIN: admin
+      DOLI_ADMIN_PASSWORD: admin_dev_password
+      DOLI_DEV_MODE: 1
+      DOLI_INSTALL_AUTO: 0
+      DOLI_PROD: 0
+      
+      # Email configuration (MailHog)
+      DOLI_MAIL_HOST: mailhog
+      DOLI_MAIL_PORT: 1025
+      
+      # Xdebug configuration
+      XDEBUG_CONFIG: "client_host=host.docker.internal client_port=9003 idekey=VSCODE"
+      PHP_IDE_CONFIG: "serverName=dolibarr-docker"
+      
+      # User ID mapping for development
+      WWW_USER_ID: 1000
+      WWW_GROUP_ID: 1000
+    volumes:
+      # Mount your Dolibarr source code for development
+      # IMPORTANT: Clone your personal Dolibarr repository into ./dolibarr/
+      # git clone https://github.com/YOUR-USERNAME/dolibarr.git ./dolibarr
+      - ./dolibarr:/var/www/html:cached
+      
+      # Persist data directories
+      - dolibarr_documents:/var/www/documents
+      - dolibarr_custom:/var/www/html/custom
+      
+      # Development configuration and scripts
+      - ./config:/usr/local/etc/dolibarr-dev:ro
+      - ./scripts:/usr/local/bin/dev-scripts:ro
+    depends_on:
+      - db
+      - mailhog
+    networks:
+      - dolibarr-dev-network
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # MariaDB Database
+  db:
+    image: mariadb:10.11
+    container_name: dolibarr-dev-db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_dev_password_change_me
+      MYSQL_DATABASE: dolibarr
+      MYSQL_USER: dolibarr
+      MYSQL_PASSWORD: dolibarr_dev_password
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./config/mysql:/etc/mysql/conf.d:ro
+    networks:
+      - dolibarr-dev-network
+    restart: unless-stopped
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --sql-mode="STRICT_ALL_TABLES,ONLY_FULL_GROUP_BY,NO_ZERO_DATE,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # phpMyAdmin for database management
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5-apache
+    container_name: dolibarr-dev-phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: dolibarr
+      PMA_PASSWORD: dolibarr_dev_password
+      UPLOAD_LIMIT: 100M
+      MEMORY_LIMIT: 512M
+    depends_on:
+      - db
+    networks:
+      - dolibarr-dev-network
+    restart: unless-stopped
+
+  # MailHog for email testing
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: dolibarr-dev-mailhog
+    ports:
+      - "8025:8025"  # Web interface
+      - "1025:1025"  # SMTP server
+    networks:
+      - dolibarr-dev-network
+    restart: unless-stopped
+
+volumes:
+  db_data:
+    driver: local
+  dolibarr_documents:
+    driver: local
+  dolibarr_custom:
+    driver: local
+
+networks:
+  dolibarr-dev-network:
+    driver: bridge
+    name: dolibarr-dev-network
