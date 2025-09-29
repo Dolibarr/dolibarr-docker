@@ -12,6 +12,7 @@ FROM ${ARCH}php:8.2-apache-bookworm AS base
 # 2024 Alois Micard
 # 2024 Laurent Destailleur  
 # 2025 Renato de Castro Ferreira
+# 2025 Florian HÖDL <florian@hoedl.co>
 # Development extensions by Dolibarr community
 LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 LABEL description="Dolibarr Development Environment with VS Code DevContainer support"
