@@ -138,8 +138,11 @@ git commit --no-verify
 
 ## Troubleshooting
 
-### "Not Found" Error
-Apache serves from `/var/www/html/`. Ensure your files are there, not in `/var/www/html/htdocs/`.
+### Website Loading Infinitely (Stuck/Hanging)
+
+**Symptom:** The website loads forever and never displays content.
+
+**Cause:** Xdebug is configured with `xdebug.start_with_request=yes`, which means it waits for a debugger connection on **every** request. If VS Code isn't listening, requests hang indefinitely.
 
 ### Database Not Initializing
 Check if DOLI_INSTALL_AUTO is enabled:

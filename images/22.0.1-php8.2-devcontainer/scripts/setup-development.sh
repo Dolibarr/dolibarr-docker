@@ -41,8 +41,14 @@ echo ""
 if [ -d "./dolibarr" ]; then
     print_warning "Dolibarr directory already exists"
     
+    # Check if directory is empty
+    if [ -z "$(ls -A ./dolibarr 2>/dev/null)" ]; then
+        print_status "Dolibarr directory exists but is empty"
+        print_status "Will proceed with cloning..."
+        # Remove empty directory so git clone works
+        rmdir ./dolibarr
     # Check if it's a git repository
-    if [ -d "./dolibarr/.git" ]; then
+    elif [ -d "./dolibarr/.git" ]; then
         cd dolibarr
         CURRENT_REMOTE=$(git remote get-url origin 2>/dev/null || echo "")
         CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "")

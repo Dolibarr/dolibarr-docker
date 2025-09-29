@@ -1,5 +1,8 @@
 # Development Environment - Generated/Runtime Files
 
+# Dolibarr source code (cloned repository for development)
+dolibarr/
+
 # Documents folder (uploaded files, generated PDFs, user data)
 documents/
 dolibarr_documents/
