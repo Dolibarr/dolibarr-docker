@@ -37,6 +37,14 @@ print_error() {
 print_status "🚀 Dolibarr Development Environment Setup"
 echo ""
 
+# Check if directory is empty
+if [ -z "$(ls -A ./dolibarr 2>/dev/null)" ]; then
+    print_status "Dolibarr directory exists but is empty"
+    print_status "Will proceed with cloning..."
+    # Remove empty directory so git clone works
+    rmdir ./dolibarr
+fi
+
 # Check if dolibarr directory exists
 if [ -d "./dolibarr" ]; then
     print_warning "Dolibarr directory already exists"
