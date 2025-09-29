@@ -9,7 +9,7 @@ case "$1" in
         ;;
     "cs-check")
         TARGET="${2:-.}"  # Use 2nd argument or current directory
-        echo "🔍 Checking code style with PHPCS on: $(realpath "$TARGET")"
+        echo "Checking code style with PHPCS on: $(realpath "$TARGET")"
         if [ -f "/var/www/html/dev/setup/codesniffer/ruleset.xml" ]; then
             phpcs --standard=/var/www/html/dev/setup/codesniffer/ruleset.xml "$TARGET" --extensions=php
         else
@@ -18,16 +18,16 @@ case "$1" in
         ;;
     "cs-fix")
         TARGET="${2:-.}"  # Use 2nd argument or current directory
-        echo "🔧 Fixing code style with PHP-CS-Fixer on: $(realpath "$TARGET")"
+        echo "Fixing code style with PHP-CS-Fixer on: $(realpath "$TARGET")"
         php-cs-fixer fix "$TARGET" --rules=@PSR12
         ;;
     "stan")
         TARGET="${2:-.}"  # Use 2nd argument or current directory
-        echo "🔬 Running PHPStan static analysis on: $(realpath "$TARGET")"
+        echo "Running PHPStan static analysis on: $(realpath "$TARGET")"
         phpstan analyse "$TARGET" --level=5
         ;;
     *)
-        echo "📦 Dolibarr Development Helper"
+        echo "Dolibarr Development Helper"
         echo ""
         echo "Usage: dolibarr-dev [command] [path]"
         echo ""
