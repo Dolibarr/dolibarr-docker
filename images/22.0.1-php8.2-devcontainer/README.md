@@ -96,15 +96,19 @@ mysql -h db -u dolibarr -pdolibarr_dev_password dolibarr
 ## File Structure
 
 ```
-/var/www/
-├── html/                    # Dolibarr source code (Apache serves from here)
-│   ├── htdocs/             # Main Dolibarr application  
-│   ├── custom/             # Custom modules
-│   ├── dev/                # Development tools
-│   ├── scripts/            # Utility scripts
-│   └── test/               # Tests
-├── documents/              # User uploaded files (persistent)
-└── .vscode-server/         # VS Code server files
+images/22.0.1-php8.2-devcontainer/
+├── .devcontainer/
+│   ├── devcontainer.json       # VS Code container config
+│   └── launch.json              # Xdebug debugging config
+├── Dockerfile                   # Multi-stage build with dev tools
+├── docker-compose.yml           # Services orchestration
+├── dolibarr/                    # Dolibarr Fork
+├── scripts/
+│   ├── setup-development.sh    # One-command setup
+│   ├── setup-git-hooks.sh      # Pre-commit hooks installer
+│   └── ...
+├── config/                      # Configuration files
+└── README.md                    # Comprehensive documentation
 ```
 
 ## Common Tasks
@@ -198,13 +202,8 @@ This devcontainer follows Dolibarr coding standards:
 
 This container is specifically for Dolibarr 22.0.1 with PHP 8.2.
 
-For other versions, see the parent `images/` directory for version-specific containers.
-
-## Support
-
-For issues with this devcontainer, open an issue in the dolibarr-docker repository.
-For Dolibarr core issues, use the main Dolibarr repository.
-
----
-
 Happy Dolibarr Development!
+
+
+Credits: Dolibarr Devcamp Vienna 2025
+Author: Florian Hödl <florian@hoedl.co>
