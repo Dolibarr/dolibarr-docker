@@ -43,6 +43,7 @@ services:
       
       # Persist documents directory (uploaded files, generated PDFs, etc.)
       - ./dolibarr_documents:/var/www/documents
+      - ./dolibarr_custom:/var/www/html/htdocs/custom
   
       # Development configuration and scripts
       - ./config:/usr/local/etc/dolibarr-dev:ro
