@@ -4,21 +4,32 @@ Complete VS Code DevContainer setup for Dolibarr development with proper structu
 
 ## Quick Start
 
-1. **Open this folder in VS Code:**
+1. **Clone this repository:**
+   ```bash
+   git clone https://github.com/YOUR-USERNAME/dolibarr-docker.git
+   cd dolibarr-docker/images/22.0.1-php8.2-devcontainer
+   ```
+
+2. **Run the setup script:**
+   ```bash
+   chmod +x scripts/setup-development.sh
+   ./scripts/setup-development.sh
+   ```
+
+3. **Open this folder in VS Code:**
    ```bash
    cd images/22.0.1-php8.2-devcontainer
    code .
    ```
 
-2. **Reopen in Container:**
+4. **Reopen in Container:**
    - Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
    - Type "Dev Containers: Reopen in Container"
    - Wait for container to build and start
 
-3. **Access Services:**
+5. **Access Services:**
    - Dolibarr: http://localhost:8080
    - phpMyAdmin: http://localhost:8081
-   - MailHog: http://localhost:8025
 
 
 
