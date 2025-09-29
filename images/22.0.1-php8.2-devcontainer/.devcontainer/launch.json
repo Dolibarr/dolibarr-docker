@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Listen for Xdebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9003,
+            "pathMappings": {
+                "/var/www/html": "${workspaceFolder}"
+            },
+            "log": true,
+            "xdebugSettings": {
+                "max_data": 65535,
+                "show_hidden": 1,
+                "max_children": 100,
+                "max_depth": 5
+            }
+        },
+        {
+            "name": "Launch currently open script",
+            "type": "php",
+            "request": "launch",
+            "program": "${file}",
+            "cwd": "${fileDirname}",
+            "port": 9003,
+            "runtimeExecutable": "/usr/local/bin/php"
+        }
+    ]
+}

@@ -28,10 +28,6 @@ services:
       DOLI_INSTALL_AUTO: 0
       DOLI_PROD: 0
       
-      # Email configuration (MailHog)
-      DOLI_MAIL_HOST: mailhog
-      DOLI_MAIL_PORT: 1025
-      
       # Xdebug configuration
       XDEBUG_CONFIG: "client_host=host.docker.internal client_port=9003 idekey=VSCODE"
       PHP_IDE_CONFIG: "serverName=dolibarr-docker"
@@ -45,16 +41,14 @@ services:
       # git clone https://github.com/YOUR-USERNAME/dolibarr.git ./dolibarr
       - ./dolibarr:/var/www/html:cached
       
-      # Persist data directories
-      - dolibarr_documents:/var/www/documents
-      - dolibarr_custom:/var/www/html/custom
-      
+      # Persist documents directory (uploaded files, generated PDFs, etc.)
+      - ./dolibarr_documents:/var/www/documents
+  
       # Development configuration and scripts
       - ./config:/usr/local/etc/dolibarr-dev:ro
       - ./scripts:/usr/local/bin/dev-scripts:ro
     depends_on:
       - db
-      - mailhog
     networks:
       - dolibarr-dev-network
     restart: unless-stopped
@@ -93,7 +87,7 @@ services:
 
   # phpMyAdmin for database management
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin:5-apache
+    image: phpmyadmin/phpmyadmin:5
     container_name: dolibarr-dev-phpmyadmin
     ports:
       - "8081:80"
@@ -109,23 +103,11 @@ services:
       - dolibarr-dev-network
     restart: unless-stopped
 
-  # MailHog for email testing
-  mailhog:
-    image: mailhog/mailhog:v1.0.1
-    container_name: dolibarr-dev-mailhog
-    ports:
-      - "8025:8025"  # Web interface
-      - "1025:1025"  # SMTP server
-    networks:
-      - dolibarr-dev-network
-    restart: unless-stopped
 
 volumes:
   db_data:
     driver: local
   dolibarr_documents:
-    driver: local
-  dolibarr_custom:
     driver: local
 
 networks:

@@ -1,352 +1,196 @@
-# Dolibarr Development Container
+# Dolibarr 22.0.1 Development Container
 
-A complete development environment for Dolibarr ERP CRM using Docker and VS Code DevContainers.
+Complete VS Code DevContainer setup for Dolibarr development with proper structure and all tools configured.
 
-## 🚀 Quick Start
+## Quick Start
 
-### Prerequisites
-
-- Docker Desktop
-- VS Code with the Dev Containers extension
-- Git
-
-### Setup
-
-1. **Clone this repository:**
+1. **Open this folder in VS Code:**
    ```bash
-   git clone https://github.com/YOUR-USERNAME/dolibarr-docker.git
-   cd dolibarr-docker/images/22.0.1-php8.2-devcontainer
+   cd images/22.0.1-php8.2-devcontainer
+   code .
    ```
 
-2. **Run the setup script:**
-   ```bash
-   chmod +x scripts/setup-development.sh
-   ./scripts/setup-development.sh
-   ```
-
-3. **Open in VS Code:**
-   ```bash
-   code ../../..
-   ```
-
-4. **Reopen in Container:**
+2. **Reopen in Container:**
    - Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
    - Type "Dev Containers: Reopen in Container"
-   - Select the option and wait for the container to build
+   - Wait for container to build and start
 
-## 🛠️ What's Included
+3. **Access Services:**
+   - Dolibarr: http://localhost:8080
+   - phpMyAdmin: http://localhost:8081
+   - MailHog: http://localhost:8025
 
-### Development Tools
 
-- **PHP 8.2** with all Dolibarr required extensions
-- **Xdebug** configured for VS Code debugging
-- **Composer** for dependency management
-- **Code Quality Tools:**
-  - PHPUnit for testing
-  - PHPCS for code style checking (Dolibarr standards)
-  - PHPStan for static analysis
-  - PHP CS Fixer for automatic code formatting
-  - PHPMD for mess detection
 
-### Services
-
-- **Dolibarr Application** (http://localhost:8080)
-- **MariaDB 10.11** database
-- **phpMyAdmin** (http://localhost:8081)
-- **MailHog** for email testing (http://localhost:8025)
-
-### VS Code Integration
-
-- **Pre-configured extensions** for PHP development
-- **Debugging support** with Xdebug
-- **IntelliSense** with Intelephense
-- **Code formatting** on save
-- **Git integration** with helpful hooks
-
-## 📁 Project Structure
-
-```
-dolibarr-docker/
-├── .devcontainer/
-│   └── devcontainer.json           # VS Code container configuration
-├── images/22.0.1-php8.2-devcontainer/
-│   ├── Dockerfile                  # Development Docker image
-│   ├── docker-compose.yml          # Multi-service setup
-│   ├── config/
-│   │   └── mysql/
-│   │       └── dolibarr-dev.cnf    # MySQL development config
-│   ├── scripts/
-│   │   ├── setup-development.sh    # Environment setup script
-│   │   └── setup-git-hooks.sh      # Git hooks installer
-│   ├── dolibarr/                   # Your Dolibarr source code (auto-created)
-│   └── README.md                   # This file
-└── helper scripts...
-```
-
-## 🔧 Development Workflow
-
-### 1. Code Quality Checks
-
-The environment includes pre-commit hooks that automatically run:
-
-- **PHP syntax check** - Ensures no syntax errors
-- **PHPCS** - Checks code style against Dolibarr standards
-- **Automatic formatting** - VS Code formats on save
-
-#### Manual Quality Checks
-
+### Database Initialization
+The database initializes automatically on first run. To manually initialize:
 ```bash
-# Check code style
+# Access install page
+http://localhost:8080/install/
+
+# Or use CLI
+cd /var/www/html
+php htdocs/install/index.php
+```
+
+### Xdebug Setup
+Xdebug is pre-configured. To debug:
+1. Set breakpoints in VS Code
+2. Press F5 or go to Run → Start Debugging
+3. Select "Listen for Xdebug"
+4. Access your page in browser
+5. Debugger will pause at breakpoints
+
+The launch.json is automatically included in the devcontainer.
+
+## Development Tools
+
+### Code Quality
+```bash
+# Check code style (Dolibarr standards)
 dolibarr-dev cs-check
 
-# Fix code style issues
+# Fix code style automatically
 dolibarr-dev cs-fix
 
 # Run static analysis
 dolibarr-dev stan
 
-# Run all tests
+# Run tests
 dolibarr-dev test
 ```
 
-### 2. Debugging
+### Extensions Included
+- **PHP Debug** (Xdebug integration)
+- **PHP Intelephense** (IntelliSense)
+- **PHPCS** (Code style checking)
+- **PHP CS Fixer** (Auto-formatting)
+- **PHPStan** (Static analysis)
+- **PHPUnit** (Testing)
+- **GitLens** (Git integration)
 
-1. **Set breakpoints** in VS Code
-2. **Start debugging** with F5 or the debug panel
-3. **Access your application** at http://localhost:8080
-4. **Debug in browser** - Xdebug will pause at breakpoints
+## Database Access
 
-### 3. Database Management
+### phpMyAdmin
+- URL: http://localhost:8080/phpmyadmin
+- Username: `dolibarr`
+- Password: `dolibarr_dev_password`
 
-- **phpMyAdmin**: http://localhost:8081
-  - Host: `db`
-  - Username: `dolibarr`
-  - Password: `dolibarr_dev_password`
-
-- **Direct MySQL access**:
-  ```bash
-  docker exec -it dolibarr-dev-db mysql -u dolibarr -p dolibarr
-  ```
-
-### 4. Email Testing
-
-All emails sent by Dolibarr are captured by MailHog:
-- **Web Interface**: http://localhost:8025
-- **SMTP Server**: localhost:1025 (configured automatically)
-
-## 🎯 Development Commands
-
-### Inside the Container
-
+### Command Line
 ```bash
-# Development helper (main command)
-dolibarr-dev [command]
-
-# Available commands:
-dolibarr-dev test      # Run PHPUnit tests
-dolibarr-dev cs-check  # Check code style
-dolibarr-dev cs-fix    # Fix code style
-dolibarr-dev stan      # Run static analysis
+# Inside container
+mysql -h db -u dolibarr -pdolibarr_dev_password dolibarr
 ```
 
-### From Host Machine
+## File Structure
 
+```
+/var/www/
+├── html/                    # Dolibarr source code (Apache serves from here)
+│   ├── htdocs/             # Main Dolibarr application  
+│   ├── custom/             # Custom modules
+│   ├── dev/                # Development tools
+│   ├── scripts/            # Utility scripts
+│   └── test/               # Tests
+├── documents/              # User uploaded files (persistent)
+└── .vscode-server/         # VS Code server files
+```
+
+## Common Tasks
+
+### Install Dolibarr
+1. Access http://localhost:8080
+2. Follow installation wizard
+3. Database details are pre-configured:
+   - Host: `db`
+   - Database: `dolibarr`
+   - User: `dolibarr`
+   - Password: `dolibarr_dev_password`
+
+### Clone Your Fork
 ```bash
-# Run tests
-./run-tests.sh
-
-# Check code quality
-./check-code-quality.sh
-
-# Fix code style
-./fix-code-style.sh
-
-# Access container shell
-docker exec -it dolibarr-dev-app bash
+# Inside container
+cd /var/www/html
+git remote add myfork https://github.com/YOUR-USERNAME/dolibarr.git
+git fetch myfork
 ```
 
-## 🔄 Git Workflow
+### Run Pre-commit Hooks
+Git hooks are automatically set up. They run on each commit:
+- PHP syntax check
+- Code style check (PHPCS)
 
-The environment sets up helpful Git hooks:
-
-### Pre-commit Hook
-Automatically runs before each commit:
-- PHP syntax validation
-- Code style checks
-- Prevents commits with style issues
-
-### Commit Message Template
-Provides structured commit messages:
-```
-feat: Add customer import functionality
-
-Longer description if needed
-
-Types: feat, fix, docs, style, refactor, test, chore
-```
-
-### Working with Forks
-
-If you're using a personal fork:
-
+To bypass (not recommended):
 ```bash
-# Sync with upstream
-git fetch upstream
-git checkout develop
-git merge upstream/develop
-
-# Create feature branch
-git checkout -b feature/my-new-feature
-
-# Push to your fork
-git push origin feature/my-new-feature
+git commit --no-verify
 ```
 
-## 📚 Dolibarr Development Guidelines
+## Troubleshooting
 
-This environment follows Dolibarr's official coding standards:
+### "Not Found" Error
+Apache serves from `/var/www/html/`. Ensure your files are there, not in `/var/www/html/htdocs/`.
 
-### Code Style
-- **PSR-12** compliant with Dolibarr exceptions
-- **Tabs allowed** (not forced to spaces)
-- **Line length**: 120 characters (soft limit), 1000 characters (hard limit)
-- **Unix line endings** (LF)
-
-### File Structure
-- **PHP files**: Start with `<?php`
-- **Class files**: Use `.class.php` extension
-- **Include files**: Use `.inc.php` extension
-- **Template files**: Use `.tpl.php` extension
-
-### Database
-- **Tables**: Prefix with `llx_`
-- **Primary keys**: Always `rowid`
-- **Character set**: `utf8mb4_unicode_ci`
-
-## 🚨 Troubleshooting
-
-### Container Issues
-
-**Container won't start:**
+### Database Not Initializing
+Check if DOLI_INSTALL_AUTO is enabled:
 ```bash
-# Check Docker logs
-docker-compose logs dolibarr-dev
-
-# Rebuild container
-docker-compose build --no-cache dolibarr-dev
+echo $DOLI_INSTALL_AUTO  # Should be 0 for manual, 1 for auto
 ```
 
-**Permission issues:**
+Or manually run the install:
 ```bash
-# Fix file permissions
-docker exec dolibarr-dev-app chown -R www-data:www-data /var/www/html
-```
-
-### Database Issues
-
-**Can't connect to database:**
-```bash
-# Check database status
-docker-compose logs db
-
-# Restart database
-docker-compose restart db
-```
-
-**Database not initialized:**
-```bash
-# Access Dolibarr install page
 http://localhost:8080/install/
 ```
 
-### Xdebug Issues
+### Xdebug Not Working
+1. Check Xdebug is loaded:
+   ```bash
+   php -m | grep xdebug
+   ```
 
-**Debugging not working:**
-1. Check VS Code has PHP Debug extension installed
-2. Verify launch.json configuration
-3. Ensure port 9003 is not blocked
-4. Check Xdebug logs: `docker exec dolibarr-dev-app tail -f /var/log/xdebug.log`
+2. Check configuration:
+   ```bash
+   php -i | grep xdebug
+   ```
 
-### Code Quality Issues
+3. Verify port 9003 is forwarded (should be automatic)
 
-**PHPCS errors:**
+### Permission Issues
 ```bash
-# See detailed error report
-phpcs --standard=/var/www/html/dev/setup/codesniffer/ruleset.xml --report=full htdocs/
-
-# Fix automatically fixable issues
-phpcbf --standard=/var/www/html/dev/setup/codesniffer/ruleset.xml htdocs/
+# Fix permissions
+chown -R www-data:www-data /var/www/html/
+chmod -R 755 /var/www/html/
 ```
 
-## 🤝 Contributing
+## Contributing
 
-### To Dolibarr Core
+This devcontainer follows Dolibarr coding standards:
+- PSR-12 with Dolibarr exceptions
+- Tabs allowed (not spaces)
+- Line length: 120 chars (soft), 1000 chars (hard)
+- Unix line endings (LF)
 
-1. **Fork** the main Dolibarr repository
-2. **Clone** your fork into the `dolibarr/` directory
-3. **Create** a feature branch
-4. **Develop** using this environment
-5. **Test** thoroughly
-6. **Submit** a pull request
-
-### To This Development Environment
-
-1. **Fork** this dolibarr-docker repository
-2. **Make** your improvements
-3. **Test** with a fresh setup
-4. **Document** your changes
-5. **Submit** a pull request
-
-## 📝 Environment Variables
-
-### Application Settings
+## Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DOLI_DB_HOST` | `db` | Database host |
-| `DOLI_DB_NAME` | `dolibarr` | Database name |
-| `DOLI_DB_USER` | `dolibarr` | Database user |
-| `DOLI_DB_PASSWORD` | `dolibarr_dev_password` | Database password |
-| `DOLI_URL_ROOT` | `http://localhost:8080` | Application URL |
-| `DOLI_ADMIN_LOGIN` | `admin` | Default admin login |
-| `DOLI_ADMIN_PASSWORD` | `admin_dev_password` | Default admin password |
+| DOLI_DB_HOST | db | Database host |
+| DOLI_DB_NAME | dolibarr | Database name |
+| DOLI_DB_USER | dolibarr | Database user |
+| DOLI_DB_PASSWORD | dolibarr_dev_password | Database password |
+| DOLI_URL_ROOT | http://localhost:8080 | Application URL |
+| DOLI_DEV_MODE | 1 | Enable development mode |
 
-### Development Settings
+## Version Specific Notes
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DOLI_DEV_MODE` | `1` | Enable development mode |
-| `DOLI_PROD` | `0` | Disable production mode |
-| `XDEBUG_CONFIG` | `client_host=host.docker.internal...` | Xdebug configuration |
-| `WWW_USER_ID` | `1000` | Web server user ID |
-| `WWW_GROUP_ID` | `1000` | Web server group ID |
+This container is specifically for Dolibarr 22.0.1 with PHP 8.2.
 
-## 🏷️ Version Compatibility
+For other versions, see the parent `images/` directory for version-specific containers.
 
-| Dolibarr Version | PHP Version | Status |
-|------------------|-------------|--------|
-| 22.0.1 | 8.2 | ✅ Current |
-| 21.0.4 | 8.2 | ✅ Supported |
-| 20.0.4 | 8.1 | ⚠️ Legacy |
+## Support
 
-## 📖 Additional Resources
-
-- [Dolibarr Developer Documentation](https://wiki.dolibarr.org/index.php/Developer_documentation)
-- [Dolibarr Coding Standards](https://wiki.dolibarr.org/index.php/Language_and_development_rules)
-- [VS Code DevContainers](https://code.visualstudio.com/docs/devcontainers/containers)
-- [Docker Compose Documentation](https://docs.docker.com/compose/)
-
-## 📄 License
-
-This development environment configuration is provided under the same license as Dolibarr ERP CRM (GPL v3 or later).
-
-## 🙋‍♂️ Support
-
-For issues related to:
-- **This development environment**: Open an issue in this repository
-- **Dolibarr core**: Use the [Dolibarr GitHub repository](https://github.com/Dolibarr/dolibarr)
-- **VS Code DevContainers**: Check the [VS Code documentation](https://code.visualstudio.com/docs/devcontainers/containers)
+For issues with this devcontainer, open an issue in the dolibarr-docker repository.
+For Dolibarr core issues, use the main Dolibarr repository.
 
 ---
 
-**Happy Dolibarr Development! 🎉**
+Happy Dolibarr Development!

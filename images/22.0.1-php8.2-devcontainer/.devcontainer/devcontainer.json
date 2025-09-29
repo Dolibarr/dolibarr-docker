@@ -1,8 +1,6 @@
 {
-    "name": "Dolibarr Development Environment",
-    "dockerComposeFile": [
-        "../images/22.0.1-php8.2-devcontainer/docker-compose.yml"
-    ],
+    "name": "Dolibarr 22.0.1 Development",
+    "dockerComposeFile": "../docker-compose.yml",
     "service": "dolibarr-dev",
     "workspaceFolder": "/var/www/html",
     "shutdownAction": "stopCompose",
@@ -16,11 +14,10 @@
                 "MehediDracula.php-namespace-resolver",
                 "rifi2k.format-html-in-php",
                 
-                // Code Quality & Standards
-                "ikappas.phpcs",
+                // Code Quality & Standards (FIXED: replaced deprecated phpcs)
+                "shevaua.phpcs",
                 "junstyle.php-cs-fixer",
                 "phpstan.vscode-phpstan",
-                "sanderronde.phpstan-vscode",
                 
                 // Testing
                 "recca0120.vscode-phpunit",
@@ -28,17 +25,10 @@
                 // Git & Version Control
                 "eamodio.gitlens",
                 "mhutchie.git-graph",
-                "GitHub.vscode-pull-request-github",
-                "GitHub.copilot",
-                
-                // Database
-                "mtxr.sqltools",
-                "mtxr.sqltools-driver-mysql",
                 
                 // Web Development
                 "ms-vscode.vscode-json",
                 "redhat.vscode-yaml",
-                "bradlc.vscode-tailwindcss",
                 
                 // Documentation
                 "yzhang.markdown-all-in-one",
@@ -63,21 +53,8 @@
                 "intelephense.completion.insertUseDeclaration": true,
                 "intelephense.completion.fullyQualifyGlobalConstantsAndFunctions": false,
                 "intelephense.format.enable": true,
-                "intelephense.stubs": [
-                    "apache", "bcmath", "bz2", "calendar", "com_dotnet", "Core", "ctype", 
-                    "curl", "date", "dba", "dom", "enchant", "exif", "FFI", "fileinfo", 
-                    "filter", "fpm", "ftp", "gd", "gettext", "gmp", "hash", "iconv", 
-                    "imap", "intl", "json", "ldap", "libxml", "mbstring", "meta", 
-                    "mysqli", "oci8", "odbc", "openssl", "pcntl", "pcre", "PDO", 
-                    "pdo_ibm", "pdo_mysql", "pdo_pgsql", "pdo_sqlite", "pgsql", 
-                    "Phar", "posix", "pspell", "readline", "Reflection", "session", 
-                    "shmop", "SimpleXML", "snmp", "soap", "sockets", "sodium", 
-                    "SPL", "sqlite3", "standard", "superglobals", "sysvmsg", 
-                    "sysvsem", "sysvshm", "tidy", "tokenizer", "xml", "xmlreader", 
-                    "xmlrpc", "xmlwriter", "xsl", "Zend OPcache", "zip", "zlib"
-                ],
                 
-                // PHPCS Configuration (Dolibarr Standards)
+                // PHPCS Configuration (Dolibarr Standards) - Updated for new extension
                 "phpcs.enable": true,
                 "phpcs.executablePath": "/usr/local/bin/phpcs",
                 "phpcs.standard": "/var/www/html/dev/setup/codesniffer/ruleset.xml",
@@ -100,14 +77,10 @@
                 "phpstan.enabled": true,
                 "phpstan.path": "/usr/local/bin/phpstan",
                 "phpstan.level": "5",
-                "phpstan.configPath": "/var/www/html/dev/setup/phpstan/phpstan.neon",
                 
                 // PHPUnit Configuration
                 "phpunit.php": "/usr/local/bin/php",
                 "phpunit.phpunit": "/usr/local/bin/phpunit",
-                "phpunit.args": [
-                    "--configuration", "/var/www/html/phpunit.xml"
-                ],
                 
                 // File Associations
                 "files.associations": {
@@ -124,7 +97,6 @@
                     "**/node_modules/**": true,
                     "**/.git/objects/**": true,
                     "**/.git/subtree-cache/**": true,
-                    "**/documents/**": true,
                     "**/.DS_Store": true
                 },
                 
@@ -155,21 +127,13 @@
                 "git.autofetch": true,
                 "git.enableSmartCommit": true,
                 "git.confirmSync": false,
-                "git.defaultCloneDirectory": "/workspace/dolibarr",
                 
                 // Terminal Configuration
                 "terminal.integrated.defaultProfile.linux": "bash",
                 "terminal.integrated.cwd": "/var/www/html",
                 
-                // Docker Integration
-                "docker.attachShellCommand.linuxContainer": "/bin/bash",
-                
                 // Workspace Trust
                 "security.workspace.trust.untrustedFiles": "open",
-                
-                // Performance
-                "extensions.ignoreRecommendations": false,
-                "workbench.settings.enableNaturalLanguageSearch": false,
                 
                 // Theme and appearance
                 "workbench.colorTheme": "Default Dark Modern",
@@ -183,7 +147,6 @@
     "forwardPorts": [
         8080,  // Dolibarr application
         8081,  // phpMyAdmin
-        8025,  // MailHog web UI
         3306,  // MySQL/MariaDB
         9003   // Xdebug
     ],
@@ -196,9 +159,6 @@
         "8081": {
             "label": "phpMyAdmin"
         },
-        "8025": {
-            "label": "MailHog (Email Testing)"
-        },
         "3306": {
             "label": "MariaDB"
         },
@@ -208,30 +168,14 @@
     },
     
     // Container configuration
-    "remoteUser": "www-data",
+    "remoteUser": "root",
     "updateRemoteUserUID": false,
     "overrideCommand": false,
     
-    // Post-creation commands
-    "postCreateCommand": "echo '🎉 Dolibarr Development Environment Ready! Use dolibarr-dev command for helpers.'",
+    // Post-creation command: Fix Git permissions and setup directories
+    "postCreateCommand": "bash -c 'git config core.fileMode false && mkdir -p /var/www/.vscode-server && chmod 755 /var/www/.vscode-server && echo \"Dolibarr Development Environment Ready!\"'",
     
     // Lifecycle scripts
     "initializeCommand": "echo 'Initializing Dolibarr development environment...'",
-    "onCreateCommand": "echo 'Creating development environment...'",
-    
-    // Mount the Docker socket for Docker-in-Docker scenarios
-    "mounts": [
-        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind,consistency=cached"
-    ],
-    
-    // Features to install
-    "features": {
-        "ghcr.io/devcontainers/features/git:1": {
-            "version": "latest",
-            "ppa": true
-        },
-        "ghcr.io/devcontainers/features/github-cli:1": {
-            "version": "latest"
-        }
-    }
+    "onCreateCommand": "echo 'Creating development environment...'"
 }

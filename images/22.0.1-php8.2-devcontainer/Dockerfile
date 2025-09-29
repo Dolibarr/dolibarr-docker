@@ -83,7 +83,7 @@ RUN apt-get update -y \
         cron \
     && apt-get autoremove -y
 
-# Install development tools
+# Install development tools including sudo
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends \
         git \
@@ -96,7 +96,11 @@ RUN apt-get update -y \
         htop \
         procps \
         net-tools \
+        sudo \
     && rm -rf /var/lib/apt/lists/*
+
+# Configure sudo for www-data user
+RUN echo "www-data ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Install PHP extensions (same as production)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -108,26 +112,27 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
     && docker-php-ext-install imap
 
-# Install Xdebug for development
-RUN pecl install xdebug \
-    && docker-php-ext-enable xdebug
-
-# Install Composer
+# Install Composer first
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# PHP configuration
+# PHP configuration - setup base configuration before installing Xdebug
 RUN mv ${PHP_INI_DIR}/php.ini-production ${PHP_INI_DIR}/php.ini \
     && sed -i 's/expose_php = On/expose_php = Off/g' ${PHP_INI_DIR}/php.ini
 
+# Install Xdebug for development (after base PHP config)
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
 # Xdebug configuration for VS Code
-RUN echo "zend_extension=xdebug.so" > ${PHP_INI_DIR}/conf.d/xdebug.ini \
-    && echo "xdebug.mode=debug,coverage,develop" >> ${PHP_INI_DIR}/conf.d/xdebug.ini \
-    && echo "xdebug.start_with_request=yes" >> ${PHP_INI_DIR}/conf.d/xdebug.ini \
-    && echo "xdebug.client_host=host.docker.internal" >> ${PHP_INI_DIR}/conf.d/xdebug.ini \
-    && echo "xdebug.client_port=9003" >> ${PHP_INI_DIR}/conf.d/xdebug.ini \
-    && echo "xdebug.log=/var/log/xdebug.log" >> ${PHP_INI_DIR}/conf.d/xdebug.ini \
-    && echo "xdebug.idekey=VSCODE" >> ${PHP_INI_DIR}/conf.d/xdebug.ini \
-    && echo "xdebug.discover_client_host=1" >> ${PHP_INI_DIR}/conf.d/xdebug.ini
+RUN echo "[xdebug]" > ${PHP_INI_DIR}/conf.d/docker-php-ext-xdebug.ini \
+    && echo "zend_extension=xdebug.so" >> ${PHP_INI_DIR}/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.mode=debug,coverage,develop" >> ${PHP_INI_DIR}/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.start_with_request=yes" >> ${PHP_INI_DIR}/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.client_host=host.docker.internal" >> ${PHP_INI_DIR}/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.client_port=9003" >> ${PHP_INI_DIR}/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.log=/var/log/xdebug.log" >> ${PHP_INI_DIR}/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.idekey=VSCODE" >> ${PHP_INI_DIR}/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.discover_client_host=1" >> ${PHP_INI_DIR}/conf.d/docker-php-ext-xdebug.ini
 
 # Development PHP settings
 RUN echo "# Development PHP settings" > ${PHP_INI_DIR}/conf.d/development.ini \
@@ -140,14 +145,13 @@ RUN echo "# Development PHP settings" > ${PHP_INI_DIR}/conf.d/development.ini \
     && echo "opcache.validate_timestamps = 1" >> ${PHP_INI_DIR}/conf.d/development.ini \
     && echo "opcache.revalidate_freq = 0" >> ${PHP_INI_DIR}/conf.d/development.ini
 
-# Install PHP development tools globally
+# Install PHP development tools globally - Fixed dependency conflicts
 RUN composer global require \
         phpunit/phpunit:^10.0 \
         squizlabs/php_codesniffer:^3.7 \
         phpstan/phpstan:^1.10 \
         friendsofphp/php-cs-fixer:^3.0 \
         phpmd/phpmd:^2.13 \
-        sebastian/phpcpd:^6.0 \
     && echo 'export PATH="$PATH:/root/.composer/vendor/bin"' >> /root/.bashrc
 
 # Create symlinks for easy access to dev tools
@@ -156,8 +160,7 @@ RUN ln -s /root/.composer/vendor/bin/phpunit /usr/local/bin/phpunit \
     && ln -s /root/.composer/vendor/bin/phpcbf /usr/local/bin/phpcbf \
     && ln -s /root/.composer/vendor/bin/phpstan /usr/local/bin/phpstan \
     && ln -s /root/.composer/vendor/bin/php-cs-fixer /usr/local/bin/php-cs-fixer \
-    && ln -s /root/.composer/vendor/bin/phpmd /usr/local/bin/phpmd \
-    && ln -s /root/.composer/vendor/bin/phpcpd /usr/local/bin/phpcpd
+    && ln -s /root/.composer/vendor/bin/phpmd /usr/local/bin/phpmd
 
 # Disable useless Apache modules to provide safe defaults
 RUN a2disconf serve-cgi-bin \
@@ -172,7 +175,7 @@ RUN a2enmod rewrite
 RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.gz |\
     tar -C /tmp -xz && \
     cp -r /tmp/dolibarr-${DOLI_VERSION}/htdocs/* /var/www/html/ && \
-    ln -s /var/www/html /var/www/htdocs && \
+    # ln -s /var/www/html /var/www/htdocs && \
     cp -r /tmp/dolibarr-${DOLI_VERSION}/scripts /var/www/ && \
     rm -rf /tmp/* && \
     mkdir -p /var/www/documents && \
@@ -185,46 +188,31 @@ RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.
     chown www-data:www-data /var/log/php_errors.log && \
     chmod -R u+w /var/www/html
 
+# FIXED: Configure Apache to serve from the correct directory
+RUN echo '<VirtualHost *:80>' > /etc/apache2/sites-available/000-default.conf && \
+    echo '    DocumentRoot /var/www/html/htdocs' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    <Directory /var/www/html/htdocs>' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        Options -Indexes +FollowSymLinks' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        AllowOverride All' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        Require all granted' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        DirectoryIndex index.php index.html' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    </Directory>' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    ErrorLog ${APACHE_LOG_DIR}/error.log' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    CustomLog ${APACHE_LOG_DIR}/access.log combined' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '</VirtualHost>' >> /etc/apache2/sites-available/000-default.conf
+
+# Create directories that VS Code will need with proper permissions
+RUN mkdir -p /var/www/.vscode-server /var/www/.vscode-remote \
+    && chown -R www-data:www-data /var/www/.vscode-server /var/www/.vscode-remote \
+    && chmod -R 755 /var/www/.vscode-server /var/www/.vscode-remote
+
 # Copy development scripts and configuration
 COPY scripts/ /usr/local/bin/dev-scripts/
 COPY config/ /usr/local/etc/dolibarr-dev/
 
 # Create development helper script
-RUN echo '#!/bin/bash' > /usr/local/bin/dolibarr-dev \
-    && echo '# Dolibarr Development Helper Script' >> /usr/local/bin/dolibarr-dev \
-    && echo 'case "$1" in' >> /usr/local/bin/dolibarr-dev \
-    && echo '    "test")' >> /usr/local/bin/dolibarr-dev \
-    && echo '        echo "Running PHPUnit tests..."' >> /usr/local/bin/dolibarr-dev \
-    && echo '        cd /var/www/html && phpunit' >> /usr/local/bin/dolibarr-dev \
-    && echo '        ;;' >> /usr/local/bin/dolibarr-dev \
-    && echo '    "cs-check")' >> /usr/local/bin/dolibarr-dev \
-    && echo '        echo "Checking code style with PHPCS..."' >> /usr/local/bin/dolibarr-dev \
-    && echo '        if [ -f "/var/www/html/dev/setup/codesniffer/ruleset.xml" ]; then' >> /usr/local/bin/dolibarr-dev \
-    && echo '            phpcs --standard=/var/www/html/dev/setup/codesniffer/ruleset.xml /var/www/html/htdocs/ --extensions=php' >> /usr/local/bin/dolibarr-dev \
-    && echo '        else' >> /usr/local/bin/dolibarr-dev \
-    && echo '            phpcs --standard=PSR12 /var/www/html/htdocs/ --extensions=php' >> /usr/local/bin/dolibarr-dev \
-    && echo '        fi' >> /usr/local/bin/dolibarr-dev \
-    && echo '        ;;' >> /usr/local/bin/dolibarr-dev \
-    && echo '    "cs-fix")' >> /usr/local/bin/dolibarr-dev \
-    && echo '        echo "Fixing code style with PHP-CS-Fixer..."' >> /usr/local/bin/dolibarr-dev \
-    && echo '        php-cs-fixer fix /var/www/html/htdocs/ --rules=@PSR12' >> /usr/local/bin/dolibarr-dev \
-    && echo '        ;;' >> /usr/local/bin/dolibarr-dev \
-    && echo '    "stan")' >> /usr/local/bin/dolibarr-dev \
-    && echo '        echo "Running PHPStan static analysis..."' >> /usr/local/bin/dolibarr-dev \
-    && echo '        phpstan analyse /var/www/html/htdocs/ --level=5' >> /usr/local/bin/dolibarr-dev \
-    && echo '        ;;' >> /usr/local/bin/dolibarr-dev \
-    && echo '    *)' >> /usr/local/bin/dolibarr-dev \
-    && echo '        echo "Dolibarr Development Helper"' >> /usr/local/bin/dolibarr-dev \
-    && echo '        echo "Usage: dolibarr-dev [command]"' >> /usr/local/bin/dolibarr-dev \
-    && echo '        echo ""' >> /usr/local/bin/dolibarr-dev \
-    && echo '        echo "Commands:"' >> /usr/local/bin/dolibarr-dev \
-    && echo '        echo "  test     - Run PHPUnit tests"' >> /usr/local/bin/dolibarr-dev \
-    && echo '        echo "  cs-check - Check code style"' >> /usr/local/bin/dolibarr-dev \
-    && echo '        echo "  cs-fix   - Fix code style"' >> /usr/local/bin/dolibarr-dev \
-    && echo '        echo "  stan     - Run static analysis"' >> /usr/local/bin/dolibarr-dev \
-    && echo '        ;;' >> /usr/local/bin/dolibarr-dev \
-    && echo 'esac' >> /usr/local/bin/dolibarr-dev \
-    && chmod +x /usr/local/bin/dolibarr-dev
+COPY dolibarr-dev-improved.sh /usr/local/bin/dolibarr-dev
+RUN chmod +x /usr/local/bin/dolibarr-dev
 
 # Development environment variables
 ENV DOLI_DEV_MODE=1
