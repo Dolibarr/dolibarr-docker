@@ -34,7 +34,7 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-print_status "🚀 Dolibarr Development Environment Setup"
+print_status "Dolibarr Development Environment Setup"
 echo ""
 
 # Check if directory is empty
@@ -213,12 +213,12 @@ EOF
 cat > ./check-code-quality.sh << 'EOF'
 #!/bin/bash
 # Check code quality for Dolibarr
-echo "🔍 Running code quality checks..."
+echo "Running code quality checks..."
 
-echo "📋 Running PHPCS (Code Sniffer)..."
+echo "Running PHPCS (Code Sniffer)..."
 docker exec dolibarr-dev-app dolibarr-dev cs-check
 
-echo "🔬 Running PHPStan (Static Analysis)..."
+echo "Running PHPStan (Static Analysis)..."
 docker exec dolibarr-dev-app dolibarr-dev stan
 EOF
 
@@ -238,16 +238,16 @@ print_success "Development helper scripts created"
 
 # Display final information
 echo ""
-print_success "🎉 Dolibarr Development Environment Setup Complete!"
+print_success "Dolibarr Development Environment Setup Complete!"
 echo ""
-echo "📋 What's been set up:"
-echo "  ✅ Dolibarr repository cloned/verified"
-echo "  ✅ Development configuration created"
-echo "  ✅ Git hooks installed"
-echo "  ✅ PHPUnit configuration ready"
-echo "  ✅ Helper scripts created"
+echo "What's been set up:"
+echo "  Dolibarr repository cloned/verified"
+echo "  Development configuration created"
+echo "  Git hooks installed"
+echo "  PHPUnit configuration ready"
+echo "  Helper scripts created"
 echo ""
-echo "🚀 Next steps:"
+echo "Next steps:"
 echo "  1. Start the development environment:"
 echo "     docker-compose up -d"
 echo ""
@@ -256,12 +256,11 @@ echo ""
 echo "  3. Access your development environment:"
 echo "     • Dolibarr: http://localhost:8080"
 echo "     • phpMyAdmin: http://localhost:8081"
-echo "     • MailHog: http://localhost:8025"
 echo ""
-echo "💡 Available helper commands:"
+echo "Available helper commands:"
 echo "  • ./run-tests.sh - Run PHPUnit tests"
 echo "  • ./check-code-quality.sh - Check code quality"
 echo "  • ./fix-code-style.sh - Fix code style issues"
 echo "  • docker exec dolibarr-dev-app dolibarr-dev - Inside container helper"
 echo ""
-echo "Happy coding! 🎯"
+echo "Happy coding!"

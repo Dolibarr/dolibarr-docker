@@ -10,7 +10,7 @@ echo "🔧 Setting up Git hooks for Dolibarr development..."
 
 # Check if we're in a git repository
 if [ ! -d ".git" ]; then
-    echo "❌ Not in a Git repository. Please run this script from the root of your Dolibarr repository."
+    echo "Not in a Git repository. Please run this script from the root of your Dolibarr repository."
     exit 1
 fi
 
@@ -25,14 +25,14 @@ cat > .git/hooks/pre-commit << 'EOF'
 # Runs code quality checks before allowing commits
 #
 
-echo "🔍 Running pre-commit checks..."
+echo "Running pre-commit checks..."
 
 # Check if we're in the container
 if command -v dolibarr-dev >/dev/null 2>&1; then
     PHPCS_CMD="phpcs"
     PHP_CMD="php"
 else
-    echo "⚠️  Pre-commit hooks work best inside the development container"
+    echo "Pre-commit hooks work best inside the development container"
     PHPCS_CMD="docker exec dolibarr-dev-app phpcs"
     PHP_CMD="docker exec dolibarr-dev-app php"
 fi
@@ -41,19 +41,19 @@ fi
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.php$' || true)
 
 if [ -z "$STAGED_FILES" ]; then
-    echo "✅ No PHP files to check"
+    echo "No PHP files to check"
     exit 0
 fi
 
-echo "📁 Checking $(echo "$STAGED_FILES" | wc -l) PHP files..."
+echo "Checking $(echo "$STAGED_FILES" | wc -l) PHP files..."
 
 # Check PHP syntax
-echo "🔧 Checking PHP syntax..."
+echo "Checking PHP syntax..."
 for FILE in $STAGED_FILES; do
     if [ -f "$FILE" ]; then
         $PHP_CMD -l "$FILE" >/dev/null 2>&1
         if [ $? -ne 0 ]; then
-            echo "❌ PHP syntax error in: $FILE"
+            echo "PHP syntax error in: $FILE"
             exit 1
         fi
     fi
@@ -61,7 +61,7 @@ done
 
 # Run PHPCS if available
 if command -v $PHPCS_CMD >/dev/null 2>&1; then
-    echo "📋 Running PHPCS code style check..."
+    echo "Running PHPCS code style check..."
     
     # Use Dolibarr ruleset if available, otherwise PSR12
     if [ -f "dev/setup/codesniffer/ruleset.xml" ]; then
@@ -74,15 +74,15 @@ if command -v $PHPCS_CMD >/dev/null 2>&1; then
         if [ -f "$FILE" ]; then
             $PHPCS_CMD --standard="$STANDARD" "$FILE" --error-severity=1
             if [ $? -ne 0 ]; then
-                echo "❌ Code style issues found in: $FILE"
-                echo "💡 Run 'dolibarr-dev cs-fix' to fix automatically fixable issues"
+                echo "Code style issues found in: $FILE"
+                echo "Run 'dolibarr-dev cs-fix' to fix automatically fixable issues"
                 exit 1
             fi
         fi
     done
 fi
 
-echo "✅ All pre-commit checks passed!"
+echo "All pre-commit checks passed!"
 exit 0
 EOF
 
@@ -129,10 +129,10 @@ EOF
 
 chmod +x .git/hooks/prepare-commit-msg
 
-echo "✅ Git hooks installed successfully!"
+echo "Git hooks installed successfully!"
 echo ""
-echo "📋 Hooks installed:"
+echo "Hooks installed:"
 echo "  • pre-commit: Runs PHP syntax and code style checks"
 echo "  • prepare-commit-msg: Provides commit message templates"
 echo ""
-echo "💡 To bypass hooks temporarily, use: git commit --no-verify"
+echo "To bypass hooks temporarily, use: git commit --no-verify"
