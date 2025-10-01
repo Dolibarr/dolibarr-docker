@@ -163,6 +163,16 @@ RUN ln -s /root/.composer/vendor/bin/phpunit /usr/local/bin/phpunit \
     && ln -s /root/.composer/vendor/bin/php-cs-fixer /usr/local/bin/php-cs-fixer \
     && ln -s /root/.composer/vendor/bin/phpmd /usr/local/bin/phpmd
 
+# Install Node.js (for Claude Code CLI and other JS tools)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Claude Code CLI (for AI-assisted development)
+# Note: Requires ANTHROPIC_API_KEY environment variable to be set
+RUN npm install -g @anthropic-ai/claude-code \
+    || echo "Claude Code installation failed - check network connection"
+
 # Disable useless Apache modules to provide safe defaults
 RUN a2disconf serve-cgi-bin \
     && a2dismod status \

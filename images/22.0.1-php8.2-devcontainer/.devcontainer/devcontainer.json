@@ -8,38 +8,26 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                // PHP Development
                 "xdebug.php-debug",
                 "bmewburn.vscode-intelephense-client",
                 "MehediDracula.php-namespace-resolver",
                 "rifi2k.format-html-in-php",
-                
-                // Code Quality & Standards (FIXED: replaced deprecated phpcs)
                 "shevaua.phpcs",
                 "junstyle.php-cs-fixer",
                 "phpstan.vscode-phpstan",
-                
-                // Testing
                 "recca0120.vscode-phpunit",
-                
-                // Git & Version Control
                 "eamodio.gitlens",
                 "mhutchie.git-graph",
-                
-                // Web Development
                 "ms-vscode.vscode-json",
                 "redhat.vscode-yaml",
-                
-                // Documentation
                 "yzhang.markdown-all-in-one",
                 "DavidAnson.vscode-markdownlint",
-                
-                // Utilities
                 "aaron-bond.better-comments",
                 "PKief.material-icon-theme",
                 "streetsidesoftware.code-spell-checker",
                 "formulahendry.auto-rename-tag",
-                "christian-kohler.path-intellisense"
+                "christian-kohler.path-intellisense",
+                "Anthropic.claude-code"
             ],
             
             "settings": {
@@ -131,6 +119,13 @@
                 // Terminal Configuration
                 "terminal.integrated.defaultProfile.linux": "bash",
                 "terminal.integrated.cwd": "/var/www/html",
+                "terminal.integrated.profiles.linux": {
+                    "bash": {
+                        "path": "bash",
+                        "args": ["-c", "export HISTFILE=/commandhistory/.bash_history && export PROMPT_COMMAND='history -a' && exec bash"],
+                        "icon": "terminal-bash"
+                    }
+                },
                 
                 // Workspace Trust
                 "security.workspace.trust.untrustedFiles": "open",
@@ -141,6 +136,18 @@
                 "workbench.startupEditor": "readme"
             }
         }
+    },
+    
+    // Session Persistence - Volume mounts for command history and Claude configuration
+    "mounts": [
+        "source=dolibarr-dev-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
+        "source=dolibarr-dev-claude-config-${devcontainerId},target=/root/.claude,type=volume"
+    ],
+    
+    // Container environment variables for session persistence
+    "containerEnv": {
+        "CLAUDE_CONFIG_DIR": "/root/.claude",
+        "HISTFILE": "/commandhistory/.bash_history"
     },
     
     // Forward ports for development services
@@ -172,8 +179,8 @@
     "updateRemoteUserUID": false,
     "overrideCommand": false,
     
-    // Post-creation command: Fix Git permissions and setup directories
-    "postCreateCommand": "bash -c 'git config core.fileMode false && mkdir -p /var/www/.vscode-server && chmod 755 /var/www/.vscode-server && echo \"Dolibarr Development Environment Ready!\"'",
+    // Post-creation command: Fix Git permissions, setup directories, and initialize session persistence
+    "postCreateCommand": "bash -c 'git config core.fileMode false && mkdir -p /var/www/.vscode-server /commandhistory /root/.claude && chmod 755 /var/www/.vscode-server /commandhistory /root/.claude && touch /commandhistory/.bash_history && chown -R root:root /commandhistory /root/.claude && echo \"Dolibarr Development Environment Ready with Session Persistence!\"'",
     
     // Lifecycle scripts
     "initializeCommand": "echo 'Initializing Dolibarr development environment...'",
