@@ -11,7 +11,7 @@ services:
       dockerfile: Dockerfile
     container_name: dolibarr-dev-app
     ports:
-      - "8080:80"
+      - "80:80"
     environment:
       # Database configuration
       DOLI_DB_HOST: db
@@ -21,7 +21,7 @@ services:
       DOLI_DB_PASSWORD: dolibarr_dev_password
       
       # Application settings
-      DOLI_URL_ROOT: http://localhost:8080
+      DOLI_URL_ROOT: http://localhost
       DOLI_ADMIN_LOGIN: admin
       DOLI_ADMIN_PASSWORD: admin_dev_password
       DOLI_DEV_MODE: 1
@@ -46,7 +46,7 @@ services:
       - ./dolibarr_custom:/var/www/html/htdocs/custom
   
       # Development configuration and scripts
-      - ./config:/usr/local/etc/dolibarr-dev:ro
+      - ./config:/var/www/html/htdocs/conf:ro
       - ./scripts:/usr/local/bin/dev-scripts:ro
     depends_on:
       - db

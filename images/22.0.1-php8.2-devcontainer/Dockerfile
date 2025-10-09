@@ -28,7 +28,7 @@ ENV DOLI_DB_HOST_PORT=3306
 ENV DOLI_DB_NAME=dolibarr
 ENV DOLI_DB_SSL=false
 
-ENV DOLI_URL_ROOT='http://localhost:8080'
+ENV DOLI_URL_ROOT='http://localhost'
 
 ENV DOLI_AUTH=dolibarr
 ENV DOLI_LDAP_HOST=127.0.0.1
