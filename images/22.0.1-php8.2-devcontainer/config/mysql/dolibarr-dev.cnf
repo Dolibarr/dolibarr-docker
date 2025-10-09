@@ -1,0 +1,69 @@
+# MySQL/MariaDB configuration for Dolibarr development
+# This file provides optimal settings for development work
+
+[mysql]
+default-character-set = utf8mb4
+
+[mysqld]
+# Character set and collation
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# SQL Mode for Dolibarr compatibility
+sql-mode = "STRICT_ALL_TABLES,ONLY_FULL_GROUP_BY,NO_ZERO_DATE,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+
+# Performance settings for development
+max_connections = 100
+max_allowed_packet = 256M
+thread_stack = 192K
+thread_cache_size = 8
+
+# Table and memory settings
+table_open_cache = 64
+sort_buffer_size = 512K
+net_buffer_length = 8K
+read_buffer_size = 256K
+read_rnd_buffer_size = 512K
+myisam_sort_buffer_size = 8M
+
+# Logging for development debugging
+general_log = 1
+general_log_file = /var/log/mysql/general.log
+log_error = /var/log/mysql/error.log
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+
+# InnoDB settings
+innodb_file_per_table = 1
+innodb_buffer_pool_size = 256M
+innodb_log_file_size = 64M
+innodb_log_buffer_size = 8M
+innodb_flush_log_at_trx_commit = 1
+innodb_lock_wait_timeout = 50
+
+# Development-friendly settings
+max_heap_table_size = 16M
+tmp_table_size = 16M
+
+# Binary logging (optional for development)
+# log-bin = mysql-bin
+# binlog_format = mixed
+# expire_logs_days = 10
+
+[mysqldump]
+quick
+quote-names
+max_allowed_packet = 256M
+
+[mysql]
+no-auto-rehash
+
+[myisamchk]
+key_buffer_size = 20M
+sort_buffer_size = 20M
+read_buffer = 2M
+write_buffer = 2M
+
+[mysqlhotcopy]
+interactive-timeout

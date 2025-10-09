@@ -1,0 +1,31 @@
+[mysqld]
+# Dolibarr MySQL/MariaDB Configuration
+
+# Character set and collation
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# SQL Mode (required by Dolibarr)
+sql-mode = "STRICT_ALL_TABLES,ONLY_FULL_GROUP_BY,NO_ZERO_DATE,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+
+# InnoDB Settings
+default-storage-engine = InnoDB
+innodb_file_per_table = 1
+innodb_buffer_pool_size = 256M
+
+# Development settings
+max_allowed_packet = 64M
+max_connections = 200
+
+# Logging for development
+general_log = 1
+general_log_file = /var/log/mysql/general.log
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+
+[mysql]
+default-character-set = utf8mb4
+
+[client]
+default-character-set = utf8mb4
