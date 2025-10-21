@@ -49,12 +49,6 @@ ENV PHP_INI_UPLOAD_MAX_FILESIZE=20M
 ENV PHP_INI_POST_MAX_SIZE=22M
 ENV PHP_INI_ALLOW_URL_FOPEN=0
 
-RUN sed -i \
-  -e 's/^\(ServerSignature On\)$/#\1/g' \
-  -e 's/^#\(ServerSignature Off\)$/\1/g' \
-  -e 's/^\(ServerTokens\) OS$/\1 Prod/g' \
-  /etc/apache2/conf-available/security.conf
-
 RUN apt-get update -y \
     && apt-get dist-upgrade -y \
     && apt-get install -y --no-install-recommends \
@@ -90,7 +84,12 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 RUN a2disconf serve-cgi-bin \
     && a2dismod status \
     && a2dismod -f alias \
-    && a2dismod -f autoindex
+    && a2dismod -f autoindex \
+    && sed -i \
+    -e 's/^\(ServerSignature On\)$/#\1/g' \
+    -e 's/^#\(ServerSignature Off\)$/\1/g' \
+    -e 's/^\(ServerTokens\) OS$/\1 Prod/g' \
+    /etc/apache2/conf-available/security.conf
 
 # Get Dolibarr
 RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.gz |\
