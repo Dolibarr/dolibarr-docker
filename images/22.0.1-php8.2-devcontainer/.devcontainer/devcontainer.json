@@ -1,0 +1,188 @@
+{
+    "name": "Dolibarr 22.0.1 Development",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "dolibarr-dev",
+    "workspaceFolder": "/var/www/html",
+    "shutdownAction": "stopCompose",
+    
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "xdebug.php-debug",
+                "bmewburn.vscode-intelephense-client",
+                "MehediDracula.php-namespace-resolver",
+                "rifi2k.format-html-in-php",
+                "shevaua.phpcs",
+                "junstyle.php-cs-fixer",
+                "phpstan.vscode-phpstan",
+                "recca0120.vscode-phpunit",
+                "eamodio.gitlens",
+                "mhutchie.git-graph",
+                "ms-vscode.vscode-json",
+                "redhat.vscode-yaml",
+                "yzhang.markdown-all-in-one",
+                "DavidAnson.vscode-markdownlint",
+                "aaron-bond.better-comments",
+                "PKief.material-icon-theme",
+                "streetsidesoftware.code-spell-checker",
+                "formulahendry.auto-rename-tag",
+                "christian-kohler.path-intellisense",
+                "Anthropic.claude-code"
+            ],
+            
+            "settings": {
+                // PHP Configuration
+                "php.validate.executablePath": "/usr/local/bin/php",
+                "php.debug.executablePath": "/usr/local/bin/php",
+                "php.executablePath": "/usr/local/bin/php",
+                
+                // Intelephense Configuration
+                "intelephense.files.maxSize": 5000000,
+                "intelephense.completion.insertUseDeclaration": true,
+                "intelephense.completion.fullyQualifyGlobalConstantsAndFunctions": false,
+                "intelephense.format.enable": true,
+                
+                // PHPCS Configuration (Dolibarr Standards) - Updated for new extension
+                "phpcs.enable": true,
+                "phpcs.executablePath": "/usr/local/bin/phpcs",
+                "phpcs.standard": "/var/www/html/dev/setup/codesniffer/ruleset.xml",
+                "phpcs.showWarnings": true,
+                "phpcs.showSources": true,
+                "phpcs.ignorePatterns": [
+                    "*/vendor/*",
+                    "*/node_modules/*",
+                    "*/includes/*"
+                ],
+                
+                // PHP CS Fixer Configuration
+                "php-cs-fixer.executablePath": "/usr/local/bin/php-cs-fixer",
+                "php-cs-fixer.rules": "@PSR12",
+                "php-cs-fixer.formatHtml": true,
+                "php-cs-fixer.documentFormattingProvider": true,
+                "php-cs-fixer.allowRisky": false,
+                
+                // PHPStan Configuration
+                "phpstan.enabled": true,
+                "phpstan.path": "/usr/local/bin/phpstan",
+                "phpstan.level": "5",
+                
+                // PHPUnit Configuration
+                "phpunit.php": "/usr/local/bin/php",
+                "phpunit.phpunit": "/usr/local/bin/phpunit",
+                
+                // File Associations
+                "files.associations": {
+                    "*.php": "php",
+                    "*.inc": "php",
+                    "*.tpl": "php",
+                    "*.lib": "php",
+                    "*.class.php": "php"
+                },
+                
+                // Files to Exclude from Explorer
+                "files.exclude": {
+                    "**/vendor/**": true,
+                    "**/node_modules/**": true,
+                    "**/.git/objects/**": true,
+                    "**/.git/subtree-cache/**": true,
+                    "**/.DS_Store": true
+                },
+                
+                // Search Exclusions
+                "search.exclude": {
+                    "**/vendor/**": true,
+                    "**/node_modules/**": true,
+                    "**/documents/**": true,
+                    "**/.git/**": true
+                },
+                
+                // Editor Settings (Following Dolibarr Guidelines)
+                "editor.tabSize": 4,
+                "editor.insertSpaces": false,
+                "editor.detectIndentation": false,
+                "editor.trimAutoWhitespace": true,
+                "editor.formatOnSave": true,
+                "editor.formatOnPaste": false,
+                "editor.rulers": [120, 1000],
+                
+                // Line Endings (Unix format as required by Dolibarr)
+                "files.eol": "\n",
+                "files.trimTrailingWhitespace": true,
+                "files.insertFinalNewline": true,
+                "files.trimFinalNewlines": true,
+                
+                // Git Configuration
+                "git.autofetch": true,
+                "git.enableSmartCommit": true,
+                "git.confirmSync": false,
+                
+                // Terminal Configuration
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.cwd": "/var/www/html",
+                "terminal.integrated.profiles.linux": {
+                    "bash": {
+                        "path": "bash",
+                        "args": ["-c", "export HISTFILE=/commandhistory/.bash_history && export PROMPT_COMMAND='history -a' && exec bash"],
+                        "icon": "terminal-bash"
+                    }
+                },
+                
+                // Workspace Trust
+                "security.workspace.trust.untrustedFiles": "open",
+                
+                // Theme and appearance
+                "workbench.colorTheme": "Default Dark Modern",
+                "workbench.iconTheme": "material-icon-theme",
+                "workbench.startupEditor": "readme"
+            }
+        }
+    },
+    
+    // Session Persistence - Volume mounts for command history and Claude configuration
+    "mounts": [
+        "source=dolibarr-dev-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
+        "source=dolibarr-dev-claude-config-${devcontainerId},target=/root/.claude,type=volume"
+    ],
+    
+    // Container environment variables for session persistence
+    "containerEnv": {
+        "CLAUDE_CONFIG_DIR": "/root/.claude",
+        "HISTFILE": "/commandhistory/.bash_history"
+    },
+    
+    // Forward ports for development services
+    "forwardPorts": [
+        8080,  // Dolibarr application
+        8081,  // phpMyAdmin
+        3306,  // MySQL/MariaDB
+        9003   // Xdebug
+    ],
+    
+    "portsAttributes": {
+        "8080": {
+            "label": "Dolibarr Application",
+            "onAutoForward": "openBrowser"
+        },
+        "8081": {
+            "label": "phpMyAdmin"
+        },
+        "3306": {
+            "label": "MariaDB"
+        },
+        "9003": {
+            "label": "Xdebug"
+        }
+    },
+    
+    // Container configuration
+    "remoteUser": "root",
+    "updateRemoteUserUID": false,
+    "overrideCommand": false,
+    
+    // Post-creation command: Fix Git permissions, setup directories, and initialize session persistence
+    "postCreateCommand": "bash -c 'git config core.fileMode false && mkdir -p /var/www/.vscode-server /commandhistory /root/.claude && chmod 755 /var/www/.vscode-server /commandhistory /root/.claude && touch /commandhistory/.bash_history && chown -R root:root /commandhistory /root/.claude && echo \"Dolibarr Development Environment Ready with Session Persistence!\"'",
+    
+    // Lifecycle scripts
+    "initializeCommand": "echo 'Initializing Dolibarr development environment...'",
+    "onCreateCommand": "echo 'Creating development environment...'"
+}
