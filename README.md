@@ -24,10 +24,10 @@ Linux x86-64 (`amd64`) and ARMv8 64-bit (`arm64v8`).
 This image is based on the [official PHP repository](https://hub.docker.com/_/php/) and the [official Dolibarr repository](https://github.com/Dolibarr/dolibarr). It is build
 using the tools saved in the [Dolibarr docker build repository](https://github.com/Dolibarr/dolibarr-docker). 
 
-This image does not contains database, so you need to link it with a database container. Let's use [Docker Compose](https://docs.docker.com/compose/) to integrate it with [MariaDB](https://hub.docker.com/_/mariadb/) (you can also use [MySQL](https://hub.docker.com/_/mysql/) if you prefer):
+This image does not contains database, so you need to link it with a database container. Let's see how to use [Docker Compose](https://docs.docker.com/compose/) to integrate it with [MariaDB](https://hub.docker.com/_/mariadb/) (you can also use [MySQL](https://hub.docker.com/_/mysql/) if you prefer):
 
-If you want to have a persistent database and dolibarr data files after reboot or upgrade, you must first
-create a directory `/home/dolibarr_mariadb`, `/home/dolibarr_documents` and `/home/dolibarr_custom` on your host to store persistent files, respectively, of the database, of the Dolibarr document files and of the installed external Dolibarr modules.
+If you want to have a persistent database and Dolibarr data files after a reboot or upgrade, you must first
+create the directories `/home/dolibarr_mariadb`, `/home/dolibarr_documents` and `/home/dolibarr_custom` on your host to store persistent files, respectively, of the database, of the Dolibarr document files and of the installed external Dolibarr modules.
 
 `mkdir /home/dolibarr_mariadb /home/dolibarr_documents /home/dolibarr_custom;`
 
@@ -86,7 +86,7 @@ Then build and run all services (-d is to run in background).
 
 If the "docker-compose" command is not available, you can replace it with the command "docker compose".
 
-You can check the web and the mariadb containers are up and see logs with
+You can verify that the web and the mariadb containers are up and see logs with
 
 `sudo docker-compose ps`
 
@@ -94,7 +94,7 @@ You can check the web and the mariadb containers are up and see logs with
 
 Once the log shows that the start is complete (you should see a message "You can connect to your Dolibarr web application..."), go to http://0.0.0.0 to access to the new Dolibarr installation, first admin login is admin/admin (if you did not change default value previously in the docker-compose.yml file). 
 
-Note: If the host port 80 is already used, you can replace "80:80" with "xx:80" where xx a free port on the host. You will be
+Note: If the host port 80 is already used, you can replace "80:80" with "xx:80" where xx is a free port number on the host. You will be
 able to access the Dolibarr using the URL http://0.0.0.0:xx
 
 
