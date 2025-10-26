@@ -6,6 +6,8 @@
 # sudo test.sh 18.0.5 php8.1
 #
 
+# shellcheck disable=SC1001
+
 set -e
 
 BASE_DIR="$( cd "$(dirname "$0")" && pwd )"

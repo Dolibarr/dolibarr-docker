@@ -35,7 +35,7 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
   echo "Generate Dockerfile for Dolibarr ${dolibarrVersion}"
 
   tags="${tags}\n\*"
-  dolibarrMajor=$(echo ${dolibarrVersion} | cut -d. -f1)
+  dolibarrMajor=$(echo "${dolibarrVersion}" | cut -d. -f1)
 
   # Mapping PHP version according to Dolibarr version (See https://wiki.dolibarr.org/index.php/Versions)
   # Regarding PHP Supported version : https://www.php.net/supported-versions.php
@@ -48,6 +48,7 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
   fi
 
   for php_base_image in "${php_base_images[@]}"; do
+    # shellcheck disable=SC1001
     php_version=$(echo "${php_base_image}" | cut -d\- -f1)
 
     if [ "${dolibarrVersion}" = "develop" ]; then
@@ -68,7 +69,8 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
     dir="${BASE_DIR}/images/${currentTag}"
 
 	# Set DOLI_VERSION_FOR_INIT_DEMO to x.y version
-	if [ ${dolibarrVersion} != "develop" ]; then
+	if [ "${dolibarrVersion}" != "develop" ]; then
+		# shellcheck disable=SC2001
 		DOLI_VERSION_FOR_INIT_DEMO=$(echo "${dolibarrVersion}" | sed 's/\(\.[^\.]*\)\.[^\.]*$/\1/')
 	else
 		DOLI_VERSION_FOR_INIT_DEMO=$DOLIBARR_VERSION_FOR_INIT_DEMO
@@ -90,12 +92,12 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
           --push \
           --compress \
           --platform linux/amd64,linux/arm64 \
-          ${buildOptionTags} \
+          "${buildOptionTags}" \
           "${dir}"
       else
         docker build \
           --compress \
-          ${buildOptionTags} \
+          "${buildOptionTags}" \
           "${dir}"
       fi
     fi
