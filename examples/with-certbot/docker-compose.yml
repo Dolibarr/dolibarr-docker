@@ -26,6 +26,7 @@ services:
       DOLI_DB_HOST_PORT: ${DB_PORT}
       DOLI_DB_NAME: ${DB_NAME}
       DOLI_URL_ROOT: ${SITE_URL}
+      DOLI_REQUIRE_INSTANCE_UNIQUE_ID: 1
       PHP_INI_DATE_TIMEZONE: 'Europe/Paris'
     ports:
       - "8181:80"
