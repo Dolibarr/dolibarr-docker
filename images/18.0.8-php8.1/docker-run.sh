@@ -77,12 +77,16 @@ EOF
     fi
 
     if [[ ! -z ${DOLI_INSTANCE_UNIQUE_ID} ]]; then
-      echo "[INIT] => update Dolibarr Config with instance unique id ..."
+      echo "[INIT] => update Dolibarr Config with provided instance unique id ..."
       echo "\$dolibarr_main_instance_unique_id='${DOLI_INSTANCE_UNIQUE_ID}';" >> /var/www/html/conf/conf.php
     else
-      # It is better to have a generic value than no value
-      echo "[INIT] => update Dolibarr Config with instance unique id ..."
-      echo "\$dolibarr_main_instance_unique_id='myinstanceuniquekey';" >> /var/www/html/conf/conf.php
+      if [[ "${DOLI_REQUIRE_INSTANCE_UNIQUE_ID:-0}" == "1" ]]; then
+        echo "[INIT] => please set DOLI_INSTANCE_UNIQUE_ID to a secure random string..."
+        exit 1
+      else
+        echo "[INIT] => update Dolibarr Config with default instance unique id ..."
+        echo "\$dolibarr_main_instance_unique_id='myinstanceuniquekey';" >> /var/www/html/conf/conf.php
+      fi
     fi
     if [[ ${DOLI_AUTH} =~ .*ldap.* ]]; then
       echo "[INIT] => update Dolibarr Config with LDAP entries ..."
