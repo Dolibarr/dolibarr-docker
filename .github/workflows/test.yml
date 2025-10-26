@@ -25,6 +25,16 @@ jobs:
         if: failure()  # This condition ensures the step runs only if the previous step failed
         run: echo "The diff after running the update.sh shows that the update.sh was not run before committing the PR."
 
+  check-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@2.0.0
+
   check-build:
     runs-on: ubuntu-24.04
     steps:
