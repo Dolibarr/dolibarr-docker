@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Run this script to generate all files (Dockerfile, docker-init.php, docker-run.php) found into images directory, 
+# Run this script to generate all files (Dockerfile, docker-init.php, docker-run.php) found into images directory,
 # used for each image. The source files are the files into the root.
 #
 
@@ -9,21 +9,23 @@ set -e
 DOCKER_BUILD=${DOCKER_BUILD:-0}
 DOCKER_PUSH=${DOCKER_PUSH:-0}
 
-BASE_DIR="$( cd "$(dirname "$0")" && pwd )"
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 source "${BASE_DIR}/versions.sh"
 
 # If a target version is provided to the build script, only build this one
- if [ "$#" -ge  "1" ]
-   then
-     DOLIBARR_VERSIONS=("$1")
- fi
+if [ "$#" -ge "1" ]; then
+	DOLIBARR_VERSIONS=("$1")
+fi
 
 tags=""
 
 # Generate an up-to-date copy of .github/workflows/build.yml using the Dolibarr versions as defined in versions.sh
-FORMATTED_DOLIBARR_VERSIONS=$(IFS=","; echo "${DOLIBARR_VERSIONS[*]}")
-sed 's/%DOLIBARR_VERSIONS%/'"$FORMATTED_DOLIBARR_VERSIONS"'/g' "${BASE_DIR}/.github/build.yml.template" | sed 's/,/, /g' > "${BASE_DIR}/.github/workflows/build.yml"
+FORMATTED_DOLIBARR_VERSIONS=$(
+	IFS=","
+	echo "${DOLIBARR_VERSIONS[*]}"
+)
+sed 's/%DOLIBARR_VERSIONS%/'"$FORMATTED_DOLIBARR_VERSIONS"'/g' "${BASE_DIR}/.github/build.yml.template" | sed 's/,/, /g' >"${BASE_DIR}/.github/workflows/build.yml"
 
 # Clean the directory /images
 if [ -f "${BASE_DIR}/images/README.md" ]; then
@@ -32,87 +34,86 @@ fi
 rm -rf "${BASE_DIR}/images" "${BASE_DIR}/docker-compose-links"
 
 for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
-  echo "Generate Dockerfile for Dolibarr ${dolibarrVersion}"
+	echo "Generate Dockerfile for Dolibarr ${dolibarrVersion}"
 
-  tags="${tags}\n\*"
-  dolibarrMajor=$(echo "${dolibarrVersion}" | cut -d. -f1)
+	tags="${tags}\n\*"
+	dolibarrMajor=$(echo "${dolibarrVersion}" | cut -d. -f1)
 
-  # Mapping PHP version according to Dolibarr version (See https://wiki.dolibarr.org/index.php/Versions)
-  # Regarding PHP Supported version : https://www.php.net/supported-versions.php
-  if [ "${dolibarrVersion}" = "develop" ] || [ "${dolibarrMajor}" -ge "19" ] || [ "${dolibarrMajor}" -ge "20" ] || [ "${dolibarrMajor}" -ge "21" ]; then
-    php_base_images=( "8.2-apache-bookworm" )
-  elif [ "${dolibarrMajor}" -ge "16" ]; then
-    php_base_images=( "8.1-apache-bookworm" )
-  else
-    php_base_images=( "7.4-apache-bullseye" )
-  fi
-
-  for php_base_image in "${php_base_images[@]}"; do
-    # shellcheck disable=SC1001
-    php_version=$(echo "${php_base_image}" | cut -d\- -f1)
-
-    if [ "${dolibarrVersion}" = "develop" ]; then
-      currentTag="${dolibarrVersion}"
-    else
-      currentTag="${dolibarrVersion}-php${php_version}"
-      tags="${tags} ${currentTag}"
-    fi
-
-    buildOptionTags="--tag dolibarr/dolibarr:${currentTag}"
-    if [ "${dolibarrVersion}" != "develop" ]; then
-      buildOptionTags="${buildOptionTags} --tag dolibarr/dolibarr:${dolibarrVersion} --tag dolibarr/dolibarr:${dolibarrMajor}"
-    fi
-    if [ "${dolibarrVersion}" = "${DOLIBARR_LATEST_TAG}" ]; then
-      buildOptionTags="${buildOptionTags} --tag dolibarr/dolibarr:latest"
-    fi
-
-    dir="${BASE_DIR}/images/${currentTag}"
-
-	# Set DOLI_VERSION_FOR_INIT_DEMO to x.y version
-	if [ "${dolibarrVersion}" != "develop" ]; then
-		# shellcheck disable=SC2001
-		DOLI_VERSION_FOR_INIT_DEMO=$(echo "${dolibarrVersion}" | sed 's/\(\.[^\.]*\)\.[^\.]*$/\1/')
+	# Mapping PHP version according to Dolibarr version (See https://wiki.dolibarr.org/index.php/Versions)
+	# Regarding PHP Supported version : https://www.php.net/supported-versions.php
+	if [ "${dolibarrVersion}" = "develop" ] || [ "${dolibarrMajor}" -ge "19" ] || [ "${dolibarrMajor}" -ge "20" ] || [ "${dolibarrMajor}" -ge "21" ]; then
+		php_base_images=("8.2-apache-bookworm")
+	elif [ "${dolibarrMajor}" -ge "16" ]; then
+		php_base_images=("8.1-apache-bookworm")
 	else
-		DOLI_VERSION_FOR_INIT_DEMO=$DOLIBARR_VERSION_FOR_INIT_DEMO
+		php_base_images=("7.4-apache-bullseye")
 	fi
 
-	echo "Replace Dockerfile.template with DOLI_VERSION_FOR_INIT_DEMO=$DOLI_VERSION_FOR_INIT_DEMO"
-    mkdir -p "${dir}"
-    sed 's/%PHP_BASE_IMAGE%/'"${php_base_image}"'/;' "${BASE_DIR}/Dockerfile.template" | \
-    sed 's/%DOLI_VERSION%/'"${dolibarrVersion}"'/;' | \
-    sed 's/%DOLI_VERSION_FOR_INIT_DEMO%/'"${DOLI_VERSION_FOR_INIT_DEMO}"'/;' \
-    > "${dir}/Dockerfile"
+	for php_base_image in "${php_base_images[@]}"; do
+		# shellcheck disable=SC1001
+		php_version=$(echo "${php_base_image}" | cut -d\- -f1)
 
-    cp -a "${BASE_DIR}/docker-init.php" "${dir}/docker-init.php"
-    cp -a "${BASE_DIR}/docker-run.sh" "${dir}/docker-run.sh"
+		if [ "${dolibarrVersion}" = "develop" ]; then
+			currentTag="${dolibarrVersion}"
+		else
+			currentTag="${dolibarrVersion}-php${php_version}"
+			tags="${tags} ${currentTag}"
+		fi
 
-    if [ "${DOCKER_BUILD}" = "1" ]; then
-      if [ "${DOCKER_PUSH}" = "1" ]; then
-        docker buildx build \
-          --push \
-          --compress \
-          --platform linux/amd64,linux/arm64 \
-          "${buildOptionTags}" \
-          "${dir}"
-      else
-        docker build \
-          --compress \
-          "${buildOptionTags}" \
-          "${dir}"
-      fi
-    fi
-  done
+		buildOptionTags="--tag dolibarr/dolibarr:${currentTag}"
+		if [ "${dolibarrVersion}" != "develop" ]; then
+			buildOptionTags="${buildOptionTags} --tag dolibarr/dolibarr:${dolibarrVersion} --tag dolibarr/dolibarr:${dolibarrMajor}"
+		fi
+		if [ "${dolibarrVersion}" = "${DOLIBARR_LATEST_TAG}" ]; then
+			buildOptionTags="${buildOptionTags} --tag dolibarr/dolibarr:latest"
+		fi
 
-  if [ "${dolibarrVersion}" = "develop" ]; then
-    tags="${tags} develop"
-  else
-    tags="${tags} ${dolibarrVersion} ${dolibarrMajor}"
-  fi
-  if [ "${dolibarrVersion}" = "${DOLIBARR_LATEST_TAG}" ]; then
-    tags="${tags} latest"
-  fi
+		dir="${BASE_DIR}/images/${currentTag}"
+
+		# Set DOLI_VERSION_FOR_INIT_DEMO to x.y version
+		if [ "${dolibarrVersion}" != "develop" ]; then
+			# shellcheck disable=SC2001
+			DOLI_VERSION_FOR_INIT_DEMO=$(echo "${dolibarrVersion}" | sed 's/\(\.[^\.]*\)\.[^\.]*$/\1/')
+		else
+			DOLI_VERSION_FOR_INIT_DEMO=$DOLIBARR_VERSION_FOR_INIT_DEMO
+		fi
+
+		echo "Replace Dockerfile.template with DOLI_VERSION_FOR_INIT_DEMO=$DOLI_VERSION_FOR_INIT_DEMO"
+		mkdir -p "${dir}"
+		sed 's/%PHP_BASE_IMAGE%/'"${php_base_image}"'/;' "${BASE_DIR}/Dockerfile.template" |
+			sed 's/%DOLI_VERSION%/'"${dolibarrVersion}"'/;' |
+			sed 's/%DOLI_VERSION_FOR_INIT_DEMO%/'"${DOLI_VERSION_FOR_INIT_DEMO}"'/;' \
+				>"${dir}/Dockerfile"
+
+		cp -a "${BASE_DIR}/docker-init.php" "${dir}/docker-init.php"
+		cp -a "${BASE_DIR}/docker-run.sh" "${dir}/docker-run.sh"
+
+		if [ "${DOCKER_BUILD}" = "1" ]; then
+			if [ "${DOCKER_PUSH}" = "1" ]; then
+				docker buildx build \
+					--push \
+					--compress \
+					--platform linux/amd64,linux/arm64 \
+					"${buildOptionTags}" \
+					"${dir}"
+			else
+				docker build \
+					--compress \
+					"${buildOptionTags}" \
+					"${dir}"
+			fi
+		fi
+	done
+
+	if [ "${dolibarrVersion}" = "develop" ]; then
+		tags="${tags} develop"
+	else
+		tags="${tags} ${dolibarrVersion} ${dolibarrMajor}"
+	fi
+	if [ "${dolibarrVersion}" = "${DOLIBARR_LATEST_TAG}" ]; then
+		tags="${tags} latest"
+	fi
 done
-
 
 if [ -f "/tmp/tmp-README.md" ]; then
 	mv "/tmp/tmp-README.md" "${BASE_DIR}/images/README.md"
