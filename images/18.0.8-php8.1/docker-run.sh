@@ -33,6 +33,11 @@ function get_env_value() {
 
 # Function to create directories, create conf.php file and set permissions on files
 function initDolibarr() {
+	if [[ -n ${DOLI_INSTANCE_UNIQUE_ID} && "${DOLI_REQUIRE_INSTANCE_UNIQUE_ID:-0}" == "1" ]]; then
+		echo "[INIT] => please set DOLI_INSTANCE_UNIQUE_ID to a secure random string..."
+		exit 1
+	fi
+
 	if [[ ! -d /var/www/documents ]]; then
 		echo "[INIT] => create volume directory /var/www/documents ..."
 		mkdir -p /var/www/documents
@@ -81,13 +86,8 @@ EOF
 			echo "[INIT] => update Dolibarr Config with provided instance unique id ..."
 			echo "\$dolibarr_main_instance_unique_id='${DOLI_INSTANCE_UNIQUE_ID}';" >>/var/www/html/conf/conf.php
 		else
-			if [[ "${DOLI_REQUIRE_INSTANCE_UNIQUE_ID:-0}" == "1" ]]; then
-				echo "[INIT] => please set DOLI_INSTANCE_UNIQUE_ID to a secure random string..."
-				exit 1
-			else
-				echo "[INIT] => update Dolibarr Config with default instance unique id ..."
-				echo "\$dolibarr_main_instance_unique_id='myinstanceuniquekey';" >>/var/www/html/conf/conf.php
-			fi
+			echo "[INIT] => update Dolibarr Config with default instance unique id ..."
+			echo "\$dolibarr_main_instance_unique_id='myinstanceuniquekey';" >>/var/www/html/conf/conf.php
 		fi
 		if [[ ${DOLI_AUTH} =~ .*ldap.* ]]; then
 			echo "[INIT] => update Dolibarr Config with LDAP entries ..."
