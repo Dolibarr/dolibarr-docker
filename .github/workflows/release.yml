@@ -10,6 +10,7 @@ jobs:
   release-dolibarr-version:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - run: |
           ./new-version.sh ${{ github.event.client_payload.version }}
           git config user.name github-actions
