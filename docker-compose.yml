@@ -56,7 +56,7 @@ services:
             DOLI_ADMIN_LOGIN: admintest
             DOLI_ADMIN_PASSWORD: admintest
             DOLI_URL_ROOT: http://0.0.0.0:81
-            DOLI_INSTANCE_UNIQUE_ID: myinstanceuniqueid
+            DOLI_REQUIRE_INSTANCE_UNIQUE_ID: 1
             DOLI_CRON: 1
             DOLI_CRON_KEY: mycronsecurekey
             DOLI_CRON_USER: admintest

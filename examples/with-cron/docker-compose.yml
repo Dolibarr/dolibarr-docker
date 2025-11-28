@@ -79,6 +79,7 @@ services:
       DOLI_CRON_KEY: ${DOLI_CRON_KEY:-mycronsecurekey}
       DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
       DOLI_COMPANY_NAME: ${DOLI_COMPANY_NAME:-MyBigCompany}
+      DOLI_REQUIRE_INSTANCE_UNIQUE_ID: 1
     ports:
       - 80:80
     networks:
@@ -105,5 +106,6 @@ services:
       DOLI_CRON_KEY: ${DOLI_CRON_KEY:-mycronsecurekey}
       DOLI_INIT_DEMO: ${DOLI_INIT_DEMO:-0}
       DOLI_COMPANY_NAME: ${DOLI_COMPANY_NAME:-MyBigCompany}
+      DOLI_REQUIRE_INSTANCE_UNIQUE_ID: 1
     networks:
       - internal-pod

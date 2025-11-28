@@ -34,6 +34,7 @@ services:
       DOLI_DB_PASSWORD_FILE: "/run/secrets/mysql-password"
       DOLI_ADMIN_LOGIN_FILE: "/run/secrets/dolibarr-admin-user"
       DOLI_ADMIN_PASSWORD_FILE: "/run/secrets/dolibarr-admin-password"
+      DOLI_REQUIRE_INSTANCE_UNIQUE_ID: 1
     ports:
       - 80:80
     volumes:

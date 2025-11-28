@@ -23,6 +23,7 @@ services:
       DOLI_DB_NAME: "dolibarr"
       DOLI_ADMIN_LOGIN: "admin"
       DOLI_ADMIN_PASSWORD: "mysuperhypersecretpasswordforadminacount"
+      DOLI_REQUIRE_INSTANCE_UNIQUE_ID: 1
     ports:
       - 80:80
     volumes:

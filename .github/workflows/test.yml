@@ -1,40 +1,52 @@
 name: test
 on:
-    push:
-        branches:
-            - main
-    pull_request:
+  push:
+    branches:
+      - main
+  pull_request:
 
 permissions:
-    contents: read
+  contents: read
 
 jobs:
-    check-update:
-        runs-on: ubuntu-latest
+  check-update:
+    runs-on: ubuntu-latest
 
-        steps:
-        - name: Checkout code
-          uses: actions/checkout@v5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
 
-        - name: Test the update was run, files will differ if not
-          run: |
-            ./update.sh
-            git diff --exit-code
+      - name: Test the update was run, files will differ if not
+        run: |
+          ./update.sh
+          git diff --exit-code
 
-        - name: Display error message on failure
-          if: failure()  # This condition ensures the step runs only if the previous step failed
-          run: echo "The diff after running the update.sh shows that the update.sh was not run before committing the PR."
+      - name: Display error message on failure
+        if: failure()  # This condition ensures the step runs only if the previous step failed
+        run: echo "The diff after running the update.sh shows that the update.sh was not run before committing the PR."
 
-    check-build:
-        runs-on: ubuntu-24.04
-        steps:
-            - uses: actions/checkout@v5
-            - env:
-                DOLI_INSTALL_AUTO: 0
-              run: |
-                # Regenerate all the image files
-                ./update.sh
-                # Try to build the image inimages/develop
-                docker build -t dolibarr/dolibarr:develop images/develop
-                docker run -d -p 127.0.0.1:80:80 --name dolibarr dolibarr/dolibarr:develop
-                docker ps | grep -q dolibarr
+  check-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Run sh-checker
+        uses: luizm/action-sh-checker@v0.9.0
+        with:
+          sh_checker_exclude: "examples"
+
+  check-build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - env:
+          DOLI_INSTALL_AUTO: 0
+        run: |
+          # Regenerate all the image files
+          ./update.sh
+          # Try to build the image inimages/develop
+          docker build -t dolibarr/dolibarr:develop images/develop
+          docker run -d -p 127.0.0.1:80:80 --name dolibarr dolibarr/dolibarr:develop
+          docker ps | grep -q dolibarr
