@@ -94,12 +94,12 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
 					--push \
 					--compress \
 					--platform linux/amd64,linux/arm64 \
-					"${buildOptionTags}" \
+					${buildOptionTags} \
 					"${dir}"
 			else
 				docker build \
 					--compress \
-					"${buildOptionTags}" \
+					${buildOptionTags} \
 					"${dir}"
 			fi
 		fi
