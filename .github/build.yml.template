@@ -9,9 +9,6 @@ permissions:
 on:
   # can run job manually
   workflow_dispatch:
-  # can trigger job manually from release in Dolibarr/dolibarr
-  repository_dispatch:
-    types: [ new-release ]
   # Run once a week
   schedule:
     - cron: '0 0 * * 6'
