@@ -1,0 +1,21 @@
+name: release
+permissions:
+  contents: write
+on:
+  # can trigger job manually from release in Dolibarr/dolibarr
+  repository_dispatch:
+    types: [ new-release ]
+
+jobs:
+  release-dolibarr-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          ./new-version.sh ${{ github.event.client_payload.version }} > versions.sh.new
+          mv versions.sh.new versions.sh
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Release ${{ github.event.client_payload.version }}"
+          git push
