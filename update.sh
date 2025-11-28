@@ -90,6 +90,7 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
 
 		if [ "${DOCKER_BUILD}" = "1" ]; then
 			if [ "${DOCKER_PUSH}" = "1" ]; then
+			  # shellcheck disable=SC2086
 				docker buildx build \
 					--push \
 					--compress \
@@ -97,6 +98,7 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
 					${buildOptionTags} \
 					"${dir}"
 			else
+			  # shellcheck disable=SC2086
 				docker build \
 					--compress \
 					${buildOptionTags} \
