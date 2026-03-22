@@ -23,6 +23,7 @@ services:
       DOLI_DB_NAME: "dolibarr"
       DOLI_ADMIN_LOGIN: "admin"
       DOLI_ADMIN_PASSWORD: "mysuperhypersecretpasswordforadminacount"
+      DOLI_URL_ROOT: "http://localhost"
     ports:
       - 80:80
     volumes:
@@ -36,6 +37,7 @@ services:
     image: postgres:latest
     environment:
       POSTGRES_USER: "dolibarr"
+      POSTGRES_DB: "dolibarr"
       POSTGRES_PASSWORD: "mysupersecretpasswordfordatabase"
     volumes:
       - postgres-data:/var/lib/postgresql/data

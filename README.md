@@ -290,17 +290,41 @@ Mountpoint: "/etc/apache2/mods-enabled/remoteip.conf"
 
 ### Support for PostgreSQL
 
-Setting `DOLI_DB_TYPE` to `pgsql` enable Dolibarr to run with a PostgreSQL database.
-When set to use `pgsql`, Dolibarr must be installed manually on it's first execution:
+Setting `DOLI_DB_TYPE` to `pgsql` enables Dolibarr to run with a PostgreSQL database.
+
+See the [examples/with-pgsql](https://github.com/Dolibarr/dolibarr-docker/tree/main/examples/with-pgsql/) directory for a ready-to-use docker-compose example.
+
+When using PostgreSQL, set these environment variables:
+
+| Variable              | Value for PostgreSQL        |
+| --------------------- | --------------------------- |
+| `DOLI_DB_TYPE`        | `pgsql`                     |
+| `DOLI_DB_HOST`        | hostname of postgres server |
+| `DOLI_DB_HOST_PORT`   | `5432`                      |
+
+The PostgreSQL database must be created before the container starts (the Docker auto-install creates tables inside an existing database). When using the official `postgres` Docker image, set `POSTGRES_DB` to match your `DOLI_DB_NAME`.
+
+#### Automatic installation (recommended)
+
+Automatic installation (`DOLI_INSTALL_AUTO=1`) and automatic upgrades are fully supported with PostgreSQL, just like with MySQL/MariaDB. No additional steps are required beyond setting the environment variables above.
+
+#### Manual installation
+
+If you prefer to install manually (or if `DOLI_INSTALL_AUTO` is set to `0`):
  - Browse to `http://0.0.0.0/install`;
  - Follow the installation setup;
  - Add `install.lock` inside the container volume `/var/www/html/documents` (ex `docker-compose exec services-data_dolibarr_1 /bin/bash -c "touch /var/www/html/documents/install.lock"`).
 
-When setup this way, to upgrade version the use of the web interface is mandatory:
+To upgrade manually:
  - Remove the `install.lock` file (ex `docker-compose exec services-data_dolibarr_1 /bin/bash -c "rm -f /var/www/html/documents/install.lock"`).
  - Browse to `http://0.0.0.0/install`;
  - Upgrade DB;
  - Add `install.lock` inside the container volume `/var/www/html/documents` (ex `docker-compose exec services-data_dolibarr_1 /bin/bash -c "touch /var/www/html/documents/install.lock"`).
+
+#### PostgreSQL limitations
+
+- **Demo data not supported**: `DOLI_INIT_DEMO=1` is not supported with PostgreSQL. The demo data dump is in MySQL format and cannot be loaded into PostgreSQL. The setting will be ignored with a warning.
+- **Custom SQL scripts must be PostgreSQL-compatible**: Custom `.sql` files mounted in `/var/www/scripts/docker-init.d/` or `/var/www/scripts/before-starting.d/` are executed directly via `psql` when using PostgreSQL. Unlike the main Dolibarr install scripts, there is no automatic MySQL-to-PostgreSQL SQL conversion for these custom scripts.
 
  
 ## Trouble shooting
