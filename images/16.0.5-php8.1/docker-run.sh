@@ -121,7 +121,12 @@ function waitForDataBase()
   r=1
 
   while [[ ${r} -ne 0 ]]; do
-    mysql -u "${DOLI_DB_USER}" --protocol tcp -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" --connect-timeout=5 -e "status" >> /var/www/documents/initdb.log 2>&1
+    if [[ "${DOLI_DB_TYPE}" == "pgsql" ]]; then
+      PGPASSWORD="${DOLI_DB_PASSWORD}" psql -h "${DOLI_DB_HOST}" -p "${DOLI_DB_HOST_PORT}" \
+        -U "${DOLI_DB_USER}" -d "postgres" -c "SELECT 1;" >> /var/www/documents/initdb.log 2>&1
+    else
+      mysql -u "${DOLI_DB_USER}" --protocol tcp -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" --connect-timeout=5 -e "status" >> /var/www/documents/initdb.log 2>&1
+    fi
     r=$?
     if [[ ${r} -ne 0 ]]; then
       echo "Waiting that SQL database is up ..."
@@ -156,7 +161,12 @@ function runScripts()
       if [ "$isExec" == "SQL" ] ; then
         sed -i 's/^--.*//g;' ${file}
         sed -i 's/__ENTITY__/1/g;' ${file}
-        mysql -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" "${DOLI_DB_NAME}" < ${file} >> /var/www/documents/initdb.log 2>&1
+        if [[ "${DOLI_DB_TYPE}" == "pgsql" ]]; then
+          PGPASSWORD="${DOLI_DB_PASSWORD}" psql -h "${DOLI_DB_HOST}" -p "${DOLI_DB_HOST_PORT}" \
+            -U "${DOLI_DB_USER}" -d "${DOLI_DB_NAME}" < ${file} >> /var/www/documents/initdb.log 2>&1
+        else
+          mysql -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" "${DOLI_DB_NAME}" < ${file} >> /var/www/documents/initdb.log 2>&1
+        fi
       elif [ "$isExec" == "PHP" ] ; then
         php $file
       elif [ "$isExec" == "SH" ] ; then
@@ -167,9 +177,77 @@ function runScripts()
 }
 
 
+# Function called to initialize the database for PostgreSQL using PHP install scripts.
+# This reuses step2.php (tables/data) and step5.php (admin user) which handle
+# MySQL-to-PostgreSQL conversion transparently via the pgsql driver.
+function initializeDatabasePHP()
+{
+  echo "Running PHP-based database initialization for PostgreSQL..."
+  echo "Running PHP-based database initialization for PostgreSQL..." >> /var/www/documents/initdb.log
+
+  # step2: Create tables, keys, functions, load reference data
+  # Reads mysql/*.sql files; the pgsql driver's convertSQLFromMysql() converts on the fly
+  pushd /var/www/html/install > /dev/null
+  php step2.php set >> /var/www/documents/initdb.log 2>&1
+  r=$?
+  popd > /dev/null
+
+  if [[ ${r} -ne 0 ]]; then
+    echo "ERROR: step2.php (create tables/data) failed with code ${r}"
+    echo "ERROR: step2.php failed with code ${r}" >> /var/www/documents/initdb.log
+    return ${r}
+  fi
+
+  # step5: Create admin user, set version constants, activate default modules
+  # Uses PHP ORM (User::create) which is DB-agnostic
+  pushd /var/www/html/install > /dev/null
+  php step5.php 0 0 auto set "${DOLI_ADMIN_LOGIN}" "${DOLI_ADMIN_PASSWORD}" "${DOLI_ADMIN_PASSWORD}" >> /var/www/documents/initdb.log 2>&1
+  r=$?
+  popd > /dev/null
+
+  if [[ ${r} -ne 0 ]]; then
+    echo "ERROR: step5.php (create admin) failed with code ${r}"
+    echo "ERROR: step5.php failed with code ${r}" >> /var/www/documents/initdb.log
+    return ${r}
+  fi
+
+  # Demo data: not supported for pgsql (demo dump is MySQL format)
+  if [[ ${DOLI_INIT_DEMO} -eq 1 ]]; then
+    echo "WARNING: DOLI_INIT_DEMO is not supported with PostgreSQL (demo dump is MySQL format). Skipping."
+    echo "WARNING: DOLI_INIT_DEMO is not supported with PostgreSQL. Skipping." >> /var/www/documents/initdb.log
+  fi
+
+  # Enable modules and set company info
+  echo "Run docker-init.php ..."
+  echo "Run docker-init.php ..." >> /var/www/documents/initdb.log
+  php /var/www/scripts/docker-init.php
+
+  # Set cron key
+  echo "Set cron key to ${DOLI_CRON_KEY}..."
+  echo "Set cron key to ${DOLI_CRON_KEY}..." >> /var/www/documents/initdb.log
+  PGPASSWORD="${DOLI_DB_PASSWORD}" psql -h "${DOLI_DB_HOST}" -p "${DOLI_DB_HOST_PORT}" \
+    -U "${DOLI_DB_USER}" -d "${DOLI_DB_NAME}" \
+    -c "UPDATE llx_const SET value = \$\$${DOLI_CRON_KEY}\$\$ WHERE name = 'CRON_KEY'" \
+    >> /var/www/documents/initdb.log 2>&1
+
+  # Run custom init scripts
+  echo "Run scripts into docker-init.d if there is ..."
+  echo "Run scripts into docker-init.d if there is ..." >> /var/www/documents/initdb.log
+  runScripts "docker-init.d"
+
+  # Update ownership after initialisation of modules
+  chown -R www-data:www-data /var/www/documents
+}
+
+
 # Function called to initialize the database (creation of database tables and init data)
 function initializeDatabase()
 {
+  if [[ "${DOLI_DB_TYPE}" == "pgsql" ]]; then
+    initializeDatabasePHP
+    return
+  fi
+
   for fileSQL in /var/www/html/install/mysql/tables/*.sql; do
     if [[ ${fileSQL} != *.key.sql ]]; then
       echo "Importing table from `basename ${fileSQL}` ..."
@@ -297,7 +375,12 @@ function migrateDatabase()
   TARGET_VERSION="$(echo ${DOLI_VERSION} | cut -d. -f1).$(echo ${DOLI_VERSION} | cut -d. -f2).0"
   echo "Dumping Database into /var/www/documents/backup-before-upgrade.sql ..."
 
-  mysqldump -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" "${DOLI_DB_NAME}" > /var/www/documents/backup-before-upgrade.sql
+  if [[ "${DOLI_DB_TYPE}" == "pgsql" ]]; then
+    PGPASSWORD="${DOLI_DB_PASSWORD}" pg_dump -h "${DOLI_DB_HOST}" -p "${DOLI_DB_HOST_PORT}" \
+      -U "${DOLI_DB_USER}" "${DOLI_DB_NAME}" > /var/www/documents/backup-before-upgrade.sql
+  else
+    mysqldump -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" "${DOLI_DB_NAME}" > /var/www/documents/backup-before-upgrade.sql
+  fi
   r=${?}
   if [[ ${r} -ne 0 ]]; then
     echo "Dump failed ... Aborting migration ..."
@@ -321,7 +404,12 @@ function migrateDatabase()
 
   if [[ ${r} -ne 0 ]]; then
     echo "Migration failed ... Restoring DB ... check file /var/www/documents/migration_error.html for more info on error ..."
-    mysql -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" "${DOLI_DB_NAME}" < /var/www/documents/backup-before-upgrade.sql
+    if [[ "${DOLI_DB_TYPE}" == "pgsql" ]]; then
+      PGPASSWORD="${DOLI_DB_PASSWORD}" psql -h "${DOLI_DB_HOST}" -p "${DOLI_DB_HOST_PORT}" \
+        -U "${DOLI_DB_USER}" -d "${DOLI_DB_NAME}" < /var/www/documents/backup-before-upgrade.sql
+    else
+      mysql -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" "${DOLI_DB_NAME}" < /var/www/documents/backup-before-upgrade.sql
+    fi
     echo "DB Restored ..."
     return ${r}
   else
@@ -339,16 +427,23 @@ function run()
   initDolibarr
   echo "Current Version of files is : ${DOLI_VERSION}"
 
-  # If install of mysql database (and not install of cron) is requested
-  if [[ ${DOLI_INSTALL_AUTO} -eq 1 && ${DOLI_CRON} -ne 1 && "${DOLI_DB_TYPE}" != "pgsql" ]]; then
-    echo "DOLI_INSTALL_AUTO is on, so we check to initialize or upgrade mariadb database"
+  # If install of database (and not install of cron) is requested
+  if [[ ${DOLI_INSTALL_AUTO} -eq 1 && ${DOLI_CRON} -ne 1 ]]; then
+    echo "DOLI_INSTALL_AUTO is on, so we check to initialize or upgrade database"
 
     waitForDataBase
 
 	# Check if DB exists (even if empty)
 	DB_EXISTS=0
-	echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} -e \"SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '${DOLI_DB_NAME}';\" > /tmp/docker-run-checkdb.result 2>&1" >> /var/www/documents/initdb.log 2>&1
-	mysql -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" -e "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '"${DOLI_DB_NAME}"';" > /tmp/docker-run-checkdb.result 2>&1
+	if [[ "${DOLI_DB_TYPE}" == "pgsql" ]]; then
+		echo "PGPASSWORD=xxxxxx psql -h ${DOLI_DB_HOST} -p ${DOLI_DB_HOST_PORT} -U ${DOLI_DB_USER} -d postgres -t -c \"SELECT datname FROM pg_database WHERE datname = '${DOLI_DB_NAME}';\" > /tmp/docker-run-checkdb.result 2>&1" >> /var/www/documents/initdb.log 2>&1
+		PGPASSWORD="${DOLI_DB_PASSWORD}" psql -h "${DOLI_DB_HOST}" -p "${DOLI_DB_HOST_PORT}" \
+			-U "${DOLI_DB_USER}" -d "postgres" -t \
+			-c "SELECT datname FROM pg_database WHERE datname = '${DOLI_DB_NAME}';" > /tmp/docker-run-checkdb.result 2>&1
+	else
+		echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} -e \"SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '${DOLI_DB_NAME}';\" > /tmp/docker-run-checkdb.result 2>&1" >> /var/www/documents/initdb.log 2>&1
+		mysql -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" -e "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '"${DOLI_DB_NAME}"';" > /tmp/docker-run-checkdb.result 2>&1
+	fi
     r=$?
     if [[ ${r} -eq 0 ]]; then
 		DB_EXISTS=`grep "${DOLI_DB_NAME}" /tmp/docker-run-checkdb.result`
@@ -366,24 +461,43 @@ function run()
 
     # If install.lock does not exists, or if db does not exists, we launch the initializeDatabase, then upgrade if required.
     if [[ ! -f /var/www/documents/install.lock || "${DB_EXISTS}" = "" ]]; then
-		echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
-		mysql -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" "${DOLI_DB_NAME}" -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
+		if [[ "${DOLI_DB_TYPE}" == "pgsql" ]]; then
+			echo "PGPASSWORD=xxxxxx psql -h ${DOLI_DB_HOST} -p ${DOLI_DB_HOST_PORT} -U ${DOLI_DB_USER} -d ${DOLI_DB_NAME} -t -c \"SELECT value FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') AND entity = 0 ORDER BY name DESC LIMIT 1;\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
+			PGPASSWORD="${DOLI_DB_PASSWORD}" psql -h "${DOLI_DB_HOST}" -p "${DOLI_DB_HOST_PORT}" \
+				-U "${DOLI_DB_USER}" -d "${DOLI_DB_NAME}" -t \
+				-c "SELECT value FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') AND entity = 0 ORDER BY name DESC LIMIT 1;" \
+				> /tmp/docker-run-lastinstall.result 2>&1
+		else
+			echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
+			mysql -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" "${DOLI_DB_NAME}" -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
+		fi
 		r=$?
 		if [[ ${r} -ne 0 ]]; then
 			# If test fails, it means tables does not exists, so we create them
-			echo "No table found, we launch initializeDatabase" >> /var/www/documents/initdb.log 2>&1 
+			echo "No table found, we launch initializeDatabase" >> /var/www/documents/initdb.log 2>&1
     		echo "No table found, we launch initializeDatabase"
 
 			initializeDatabase
 
-			# Regenerate the /tmp/docker-run-lastinstall.result 
-			echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
-			mysql -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" "${DOLI_DB_NAME}" -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
+			# Regenerate the /tmp/docker-run-lastinstall.result
+			if [[ "${DOLI_DB_TYPE}" == "pgsql" ]]; then
+				PGPASSWORD="${DOLI_DB_PASSWORD}" psql -h "${DOLI_DB_HOST}" -p "${DOLI_DB_HOST_PORT}" \
+					-U "${DOLI_DB_USER}" -d "${DOLI_DB_NAME}" -t \
+					-c "SELECT value FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') AND entity = 0 ORDER BY name DESC LIMIT 1;" \
+					> /tmp/docker-run-lastinstall.result 2>&1
+			else
+				echo "mysql -u ${DOLI_DB_USER} -pxxxxxx -h ${DOLI_DB_HOST} -P ${DOLI_DB_HOST_PORT} ${DOLI_DB_NAME} -e \"SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1\" > /tmp/docker-run-lastinstall.result 2>&1" >> /var/www/documents/initdb.log 2>&1
+				mysql -u "${DOLI_DB_USER}" -p"${DOLI_DB_PASSWORD}" -h "${DOLI_DB_HOST}" -P "${DOLI_DB_HOST_PORT}" "${DOLI_DB_NAME}" -e "SELECT Q.LAST_INSTALLED_VERSION FROM (SELECT INET_ATON(REPLACE(REPLACE(CONCAT(value, REPEAT('.0', 3 - CHAR_LENGTH(value) + CHAR_LENGTH(REPLACE(value, '.', '')))), '-beta', ''), '-alpha', '')) as VERSION_ATON, value as LAST_INSTALLED_VERSION FROM llx_const WHERE name IN ('MAIN_VERSION_LAST_INSTALL', 'MAIN_VERSION_LAST_UPGRADE') and entity=0) Q ORDER BY VERSION_ATON DESC LIMIT 1" > /tmp/docker-run-lastinstall.result 2>&1
+			fi
 	  	fi
 
 	  	# Now database exists. Do we have to upgrade it ?
 	  	if [ -f /tmp/docker-run-lastinstall.result ]; then
-			INSTALLED_VERSION=`grep -v LAST_INSTALLED_VERSION /tmp/docker-run-lastinstall.result`
+			if [[ "${DOLI_DB_TYPE}" == "pgsql" ]]; then
+				INSTALLED_VERSION=$(cat /tmp/docker-run-lastinstall.result | tr -d '[:space:]')
+			else
+				INSTALLED_VERSION=`grep -v LAST_INSTALLED_VERSION /tmp/docker-run-lastinstall.result`
+			fi
 			echo "Database Version is : ${INSTALLED_VERSION}"
 			echo "Files Version are   : ${DOLI_VERSION}"
 
@@ -442,12 +556,18 @@ function run()
 
   
   echo
-  echo "*** You can connect to the docker Mariadb with:"
-  echo "sudo docker exec -it nameofwebcontainer-mariadb-1 bash"
-  echo "mariadb -uroot -p'MYSQL_ROOT_PASSWORD' -h localhost"
-  echo "or"
-  echo "mariadb -uxxx -p'yyy' -h mariadb  with xxx in /run/secrets/mysql-user and yyy in /run/secrets/mysql-password if these files were used in docker-compose.yml"
-  echo "ls /var/lib/mysql"
+  if [[ "${DOLI_DB_TYPE}" == "pgsql" ]]; then
+    echo "*** You can connect to the docker PostgreSQL with:"
+    echo "sudo docker exec -it nameofwebcontainer-postgres-1 bash"
+    echo "psql -U \$POSTGRES_USER -d \$POSTGRES_DB"
+  else
+    echo "*** You can connect to the docker Mariadb with:"
+    echo "sudo docker exec -it nameofwebcontainer-mariadb-1 bash"
+    echo "mariadb -uroot -p'MYSQL_ROOT_PASSWORD' -h localhost"
+    echo "or"
+    echo "mariadb -uxxx -p'yyy' -h mariadb  with xxx in /run/secrets/mysql-user and yyy in /run/secrets/mysql-password if these files were used in docker-compose.yml"
+    echo "ls /var/lib/mysql"
+  fi
   echo
   echo "*** You can connect to the docker Dolibarr with:"
   echo "sudo docker exec -it nameofwebcontainer-web-1 bash"
