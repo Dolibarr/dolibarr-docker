@@ -30,6 +30,10 @@ services:
         secrets:
             - mysql-user
             - mysql-password
+        command: >
+            --character-set-server=utf8mb4
+            --collation-server='utf8mb4_unicode_ci'
+            --init-connect='SET NAMES utf8mb4'
         environment:
             #MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
             MYSQL_RANDOM_ROOT_PASSWORD: "1"
