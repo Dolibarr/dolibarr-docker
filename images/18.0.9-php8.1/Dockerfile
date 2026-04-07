@@ -13,7 +13,7 @@ FROM ${ARCH}php:8.1-apache-bookworm
 # 2025 Renato de Castro Ferreira
 LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 
-ENV DOLI_VERSION=18.0.8
+ENV DOLI_VERSION=18.0.9
 ENV DOLI_VERSION_FOR_INIT_DEMO=18.0
 ENV DOLI_INSTALL_AUTO=1
 ENV DOLI_PROD=1
