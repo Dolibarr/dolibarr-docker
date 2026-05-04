@@ -91,6 +91,9 @@ RUN a2disconf serve-cgi-bin \
     -e 's/^\(ServerTokens\) OS$/\1 Prod/g' \
     /etc/apache2/conf-available/security.conf
 
+# Sets Apache AcceptPathInfo Off as recommended https://wiki.dolibarr.org/index.php/Security_information
+RUN echo "AcceptPathInfo Off" >> /etc/apache2/apache2.conf
+
 # Get Dolibarr
 RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.gz |\
     tar -C /tmp -xz && \
