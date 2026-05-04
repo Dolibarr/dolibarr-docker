@@ -3,7 +3,7 @@ ARG ARCH=
 # ============================================================
 # BUILDER STAGE — compile PHP extensions & fetch Dolibarr
 # ============================================================
-FROM ${ARCH}php:8.2-apache-bookworm AS builder
+FROM ${ARCH}php:%PHP_BASE_IMAGE% AS builder
 
 RUN apt-get update -y \
     && apt-get dist-upgrade -y \
@@ -46,7 +46,7 @@ RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.
 # ============================================================
 # RUNTIME STAGE — only what's needed to run Dolibarr
 # ============================================================
-FROM ${ARCH}php:8.2-apache-bookworm
+FROM ${ARCH}php:%PHP_BASE_IMAGE%
 
 # Credit/Initial maintainer: Garcia MICHEL
 # Modified according to the GPL license by developers of the Dolibarr community:
@@ -57,8 +57,8 @@ FROM ${ARCH}php:8.2-apache-bookworm
 LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 
 # ---- All original environment variables preserved ----
-ENV DOLI_VERSION=develop
-ENV DOLI_VERSION_FOR_INIT_DEMO=23.0
+ENV DOLI_VERSION=%DOLI_VERSION%
+ENV DOLI_VERSION_FOR_INIT_DEMO=%DOLI_VERSION_FOR_INIT_DEMO%
 ENV DOLI_INSTALL_AUTO=1
 ENV DOLI_PROD=1
 ENV DOLI_DB_TYPE=mysqli
