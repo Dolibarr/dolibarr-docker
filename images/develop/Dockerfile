@@ -48,7 +48,11 @@ RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.
 # ============================================================
 FROM ${ARCH}php:8.2-apache-bookworm
 
+<<<<<<< Updated upstream
 # Credit/Initial maintainer: Garcia MICHEL
+=======
+# Credit/Initial maintainer: Garcia MICHEL <garcia@soamichel.fr>
+>>>>>>> Stashed changes
 # Modified according to the GPL license by developers of the Dolibarr community:
 # 2024 Alois Micard
 # 2024 Laurent Destailleur
@@ -66,7 +70,11 @@ ENV DOLI_DB_HOST=mysql
 ENV DOLI_DB_HOST_PORT=3306
 ENV DOLI_DB_NAME=dolidb
 ENV DOLI_DB_SSL=false
+<<<<<<< Updated upstream
 ENV DOLI_URL_ROOT=''
+=======
+ENV DOLI_URL_ROOT='http://localhost'
+>>>>>>> Stashed changes
 ENV DOLI_AUTH=dolibarr
 ENV DOLI_LDAP_HOST=127.0.0.1
 ENV DOLI_LDAP_PORT=389
