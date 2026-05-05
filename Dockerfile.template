@@ -103,6 +103,8 @@ RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.
     chown -R www-data:www-data /var/www && \
     chmod -R u-w /var/www/html
 
+RUN echo 'open_basedir = "/var/www/html:/var/www/documents:/var/www/scripts:/tmp"' >> /usr/local/etc/php/php.ini
+
 EXPOSE 80
 VOLUME /var/www/documents
 VOLUME /var/www/html/custom
