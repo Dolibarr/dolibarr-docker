@@ -294,13 +294,13 @@ Setting `DOLI_DB_TYPE` to `pgsql` enable Dolibarr to run with a PostgreSQL datab
 When set to use `pgsql`, Dolibarr must be installed manually on it's first execution:
  - Browse to `http://0.0.0.0/install`;
  - Follow the installation setup;
- - Add `install.lock` inside the container volume `/var/www/html/documents` (ex `docker-compose exec services-data_dolibarr_1 /bin/bash -c "touch /var/www/html/documents/install.lock"`).
+ - Add `install.lock` inside the container volume `/var/www/html/documents` (ex `docker-compose exec services-data_dolibarr_1 /bin/bash -c "touch /var/www/documents/install.lock"`).
 
 When setup this way, to upgrade version the use of the web interface is mandatory:
- - Remove the `install.lock` file (ex `docker-compose exec services-data_dolibarr_1 /bin/bash -c "rm -f /var/www/html/documents/install.lock"`).
+ - Remove the `install.lock` file (ex `docker-compose exec services-data_dolibarr_1 /bin/bash -c "rm -f /var/www/documents/install.lock"`).
  - Browse to `http://0.0.0.0/install`;
  - Upgrade DB;
- - Add `install.lock` inside the container volume `/var/www/html/documents` (ex `docker-compose exec services-data_dolibarr_1 /bin/bash -c "touch /var/www/html/documents/install.lock"`).
+ - Add `install.lock` inside the container volume `/var/www/html/documents` (ex `docker-compose exec services-data_dolibarr_1 /bin/bash -c "touch /var/www/documents/install.lock"`).
 
  
 ## Trouble shooting
