@@ -302,6 +302,19 @@ When setup this way, to upgrade version the use of the web interface is mandator
  - Upgrade DB;
  - Add `install.lock` inside the container volume `/var/www/html/documents` (ex `docker-compose exec services-data_dolibarr_1 /bin/bash -c "touch /var/www/documents/install.lock"`).
 
+#### Supported PostgreSQL server versions
+
+The image ships the **PostgreSQL 18** client tools (`pg_dump`, `psql`, `pg_restore`)
+from the [official PostgreSQL Apt repository](https://apt.postgresql.org/), because
+Debian bookworm only provides the PostgreSQL 15 client.
+
+If you must run a different PostgreSQL major version, rebuild the image with matching
+client tools:
+
+```bash
+$> docker build --build-arg PG_MAJOR=19 -t dolibarr/dolibarr:local images/24.0.1-php8.2
+```
+
  
 ## Trouble shooting
 

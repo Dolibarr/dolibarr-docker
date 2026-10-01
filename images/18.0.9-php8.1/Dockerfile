@@ -49,7 +49,17 @@ ENV PHP_INI_UPLOAD_MAX_FILESIZE=20M
 ENV PHP_INI_POST_MAX_SIZE=22M
 ENV PHP_INI_ALLOW_URL_FOPEN=0
 
-RUN apt-get update -y \
+# Major version of the PostgreSQL client tools (pg_dump, psql) to install.
+# Debian bookworm only ships the PostgreSQL 15 client, and pg_dump refuses to dump
+# a database served by a newer major version, which breaks the Dolibarr backup tool.
+# The client is therefore installed from the official PostgreSQL Apt repository.
+# See: https://github.com/Dolibarr/dolibarr-docker/issues/119
+ARG PG_MAJOR=18
+
+RUN mkdir -p /etc/apt/keyrings \
+    && curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc -o /etc/apt/keyrings/pgdg.asc \
+    && echo "deb [signed-by=/etc/apt/keyrings/pgdg.asc] https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo "${VERSION_CODENAME}")-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && apt-get update -y \
     && apt-get dist-upgrade -y \
     && apt-get install -y --no-install-recommends \
         libc-client-dev \
@@ -64,7 +74,7 @@ RUN apt-get update -y \
         libzip-dev \
         libtidy-dev \
         default-mysql-client \
-        postgresql-client \
+        postgresql-client-${PG_MAJOR} \
         vim-tiny \
         cron \
     && apt-get autoremove -y
