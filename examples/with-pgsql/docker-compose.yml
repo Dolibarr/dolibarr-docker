@@ -33,7 +33,9 @@ services:
       - external-pod
 
   postgres:
-    image: postgres:latest
+    # Pinned to the major version matching the PostgreSQL client tools shipped in
+    # the Dolibarr image (see "Support for PostgreSQL" in the main README):
+    image: postgres:18
     environment:
       POSTGRES_USER: "dolibarr"
       POSTGRES_PASSWORD: "mysupersecretpasswordfordatabase"
