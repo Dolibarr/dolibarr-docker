@@ -16,8 +16,9 @@ on:
 jobs:
   build-docker-images:
     strategy:
+      fail-fast: false
       matrix:
-        dolibarr_version: [ 15.0.3, 16.0.5, 17.0.4, 18.0.9, 19.0.4, 20.0.4, 21.0.4, 22.0.5, 23.0.4, 24.0.1, develop ]
+        dolibarr_version: [ 16.0.5, 17.0.4, 18.0.9, 19.0.4, 20.0.4, 21.0.4, 22.0.5, 23.0.4, 24.0.1, develop ]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
