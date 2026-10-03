@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Run this script to generate all files (Dockerfile, docker-init.php, docker-run.php) found into images directory, 
+# Run this script to generate all files (Dockerfile, docker-init.php, docker-clean-vendor.php, docker-run.php) found into images directory, 
 # used for each image. The source files are the files into the root.
 #
 
@@ -84,6 +84,7 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
     > "${dir}/Dockerfile"
 
     cp -a "${BASE_DIR}/docker-init.php" "${dir}/docker-init.php"
+    cp -a "${BASE_DIR}/docker-clean-vendor.php" "${dir}/docker-clean-vendor.php"
     cp -a "${BASE_DIR}/docker-run.sh" "${dir}/docker-run.sh"
 
     if [ "${DOCKER_BUILD}" = "1" ]; then
