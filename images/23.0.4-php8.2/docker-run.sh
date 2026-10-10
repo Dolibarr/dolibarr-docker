@@ -105,6 +105,10 @@ EOF
     fi
   fi
 
+  echo "[INIT] => force database port from DOLI_DB_HOST_PORT variable"
+  sed -i '/^\$dolibarr_main_db_port=/d' /var/www/html/conf/conf.php
+  echo "\$dolibarr_main_db_port='${DOLI_DB_HOST_PORT}';" >> /var/www/html/conf/conf.php
+
   echo "[INIT] => update ownership for file in Dolibarr Config ..."
   chown www-data:www-data /var/www/html/conf/conf.php
   if [[ "${DOLI_DB_TYPE}" == "pgsql" && ! -f /var/www/documents/install.lock ]]; then
