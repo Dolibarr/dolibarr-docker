@@ -85,6 +85,7 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
 
     cp -a "${BASE_DIR}/docker-init.php" "${dir}/docker-init.php"
     cp -a "${BASE_DIR}/docker-run.sh" "${dir}/docker-run.sh"
+    cp -a "${BASE_DIR}/dolibarr-php.ini" "${dir}/dolibarr-php.ini"
 
     if [ "${DOCKER_BUILD}" = "1" ]; then
       if [ "${DOCKER_PUSH}" = "1" ]; then
