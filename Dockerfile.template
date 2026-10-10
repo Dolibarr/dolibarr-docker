@@ -99,7 +99,7 @@ RUN a2disconf serve-cgi-bin \
     -e 's/^\(ServerSignature On\)$/#\1/g' \
     -e 's/^#\(ServerSignature Off\)$/\1/g' \
     -e 's/^\(ServerTokens\) OS$/\1 Prod/g' \
-    /etc/apache2/conf-available/security.conf
+    /etc/apache2/conf-available/security.conf \
     && rm -rf /etc/apache2/mods-enabled/dir.conf
 COPY apache-deny.conf /etc/apache2/conf-enabled/deny.conf
 RUN apache2ctl configtest
