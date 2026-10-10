@@ -119,6 +119,8 @@ VOLUME /var/www/html/custom
 
 COPY docker-init.php /var/www/scripts/
 COPY docker-run.sh /usr/local/bin/
+COPY dolibarr-php.ini /usr/local/etc/php/conf.d/dolibarr-static.ini
+
 ENTRYPOINT ["docker-run.sh"]
 
 CMD ["apache2-foreground"]
