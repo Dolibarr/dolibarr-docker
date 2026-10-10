@@ -105,6 +105,23 @@ EOF
     fi
   fi
 
+  # === Lock down file permissions of the web root ===
+  # Make the Dolibarr code read-only to prevent tampering.
+  # Directories that Dolibarr or its users must be able to write to
+  # (conf/, custom/, modulebuilder/) are excluded.
+  # Set DOLI_LOCK_WEB_ROOT=0 to disable.
+  if [ "${DOLI_LOCK_WEB_ROOT:-1}" = "1" ]; then
+    echo "[INIT] => lock down web root file permissions ..."
+    find /var/www/html \
+      \( -path /var/www/html/conf -o -path /var/www/html/custom -o -path /var/www/html/modulebuilder \) -prune \
+      -o -type d -exec chmod 555 {} +
+    find /var/www/html \
+      \( -path /var/www/html/conf -o -path /var/www/html/custom -o -path /var/www/html/modulebuilder \) -prune \
+      -o -type f -exec chmod 444 {} +
+  else
+    echo "[INIT] => web root file permissions left as-is (DOLI_LOCK_WEB_ROOT=0)"
+  fi
+
   echo "[INIT] => update ownership for file in Dolibarr Config ..."
   chown www-data:www-data /var/www/html/conf/conf.php
   if [[ "${DOLI_DB_TYPE}" == "pgsql" && ! -f /var/www/documents/install.lock ]]; then
