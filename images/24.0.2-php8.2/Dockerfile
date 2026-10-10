@@ -49,6 +49,11 @@ ENV PHP_INI_UPLOAD_MAX_FILESIZE=20M
 ENV PHP_INI_POST_MAX_SIZE=22M
 ENV PHP_INI_ALLOW_URL_FOPEN=0
 
+# Debian base images only generate the C and C.UTF-8 locales.
+# Set a known-good locale to avoid "setlocale: LC_ALL: cannot change
+# locale" warnings when the host environment exports e.g. en_US.UTF-8.
+ENV LC_ALL=C.UTF-8
+
 # Major version of the PostgreSQL client tools (pg_dump, psql) to install.
 # Debian bookworm only ships the PostgreSQL 15 client, and pg_dump refuses to dump
 # a database served by a newer major version, which breaks the Dolibarr backup tool.
