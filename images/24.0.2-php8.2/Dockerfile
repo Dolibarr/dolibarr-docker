@@ -87,7 +87,8 @@ RUN mkdir -p /etc/apt/keyrings \
         postgresql-client-${PG_MAJOR} \
         vim-tiny \
         cron \
-    && apt-get autoremove -y && rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/groff/* /usr/share/info/*
+    && apt-get autoremove -y \
+    && rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/groff/* /usr/share/info/*
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip opcache tidy \
     && docker-php-ext-configure pgsql -with-pgsql \
