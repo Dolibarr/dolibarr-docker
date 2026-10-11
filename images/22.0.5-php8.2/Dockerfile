@@ -102,9 +102,11 @@ RUN a2disconf serve-cgi-bin \
     /etc/apache2/conf-available/security.conf
 
 # Get Dolibarr
+COPY docker-clean-vendor.php /tmp/
 RUN curl -fLSs https://github.com/Dolibarr/dolibarr/archive/${DOLI_VERSION}.tar.gz |\
     tar -C /tmp -xz && \
     cp -r /tmp/dolibarr-${DOLI_VERSION}/htdocs/* /var/www/html/ && \
+    php /tmp/docker-clean-vendor.php /var/www/html/includes && \
     ln -s /var/www/html /var/www/htdocs && \
     cp -r /tmp/dolibarr-${DOLI_VERSION}/scripts /var/www/ && \
     rm -rf /tmp/* && \
