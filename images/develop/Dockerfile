@@ -56,6 +56,16 @@ ENV PHP_INI_ALLOW_URL_FOPEN=0
 # See: https://github.com/Dolibarr/dolibarr-docker/issues/119
 ARG PG_MAJOR=18
 
+# Prevent dpkg from installing documentation files (manual pages, license
+# texts, info pages) when installing packages. They are never needed at
+# runtime inside the container, and they noticeably increase the image
+# size across all the Debian packages this image installs.
+# Note: this must come before any "apt-get install" line to take effect.
+RUN echo 'path-exclude=/usr/share/doc/*' > /etc/dpkg/dpkg.cfg.d/01-nodoc \
+ && echo 'path-exclude=/usr/share/man/*' >> /etc/dpkg/dpkg.cfg.d/01-nodoc \
+ && echo 'path-exclude=/usr/share/groff/*' >> /etc/dpkg/dpkg.cfg.d/01-nodoc \
+ && echo 'path-exclude=/usr/share/info/*' >> /etc/dpkg/dpkg.cfg.d/01-nodoc
+
 RUN mkdir -p /etc/apt/keyrings \
     && curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc -o /etc/apt/keyrings/pgdg.asc \
     && echo "deb [signed-by=/etc/apt/keyrings/pgdg.asc] https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo "${VERSION_CODENAME}")-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
