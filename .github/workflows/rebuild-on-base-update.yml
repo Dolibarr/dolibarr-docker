@@ -1,0 +1,34 @@
+# Trigger the build workflow when a PHP base image was updated after our last push,
+# so PHP security releases don't wait for the weekly schedule (see #140).
+name: rebuild-on-base-update
+permissions:
+  actions: write
+  contents: read
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 */6 * * *'
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          hub() { curl -fsS "https://hub.docker.com/v2/repositories/$1/tags/$2" | jq -r .last_updated; }
+
+          last_push=$(hub dolibarr/dolibarr latest)
+          echo "dolibarr/dolibarr:latest pushed at ${last_push}"
+
+          for tag in $(sed -n 's/^FROM .*php:\([^ ]*\).*/\1/p' images/*/Dockerfile | sort -u); do
+            base=$(hub library/php "${tag}")
+            echo "php:${tag} updated at ${base}"
+            if [[ "${base}" > "${last_push}" ]]; then
+              echo "php:${tag} is newer than our last push, triggering build"
+              gh workflow run build.yml --ref "${GITHUB_REF_NAME}"
+              exit 0
+            fi
+          done
+          echo "All base images older than our last push, nothing to do"
