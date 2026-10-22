@@ -16,6 +16,12 @@ All is done through the `update.sh` script, Dolibarr versions to build are store
 Ensure that the var `DOLIBARR_VERSIONS` in `versions.sh` is having all versions you want to build.
 Just run the script update.sh.
 
+OPcache is installed separately only on PHP < 8.5; PHP >= 8.5 includes it directly.
+
+The shared `Dockerfile.template` builds the bundled IMAP extension on PHP < 8.4.
+On PHP >= 8.4, it installs the pinned PECL IMAP 1.0.3 release instead.
+Both paths enable Kerberos and SSL support.
+
 ## Tips
 You can ask the script to build and push version for you: just add `DOCKER_BUILD=1` and `DOCKER_PUSH=1` in command line.
 ```bash
