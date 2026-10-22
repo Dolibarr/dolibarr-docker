@@ -4,7 +4,7 @@ ARG ARCH=
 # Example: PHP_BASE_IMAGE=x.y-apache-buster
 # Example: PHP_BASE_IMAGE=x.y-apache-bullseye
 # Note: Version of the PHP image must be a compatible version according to https://wiki.dolibarr.org/index.php?title=Versions
-FROM ${ARCH}php:8.1-apache-bookworm
+FROM ${ARCH}php:8.4-apache-bookworm
 
 # Credit/Initial maintainer: Garcia MICHEL <garcia@soamichel.fr>
 # Modified according to the GPL license by developers of the Dolibarr community:
@@ -13,8 +13,8 @@ FROM ${ARCH}php:8.1-apache-bookworm
 # 2025 Renato de Castro Ferreira
 LABEL maintainer="The Dolibarr foundation <contact@dolibarr.org>"
 
-ENV DOLI_VERSION=16.0.5
-ENV DOLI_VERSION_FOR_INIT_DEMO=16.0
+ENV DOLI_VERSION=22.0.5
+ENV DOLI_VERSION_FOR_INIT_DEMO=22.0
 ENV DOLI_INSTALL_AUTO=1
 ENV DOLI_PROD=1
 
@@ -79,13 +79,23 @@ RUN mkdir -p /etc/apt/keyrings \
         cron \
     && apt-get autoremove -y
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip opcache tidy \
+    && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip tidy \
+    # OPcache is built into PHP starting with PHP 8.5.
+    && if php -r 'exit(PHP_VERSION_ID < 80500 ? 0 : 1);'; then \
+        docker-php-ext-install -j$(nproc) opcache; \
+    fi \
     && docker-php-ext-configure pgsql -with-pgsql \
     && docker-php-ext-install pdo_pgsql pgsql \
     && docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)/ \
     && docker-php-ext-install -j$(nproc) ldap \
-    && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
-    && docker-php-ext-install imap \
+    # IMAP moved from PHP sources to PECL in PHP 8.4.
+    && if php -r 'exit(PHP_VERSION_ID >= 80400 ? 0 : 1);'; then \
+        pecl install --configureoptions 'with-kerberos="yes" with-imap-ssl="yes"' imap-1.0.3 \
+        && docker-php-ext-enable imap; \
+    else \
+        docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
+        && docker-php-ext-install imap; \
+    fi \
     && mv ${PHP_INI_DIR}/php.ini-production ${PHP_INI_DIR}/php.ini \
     && sed -i 's/expose_php = On/expose_php = Off/g' ${PHP_INI_DIR}/php.ini \
     && rm -rf /var/lib/apt/lists/*

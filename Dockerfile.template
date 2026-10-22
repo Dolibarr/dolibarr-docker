@@ -79,13 +79,23 @@ RUN mkdir -p /etc/apt/keyrings \
         cron \
     && apt-get autoremove -y
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip opcache tidy \
+    && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip tidy \
+    # OPcache is built into PHP starting with PHP 8.5.
+    && if php -r 'exit(PHP_VERSION_ID < 80500 ? 0 : 1);'; then \
+        docker-php-ext-install -j$(nproc) opcache; \
+    fi \
     && docker-php-ext-configure pgsql -with-pgsql \
     && docker-php-ext-install pdo_pgsql pgsql \
     && docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)/ \
     && docker-php-ext-install -j$(nproc) ldap \
-    && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
-    && docker-php-ext-install imap \
+    # IMAP moved from PHP sources to PECL in PHP 8.4.
+    && if php -r 'exit(PHP_VERSION_ID >= 80400 ? 0 : 1);'; then \
+        pecl install --configureoptions 'with-kerberos="yes" with-imap-ssl="yes"' imap-1.0.3 \
+        && docker-php-ext-enable imap; \
+    else \
+        docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
+        && docker-php-ext-install imap; \
+    fi \
     && mv ${PHP_INI_DIR}/php.ini-production ${PHP_INI_DIR}/php.ini \
     && sed -i 's/expose_php = On/expose_php = Off/g' ${PHP_INI_DIR}/php.ini \
     && rm -rf /var/lib/apt/lists/*

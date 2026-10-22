@@ -40,12 +40,16 @@ for dolibarrVersion in "${DOLIBARR_VERSIONS[@]}"; do
 
   # Mapping PHP version according to Dolibarr version (See https://wiki.dolibarr.org/index.php/Versions)
   # Regarding PHP Supported version : https://www.php.net/supported-versions.php
-  if [ "${dolibarrVersion}" = "develop" ] || [ "${dolibarrMajor}" -ge "19" ]; then
+  if [ "${dolibarrVersion}" = "develop" ] || [ "${dolibarrMajor}" -ge "24" ]; then
+    php_base_images=( "8.5-apache-bookworm" )
+  elif [ "${dolibarrMajor}" -ge "22" ]; then
+    php_base_images=( "8.4-apache-bookworm" )
+  elif [ "${dolibarrMajor}" -ge "21" ]; then
+    php_base_images=( "8.3-apache-bookworm" )
+  elif [ "${dolibarrMajor}" -ge "19" ]; then
     php_base_images=( "8.2-apache-bookworm" )
-  elif [ "${dolibarrMajor}" -ge "16" ]; then
-    php_base_images=( "8.1-apache-bookworm" )
   else
-    echo "Dolibarr ${dolibarrVersion} requires PHP <= 7.4, which has no maintained Debian base image anymore" >&2
+    echo "Dolibarr ${dolibarrVersion} requires PHP <= 8.1, which has no maintained Debian base image anymore" >&2
     exit 1
   fi
 
