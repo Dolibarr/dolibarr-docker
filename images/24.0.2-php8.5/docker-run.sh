@@ -113,6 +113,15 @@ EOF
   else
     chmod 400 /var/www/html/conf/conf.php
   fi
+
+  # Configure ClamAV daemon connection if DOLI_CLAMAV_HOST is set
+  if [ -n "${DOLI_CLAMAV_HOST:-}" ]; then
+    echo "[INIT] => configure ClamAV daemon client ..."
+    cat > /etc/clamav/clamd.conf << EOF
+TCPSocket ${DOLI_CLAMAV_PORT:-3310}
+TCPAddr ${DOLI_CLAMAV_HOST}
+EOF
+  fi
 }
 
 

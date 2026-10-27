@@ -77,6 +77,8 @@ RUN mkdir -p /etc/apt/keyrings \
         postgresql-client-${PG_MAJOR} \
         vim-tiny \
         cron \
+        clamdscan \
+    && rm -rf /usr/lib/*/libfreshclam.so.3* /usr/share/doc/*clam* /usr/share/lintian/overrides/*clam* \
     && apt-get autoremove -y
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) calendar intl mysqli pdo_mysql gd soap zip tidy \

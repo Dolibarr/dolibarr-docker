@@ -163,6 +163,8 @@ You can use the following variables for a better customization of your docker-co
 | **DOLI_COMPANY_NAME**           |                                | Set the company name of Dolibarr at container init
 | **DOLI_COMPANY_COUNTRYCODE**    |                                | Set the company and Dolibarr country at container init. Need 2-letter codes like "FR", "GB", "US",...
 | **DOLI_AUTH**                   | *dolibarr*                     | Which method is used to connect users, change to `ldap` or `ldap, dolibarr` to use LDAP
+| **DOLI_CLAMAV_HOST** |               | Hostname or IP address of the ClamAV daemon (clamd). If set, a ClamAV client configuration is generated at container startup. Leave empty to disable virus scanning. |
+| **DOLI_CLAMAV_PORT** | *3310*        | TCP port of the ClamAV daemon                       |
 | **DOLI_LDAP_HOST**              | *127.0.0.1*                    | The host of the LDAP server
 | **DOLI_LDAP_PORT**              | *389*                          | The port of the LDAP server
 | **DOLI_LDAP_VERSION**           | *3*                            | The version of LDAP to use
@@ -315,7 +317,39 @@ client tools:
 $> docker build --build-arg PG_MAJOR=19 -t dolibarr/dolibarr:local images/24.0.1-php8.2
 ```
 
- 
+## Optional ClamAV virus scanning
+
+Dolibarr supports virus scanning of uploaded files through an external [ClamAV](https://www.clamav.net/) daemon. The image ships with the `clamdscan` client, so you only need a running ClamAV daemon (for example in a separate container) and to set the `DOLI_CLAMAV_HOST` environment variable.
+
+Example with Docker Compose:
+
+```yaml
+services:
+    clamav:
+        image: clamav/clamav:latest
+
+    web:
+        image: dolibarr/dolibarr:latest
+        environment:
+            DOLI_CLAMAV_HOST: ${DOLI_CLAMAV_HOST:-clamav}
+            DOLI_CLAMAV_PORT: ${DOLI_CLAMAV_PORT:-3310}
+        links:
+            - clamav
+```
+
+### Environment variables
+
+| Variable             | Default value | Description                                         |
+| -------------------- | ------------- | --------------------------------------------------- |
+| **DOLI_CLAMAV_HOST** |               | Hostname or IP address of the ClamAV daemon (clamd). If set, a ClamAV client configuration is generated at container startup. Leave empty to disable virus scanning. |
+| **DOLI_CLAMAV_PORT** | *3310*        | TCP port of the ClamAV daemon                       |
+
+### Notes
+
+- Virus scanning is optional. If `DOLI_CLAMAV_HOST` is not set, no ClamAV configuration is written and the feature stays disabled.
+- The ClamAV daemon must accept TCP connections (default port `3310`) on the given host.
+- The scanning itself is triggered by Dolibarr's built-in *Anti-virus* module, which must be enabled in Dolibarr's module configuration, with the antivirus command path set to `clamdscan`.
+
 ## Trouble shooting
 
 If you get error "urllib3.exceptions.URLSchemeUnknown: Not supported URL scheme http+docker" during docker-compose, try to upgrade or downgrade the pip package:
