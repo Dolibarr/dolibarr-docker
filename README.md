@@ -315,6 +315,32 @@ client tools:
 $> docker build --build-arg PG_MAJOR=19 -t dolibarr/dolibarr:local images/24.0.1-php8.2
 ```
 
+### PHP open_basedir Restriction
+
+**Important:** PHP `open_basedir` is enforced by default to improve security by restricting file system access to designated directories.
+
+The following paths are allowed:
+- `/var/www/html` - Application code
+- `/var/www/documents` - Dolibarr documents and data files
+- `/var/www/scripts` - Deployment and startup scripts
+- `/tmp` - Temporary files
+
+**This is a breaking change** for setups that require file access outside these directories. Common scenarios affected include:
+
+- Custom scripts mounted in other locations (move to `/var/www/scripts/docker-init.d` or `/var/www/scripts/before-starting.d`)
+- SSL/TLS certificates stored externally (mount to `/var/www/documents/certs` instead)
+- External modules reading/writing to paths outside `/var/www/html/custom`
+- LDAP certificates in `/etc/ssl/certs` (copy to allowed path or reconfigure)
+
+**To customize the allowed paths**, mount your own version of the file:
+
+```yaml
+services:
+    web:
+        image: dolibarr/dolibarr:latest
+        volumes:
+            - ./dolibarr-php.ini:/usr/local/etc/php/conf.d/dolibarr-static.ini:ro
+```
  
 ## Trouble shooting
 
