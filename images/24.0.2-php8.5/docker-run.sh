@@ -106,6 +106,10 @@ EOF
     fi
   fi
 
+  echo "[INIT] => update Dolibarr Config with restricted OS commands ..."
+  sed -i '/dolibarr_main_restrict_os_commands/d' /var/www/html/conf/conf.php
+  echo "\$dolibarr_main_restrict_os_commands='${DOLI_RESTRICT_OS_COMMANDS:-mariadb-dump,mariadb,mysqldump,mysql,pg_dump,pg_restore,clamdscan,ls}';" >> /var/www/html/conf/conf.php
+
   echo "[INIT] => update ownership for file in Dolibarr Config ..."
   chown www-data:www-data /var/www/html/conf/conf.php
   if [[ "${DOLI_DB_TYPE}" == "pgsql" && ! -f /var/www/documents/install.lock ]]; then

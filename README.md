@@ -176,6 +176,7 @@ You can use the following variables for a better customization of your docker-co
 | **DOLI_CRON**                   | *0*                            | 1: Enable cron service
 | **DOLI_CRON_KEY**               |                                | Security key to launch cron jobs
 | **DOLI_CRON_USER**              |                                | Dolibarr user used to launch cron jobs (will use firstadmin if not defined)
+| **DOLI_RESTRICT_OS_COMMANDS**   | *mariadb-dump,mariadb,mysqldump,mysql,pg_dump,pg_restore,clamdscan,ls* | Comma-separated list of OS commands that Dolibarr is allowed to execute. Restricts which commands can be run by the application, improving security. If not set, a default whitelist including database backup restore tools, virus scanning and basic file listing is applied
 | **WWW_USER_ID**                 |                                | ID of user www-data. ID will not changed if leave empty. During a development, it is very practical to put the same ID as the host user.
 | **WWW_GROUP_ID**                |                                | ID of group www-data. ID will not changed if leave empty.
 | **PHP_INI_DATE_TIMEZONE**       | *UTC*                          | Default timezone on PHP
@@ -287,6 +288,16 @@ Example content: "RemoteIPHeader X-Forwarded-For"
 
 Mountpoint: "/etc/apache2/mods-enabled/remoteip.conf"
 
+### Restricting OS commands
+
+To improve security, you can restrict which OS commands Dolibarr is allowed to execute (for example for backups, antivirus scans, etc.) by setting the `DOLI_RESTRICT_OS_COMMANDS` environment variable with a comma-separated list of allowed commands:
+
+```yaml
+environment:
+    DOLI_RESTRICT_OS_COMMANDS: "mariadb-dump,mariadb,pg_dump,ls"
+```
+
+If not set, a default whitelist is applied, which includes the database backup/restore tools (`mariadb-dump`, `mariadb`, `mysqldump`, `mysql`, `pg_dump`, `pg_restore`), the antivirus scanner `clamdscan`, and `ls`.
 
 ### Support for PostgreSQL
 
