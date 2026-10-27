@@ -176,6 +176,7 @@ You can use the following variables for a better customization of your docker-co
 | **DOLI_CRON**                   | *0*                            | 1: Enable cron service
 | **DOLI_CRON_KEY**               |                                | Security key to launch cron jobs
 | **DOLI_CRON_USER**              |                                | Dolibarr user used to launch cron jobs (will use firstadmin if not defined)
+| **DOLI_STREAM_TO_DISABLE**      | *["compress.zlib","compress.bzip2","ftp","ftps","glob","data","expect","ogg","rar","zlib","phar"]* | List of PHP stream wrappers to disable, written to `dolibarr_main_stream_to_disable` in `conf.php` at startup. Must be a valid PHP array literal. Set to `[]` to disable none.
 | **WWW_USER_ID**                 |                                | ID of user www-data. ID will not changed if leave empty. During a development, it is very practical to put the same ID as the host user.
 | **WWW_GROUP_ID**                |                                | ID of group www-data. ID will not changed if leave empty.
 | **PHP_INI_DATE_TIMEZONE**       | *UTC*                          | Default timezone on PHP
@@ -287,6 +288,15 @@ Example content: "RemoteIPHeader X-Forwarded-For"
 
 Mountpoint: "/etc/apache2/mods-enabled/remoteip.conf"
 
+### Disabling unsafe PHP stream wrappers
+
+Several PHP stream wrappers are convenient for attackers and are almost never needed by Dolibarr itself, so they are disabled by default. At container startup, any existing `dolibarr_main_stream_to_disable` line is removed from `conf.php` and replaced with the value of the `DOLI_STREAM_TO_DISABLE` environment variable, which means the setting is reapplied on every restart and cannot be changed permanently by hand-editing `conf.php`.
+
+Default value:
+
+```bash
+DOLI_STREAM_TO_DISABLE=["compress.zlib","compress.bzip2","ftp","ftps","glob","data","expect","ogg","rar","zlib","phar"]
+```
 
 ### Support for PostgreSQL
 

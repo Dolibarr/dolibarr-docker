@@ -106,6 +106,10 @@ EOF
     fi
   fi
 
+  echo "[INIT] => update Dolibarr Config with streams to disable ..."
+  sed -i '/dolibarr_main_stream_to_disable/d' /var/www/html/conf/conf.php
+  echo "\$dolibarr_main_stream_to_disable=${DOLI_STREAM_TO_DISABLE:-[\"compress.zlib\",\"compress.bzip2\",\"ftp\",\"ftps\",\"glob\",\"data\",\"expect\",\"ogg\",\"rar\",\"zlib\",\"phar\"]};" >> /var/www/html/conf/conf.php
+
   echo "[INIT] => update ownership for file in Dolibarr Config ..."
   chown www-data:www-data /var/www/html/conf/conf.php
   if [[ "${DOLI_DB_TYPE}" == "pgsql" && ! -f /var/www/documents/install.lock ]]; then
