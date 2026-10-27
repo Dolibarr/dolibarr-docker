@@ -173,6 +173,7 @@ You can use the following variables for a better customization of your docker-co
 | **DOLI_LDAP_BIND_DN**           |                                | The complete DN of the user with read access on users
 | **DOLI_LDAP_BIND_PASS**         |                                | The password of the bind user
 | **DOLI_LDAP_DEBUG**             | *false*                        | Activate debug mode
+| **DOLI_MODULES_LOCK**           | *false*                        | Lock addon and external module installation by creating an `installmodules.lock` file at container startup. Set to `true` to lock, `false` to unlock.
 | **DOLI_CRON**                   | *0*                            | 1: Enable cron service
 | **DOLI_CRON_KEY**               |                                | Security key to launch cron jobs
 | **DOLI_CRON_USER**              |                                | Dolibarr user used to launch cron jobs (will use firstadmin if not defined)
@@ -251,6 +252,14 @@ services:
             - mariadb
 ```
 
+### Locking addon and external module installation
+
+Similar to the `install.lock` file, Dolibarr uses an `installmodules.lock` file to prevent installation of addons and external modules. In this Docker image, this lock is managed by the `DOLI_MODULES_LOCK` environment variable:
+
+- Set `DOLI_MODULES_LOCK` to `true` in your docker-compose.yml file to lock addon and external module installation;
+- Restart your container (`sudo docker-compose up -d`).
+
+To remove the lock and allow module installation again, set `DOLI_MODULES_LOCK` to `false` and restart your container. The lock is applied (or removed) at each container startup, so removing the lock file manually is not enough — the environment variable controls the final state.
 
 ### Tuning the apache configuration to suit you
 

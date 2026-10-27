@@ -140,6 +140,19 @@ function lockInstallation()
   chmod 400 /var/www/documents/install.lock
 }
 
+# Enable or disable addon/module installation lock
+function lockModules()
+{
+  if [[ "${DOLI_MODULES_LOCK}" == "true" ]]; then
+    echo "[INIT] => lock module installation ..."
+    touch /var/www/documents/installmodules.lock
+    chown www-data:www-data /var/www/documents/installmodules.lock
+    chmod 400 /var/www/documents/installmodules.lock
+  elif [[ "${DOLI_MODULES_LOCK}" == "false" ]]; then
+    echo "[INIT] => unlock module installation ..."
+    rm -f /var/www/documents/installmodules.lock
+  fi
+}
 
 # Run SQL files into /scripts directory.
 function runScripts()
@@ -437,6 +450,8 @@ function run()
     chown -R www-data:www-data /var/www/documents
   fi
 
+  # Enable/disable lock for addon and external module installation
+  lockModules
 
   # Run scripts before starting
   runScripts "before-starting.d"
