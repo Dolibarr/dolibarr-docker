@@ -287,6 +287,15 @@ Example content: "RemoteIPHeader X-Forwarded-For"
 
 Mountpoint: "/etc/apache2/mods-enabled/remoteip.conf"
 
+### Database Port Configuration
+
+The `DOLI_DB_HOST_PORT` environment variable forces the database port in Dolibarr's configuration (`conf.php`). This is useful when running the database on a non-standard port.
+
+```yaml
+environment:
+  DOLI_DB_HOST: "mariadb"
+  DOLI_DB_HOST_PORT: "3307"
+```
 
 ### Support for PostgreSQL
 
