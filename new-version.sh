@@ -24,29 +24,9 @@ source "${FILE}"
 
 # Parse provided version
 NEW_MAJOR="$(cut -d. -f1 <<< "${NEW_VERSION}")"
-NEW_MINOR="$(cut -d. -f2 <<< "${NEW_VERSION}")"
-NEW_PATCH="$(cut -d. -f3 <<< "${NEW_VERSION}")"
 
-# Parse current latest for comparison
-CUR_MAJOR="$(cut -d. -f1 <<< "${DOLIBARR_LATEST_TAG}")"
-CUR_MINOR="$(cut -d. -f2 <<< "${DOLIBARR_LATEST_TAG}")"
-CUR_PATCH="$(cut -d. -f3 <<< "${DOLIBARR_LATEST_TAG}")"
-
-# Define DOLIBARR_LATEST_TAG/DOLIBARR_VERSION_FOR_INIT_DEMO
-NEW_DOLIBARR_LATEST_TAG="${DOLIBARR_LATEST_TAG}"
-NEW_DOLIBARR_VERSION_FOR_INIT_DEMO="${CUR_MAJOR}.${CUR_MINOR}"
-
-# Decide whether we need to update LATEST_TAG + INIT_DEMO
-if (( NEW_MAJOR > CUR_MAJOR )); then
-  NEW_DOLIBARR_LATEST_TAG="${NEW_VERSION}"
-  NEW_DOLIBARR_VERSION_FOR_INIT_DEMO="${NEW_MAJOR}.${NEW_MINOR}"
-elif (( NEW_MAJOR == CUR_MAJOR && NEW_MINOR > CUR_MINOR )); then
-  NEW_DOLIBARR_LATEST_TAG="${NEW_VERSION}"
-  NEW_DOLIBARR_VERSION_FOR_INIT_DEMO="${NEW_MAJOR}.${NEW_MINOR}"
-elif (( NEW_MAJOR == CUR_MAJOR && NEW_MINOR == CUR_MINOR && NEW_PATCH >= CUR_PATCH )); then
-  NEW_DOLIBARR_LATEST_TAG="${NEW_VERSION}"
-  NEW_DOLIBARR_VERSION_FOR_INIT_DEMO="${NEW_MAJOR}.${NEW_MINOR}"
-fi
+# Note: DOLIBARR_LATEST_TAG and DOLIBARR_VERSION_FOR_INIT_DEMO are derived from
+# DOLIBARR_VERSIONS inside versions.sh, so only DOLIBARR_VERSIONS needs updating.
 
 # Find an existing entry in DOLIBARR_VERSIONS with the same major (XX.*.*)
 existing_index=-1
@@ -102,12 +82,6 @@ while IFS= read -r line; do
 	case "${line}" in
 	DOLIBARR_VERSIONS=\(*)
 		echo "${versions_line}"
-		;;
-	DOLIBARR_LATEST_TAG=*)
-		echo "DOLIBARR_LATEST_TAG=\"${NEW_DOLIBARR_LATEST_TAG}\""
-		;;
-	DOLIBARR_VERSION_FOR_INIT_DEMO=*)
-		echo "DOLIBARR_VERSION_FOR_INIT_DEMO=\"${NEW_DOLIBARR_VERSION_FOR_INIT_DEMO}\""
 		;;
 	*)
 		echo "${line}"
